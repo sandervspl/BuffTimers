@@ -57,7 +57,7 @@ local function onAuraUpdate(auraSlot, index, filter)
 
     local name, _, _, _, _, expirationTime = UnitAura("player", index, filter)
     
-    if (name and (not expirationTime or expirationTime == 0)) then
+    if (name and expirationTime > 0) then
         auraDuration:Show()
     else
         auraDuration:Hide()
