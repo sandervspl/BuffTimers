@@ -1,8 +1,8 @@
 ## Interface: 11302
 ## Title: BuffTimers
 ## Author: mdhippie
-## Notes: v0.1.3 -- Show full buff times
-## Version: 0.1.3
+## Notes: v0.1.4 -- Show full buff times
+## Version: 0.1.4
 ## DefaultState: enabled
 ## SavedVariables: BuffTimersOptions
 

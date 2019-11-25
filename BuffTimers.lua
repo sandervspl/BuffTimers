@@ -78,7 +78,7 @@ function frame:OnEvent(event, arg1)
     if event == "ADDON_LOADED" and arg1 == "BuffTimers" then
         if (not BuffTimersOptions) then
             BuffTimersOptions = {}
-            BuffTimersOptions["seconds"] = false
+            BuffTimersOptions["seconds"] = true
         end
     end
 end
