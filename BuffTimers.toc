@@ -1,0 +1,9 @@
+## Interface: 11302
+## Title: BuffTimers
+## Author: mdhippie
+## Notes: v0.1.0 -- Show full buff times
+## Version: 0.1.0
+## DefaultState: enabled
+## SavedVariables: BuffTimersOptions
+
+BuffTimers.lua
