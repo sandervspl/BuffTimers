@@ -19,6 +19,11 @@ local function formatTime(time)
     local minutes = ceil(time / 60)
     local seconds = floor(mod(time, 60))
 
+    -- When seconds is showing, minutes should no longer be round up
+    if BuffTimersOptions["seconds"] then
+        minutes = minutes - 1
+    end
+
     if minutes > 1 then
         if BuffTimersOptions["seconds"] then
             -- Prefix seconds with a zero
