@@ -1,16 +1,23 @@
 SLASH_BUFFTIMERS1 = "/bufftimers"
 SLASH_BUFFTIMERS2 = "/bt"
 
+local function commandMessage(msg, msg2)
+    DEFAULT_CHAT_FRAME:AddMessage("|caaaaaaaa" .. msg .. "|r" .. " " .. msg2)
+end
+
 SlashCmdList["BUFFTIMERS"] = function(msg)
     msg = string.lower(msg)
 
-    if msg == "seconds" then
+    if msg == "" then
+        DEFAULT_CHAT_FRAME:AddMessage("These are the commands available to the BuffTimers addon:")
+        commandMessage("seconds", "Toggle to show/hide the seconds in the buff time")
+    elseif msg == "seconds" then
         BuffTimersOptions["seconds"] = not BuffTimersOptions["seconds"]
 
         if (BuffTimersOptions["seconds"]) then
-            print("BuffTimers: enabled buffs to display seconds.")
+            DEFAULT_CHAT_FRAME:AddMessage("BuffTimers: enabled buffs to display seconds.")
         else
-            print("BuffTimers: disabled buffs to display seconds.")
+            DEFAULT_CHAT_FRAME:AddMessage("BuffTimers: disabled buffs to display seconds.")
         end
     end
 end
