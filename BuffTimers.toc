@@ -1,4 +1,4 @@
-## Interface: 11304
+## Interface: 11305
 ## Title: BuffTimers
 ## Author: mdhippie
 ## Notes: v1.0.0 -- Show full buff times
