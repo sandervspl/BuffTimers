@@ -6,4 +6,5 @@
 ## DefaultState: enabled
 ## SavedVariables: BuffTimersOptions
 
+Locales.lua
 BuffTimers.lua
