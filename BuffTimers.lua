@@ -12,7 +12,7 @@ local function formatTime(time)
         end
     end
 
-    if isSecondsOption then
+    if isSecondsOption and (time / 60) <= BuffTimersOptions["seconds_threshold"] then
         if minutes >= 1 then
             return minutes .. ":" .. seconds
         else
