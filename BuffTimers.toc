@@ -7,4 +7,6 @@
 ## SavedVariables: BuffTimersOptions
 
 Locales.lua
+Events.lua
+Options.lua
 BuffTimers.lua
