@@ -94,4 +94,34 @@ RegEvent("PLAYER_LOGIN", function()
         local b = createCheckbox(L["Show seconds in buff time"], "seconds", true)
         b:SetPoint("TOPLEFT", f, 15, nextpos())
     end
+
+    do
+        local s = CreateFrame("Slider", f, f, "OptionsSliderTemplate")
+        s:SetOrientation('HORIZONTAL')
+        s:SetHeight(14)
+        s:SetWidth(160)
+        s:SetMinMaxValues(1, 120)
+        s:SetValueStep(1)
+        s.Low:SetText(SecondsToTime(60))
+        s.High:SetText(SecondsToTime(7200))
+
+        local l = s:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+        l:SetPoint("RIGHT", s, "LEFT", -20, 1)
+        l:SetText(L["Show seconds below this time"])
+        
+        s:SetPoint("TOPLEFT", f, 40 + l:GetStringWidth(), nextpos(45))
+
+        local key = "seconds_threshold"
+
+        s:SetScript("OnValueChanged", function(self, value)
+            s.Text:SetText(SecondsToTime(value * 60))
+            SetConfig(key, value)
+        end)
+
+        RegisterKeyChangedCallback(key, function(v)
+            s:SetValue(v)
+        end)
+    
+        triggerCallback(key, GetConfigOrDefault(key, 120))
+    end
 end)
