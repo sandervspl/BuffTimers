@@ -12,13 +12,11 @@ local defs = {}
 local function GetConfigOrDefault(key, def)
     defs[key] = def
 
-    local config = BuffTimersOptions
-
-    if config[key] == nil then
-        config[key] = def
+    if BuffTimersOptions[key] == nil then
+        BuffTimersOptions[key] = def
     end
 
-    return config[key]
+    return BuffTimersOptions[key]
 end
 
 local changedcb = {}
