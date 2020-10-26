@@ -90,7 +90,7 @@ RegEvent("PLAYER_LOGIN", function()
     end
 
     do
-        local b = createCheckbox(L["Show seconds in buff time"], "seconds", true)
+        local b = createCheckbox(L["Show seconds"], "seconds", true)
         b:SetPoint("TOPLEFT", f, 15, nextpos())
     end
 
@@ -127,6 +127,11 @@ RegEvent("PLAYER_LOGIN", function()
 
     do
         local b = createCheckbox(L["Show milliseconds below 5 seconds"], "milliseconds", true)
+        b:SetPoint("TOPLEFT", f, 15, nextpos())
+    end
+
+    do
+        local b = createCheckbox(L["Always yellow text color"], "yellow_text", false)
         b:SetPoint("TOPLEFT", f, 15, nextpos())
     end
 end)

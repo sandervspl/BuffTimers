@@ -16,6 +16,7 @@ local locale = GetLocale()
 
 if locale == "enUs" then
     L["BuffTimers"] = true
-    L["Show seconds below this time"] = true
+    L["Show seconds"] = true
     L["Show milliseconds below 5 seconds"] = true
+    L["Always yellow text color"] = true
 end

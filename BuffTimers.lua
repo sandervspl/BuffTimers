@@ -43,6 +43,11 @@ local function onAuraDurationUpdate(aura, time)
     
     if (time) then
         duration:SetText(formatTime(time))
+
+        if BuffTimersOptions["yellow_text"] then
+            duration:SetTextColor(0.99999779462814, 0.81960606575012, 0)
+        end
+
         duration:Show()
     else
         duration:Hide()
