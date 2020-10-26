@@ -124,4 +124,9 @@ RegEvent("PLAYER_LOGIN", function()
     
         triggerCallback(key, GetConfigOrDefault(key, 120))
     end
+
+    do
+        local b = createCheckbox(L["Show milliseconds below 5 seconds"], "milliseconds", true)
+        b:SetPoint("TOPLEFT", f, 15, nextpos())
+    end
 end)
