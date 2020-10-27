@@ -19,7 +19,7 @@ local function formatTime(time)
 
     local secondsStr = seconds .. "s"
 
-    if seconds < 5 and BuffTimersOptions["milliseconds"] then
+    if minutes < 1 and floor(time % 60) < 5 and BuffTimersOptions["milliseconds"] then
         secondsStr = seconds .. "." .. milliseconds .. "s"
     end
 
