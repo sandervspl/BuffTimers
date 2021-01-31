@@ -3,6 +3,15 @@
         "CreateFrame",
         "SecondsToTime",
         "UIDropDownMenu_AddButton",
-        "GetLocale"
+        "GetLocale",
+        "UIDropDownMenu_CreateInfo",
+        "UIDropDownMenu_SetText",
+        "InterfaceOptions_AddCategory",
+        "UIParent",
+        "floor",
+        "ceil",
+        "getglobal",
+        "UnitAura",
+        "hooksecurefunc"
     ]
 }
