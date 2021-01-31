@@ -11,24 +11,29 @@ local function formatTime(time)
         milliseconds = floor((time % 60) % 1 * 10)
     end
 
+    -- Prefix mins with a zero
+    if remainingMins > 0 and remainingMins < 10 then
+        remainingMins = 0 .. remainingMins
+    end
+
     if not isSecondsOption or minutes >= BuffTimersOptions["seconds_threshold"] then
         minutes = ceil(time / 60)
     else
         -- Prefix seconds with a zero
-        if (minutes > 0 and seconds < 10) then
+        if minutes > 0 and seconds < 10 then
             seconds = 0 .. seconds
         end
     end
 
     local secondsStr = seconds .. "s"
-
     local tempSeconds = floor(time % 60)
+
     if minutes < 1 and tempSeconds < 5 and BuffTimersOptions["milliseconds"] then
         secondsStr = seconds .. "." .. milliseconds .. "s"
     end
 
     if isSecondsOption and minutes < BuffTimersOptions["seconds_threshold"] then
-        if timeStamp == "hm" and hours >= 1 then
+        if timeStamp == "hm" and hours >= 1 and remainingMins > 0 then
             return hours .. ":" .. remainingMins .. ":" .. seconds
         elseif minutes >= 1 then
             return minutes .. ":" .. seconds
@@ -36,7 +41,7 @@ local function formatTime(time)
             return secondsStr
         end
     else
-        if timeStamp == "hm" and hours >= 1 then
+        if timeStamp == "hm" and hours >= 1 and remainingMins > 0 then
             return hours .. ":" .. remainingMins .. "h"
         elseif minutes > 1 then
             return minutes .. "m"
