@@ -2,6 +2,7 @@
     "Lua.diagnostics.globals": [
         "CreateFrame",
         "SecondsToTime",
-        "UIDropDownMenu_AddButton"
+        "UIDropDownMenu_AddButton",
+        "GetLocale"
     ]
 }

@@ -19,4 +19,5 @@ if locale == "enUs" then
     L["Show seconds"] = true
     L["Show milliseconds below 5 seconds"] = true
     L["Always yellow text color"] = true
+    L["Time Stamp Format"] = true
 end
