@@ -16,29 +16,27 @@ local function formatTime(time)
         remainingMins = 0 .. remainingMins
     end
 
+    local secondsStr = seconds
     if not isSecondsOption or minutes >= BuffTimersOptions["seconds_threshold"] then
         minutes = ceil(time / 60)
     else
         -- Prefix seconds with a zero
         if minutes > 0 and seconds < 10 then
-            seconds = 0 .. seconds
+            secondsStr = 0 .. seconds
         end
     end
 
-    local secondsStr = seconds .. "s"
-    local tempSeconds = floor(time % 60)
-
-    if minutes < 1 and tempSeconds < 5 and BuffTimersOptions["milliseconds"] then
-        secondsStr = seconds .. "." .. milliseconds .. "s"
+    if minutes < 1 and seconds < 5 and BuffTimersOptions["milliseconds"] then
+        secondsStr = seconds .. "." .. milliseconds
     end
 
     if isSecondsOption and minutes < BuffTimersOptions["seconds_threshold"] then
         if timeStamp == "hm" and hours >= 1 and remainingMins > 0 then
-            return hours .. ":" .. remainingMins .. ":" .. seconds
+            return hours .. ":" .. remainingMins .. ":" .. secondsStr
         elseif minutes >= 1 then
-            return minutes .. ":" .. seconds
+            return minutes .. ":" .. secondsStr
         else
-            return secondsStr
+            return secondsStr .. "s"
         end
     else
         if timeStamp == "hm" and hours >= 1 and remainingMins > 0 then
@@ -46,12 +44,12 @@ local function formatTime(time)
         elseif minutes > 1 then
             return minutes .. "m"
         else
-            return secondsStr
+            return secondsStr .. "s"
         end
     end
 end
 
-local function onAuraDurationUpdate(aura, time)   
+local function onAuraDurationUpdate(aura, time)
     local duration = getglobal(aura:GetName() .. "Duration")
     
     if (time) then
