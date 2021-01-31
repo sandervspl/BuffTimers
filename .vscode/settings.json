@@ -1,0 +1,7 @@
+{
+    "Lua.diagnostics.globals": [
+        "CreateFrame",
+        "SecondsToTime",
+        "UIDropDownMenu_AddButton"
+    ]
+}

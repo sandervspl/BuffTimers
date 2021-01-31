@@ -95,6 +95,7 @@ RegEvent("PLAYER_LOGIN", function()
     end
 
     do
+        local key = "seconds_threshold"
         local s = CreateFrame("Slider", f, f, "OptionsSliderTemplate")
         s:SetOrientation('HORIZONTAL')
         s:SetHeight(14)
@@ -108,10 +109,8 @@ RegEvent("PLAYER_LOGIN", function()
         l:SetPoint("RIGHT", s, "LEFT", -20, 1)
         l:SetText(L["Show seconds below this time"])
         l:SetTextColor(1, 1, 1)
-        
-        s:SetPoint("TOPLEFT", f, 40 + l:GetStringWidth(), nextpos(45))
 
-        local key = "seconds_threshold"
+        s:SetPoint("TOPLEFT", f, 40 + l:GetStringWidth(), nextpos(45))
 
         s:SetScript("OnValueChanged", function(self, value)
             s.Text:SetText(SecondsToTime(value * 60))
@@ -121,7 +120,7 @@ RegEvent("PLAYER_LOGIN", function()
         RegisterKeyChangedCallback(key, function(v)
             s:SetValue(v)
         end)
-    
+
         triggerCallback(key, GetConfigOrDefault(key, 120))
     end
 
@@ -133,5 +132,36 @@ RegEvent("PLAYER_LOGIN", function()
     do
         local b = createCheckbox(L["Always yellow text color"], "yellow_text", false)
         b:SetPoint("TOPLEFT", f, 15, nextpos())
+    end
+
+    do
+        local key = "time_stamp"
+        local options = {"minutes (119m)", "h:mm (1:59)"}
+        local d = CreateFrame("Frame", f, f, "UIDropDownMenuTemplate")
+
+        local l = d:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+        l:SetPoint("RIGHT", d, "LEFT", -20, 1)
+        l:SetText(L["Time Stamp Format"])
+        l:SetTextColor(1, 1, 1)
+
+        d:SetPoint("TOPLEFT", f, 40 + l:GetStringWidth(), nextpos(45))
+
+        d.initialize = function()
+            for i, option in next, options do
+                local info = UIDropDownMenu_CreateInfo()
+                info.text = options[i]
+                info.value = option
+                info.checked = option == GetConfigOrDefault(key, options[1])
+                info.func = function(self)
+                    SetConfig(key, self.value)
+                    UIDropDownMenu_SetText(d, self.value)
+                end
+
+                UIDropDownMenu_AddButton(info)
+            end
+        end
+        UIDropDownMenu_SetText(d, GetConfigOrDefault(key, options[1]))
+
+        triggerCallback(key, GetConfigOrDefault(key, options[1]))
     end
 end)
