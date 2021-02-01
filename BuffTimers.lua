@@ -6,7 +6,7 @@ local function formatTime(time)
     local seconds = floor(time % 60)
     local minutes = floor(time / 60)
     local hours = floor(minutes / 60)
-    local remainingMins = minutes % 60 -- This calculates minutes beyond 1 hour
+    local remainingMins = ceil(time / 60 % 60) -- This calculates minutes beyond 1 hour
     local milliseconds = 0
 
     if minutes == 0 and seconds < 5 then
