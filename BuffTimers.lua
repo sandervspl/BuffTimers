@@ -26,7 +26,7 @@ local function formatTime(time)
     end
 
     -- Prefix mins with a zero
-    if remainingMins > 0 and remainingMins < 10 then
+    if remainingMins < 10 then
         remainingMinsStr = 0 .. remainingMins
     end
 
@@ -44,7 +44,13 @@ local function formatTime(time)
         end
     else
         if timeStamp == "hm" and minutes > 60 then
-            return hours .. ":" .. remainingMinsStr .. "h"
+            if remainingMins > 0 then
+                remainingMinsStr = ":" .. remainingMinsStr
+            else
+                remainingMinsStr = ""
+            end
+
+            return hours .. remainingMinsStr .. "h"
         elseif minutes > 1 then
             return minutes .. "m"
         else
