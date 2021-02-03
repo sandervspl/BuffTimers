@@ -90,7 +90,43 @@ RegEvent("PLAYER_LOGIN", function()
     end
 
     do
-        local b = createCheckbox(L["Show seconds"], "seconds", false)
+        local key = "time_stamp"
+        local options = {
+            ["m"] = "minutes (119m)",
+            ["hm"] = "h:mm (1:59h)",
+        }
+        local d = CreateFrame("Frame", f, f, "UIDropDownMenuTemplate")
+
+        local l = d:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+        l:SetPoint("RIGHT", d, "LEFT", -20, 1)
+        l:SetText(L["Time Stamp Format"])
+        l:SetTextColor(1, 1, 1)
+
+        d:SetPoint("TOPLEFT", f, 40 + l:GetStringWidth(), nextpos(45))
+
+        d.initialize = function()
+            for k, option in next, options do
+                local info = UIDropDownMenu_CreateInfo()
+                info.text = options[k]
+                info.value = k
+                info.checked = k == GetConfigOrDefault(key, "m")
+                info.func = function(self)
+                    SetConfig(key, self.value)
+                    UIDropDownMenu_SetText(d, options[self.value])
+                end
+
+                UIDropDownMenu_AddButton(info)
+            end
+        end
+        UIDropDownMenu_SetText(d, options[GetConfigOrDefault(key, "m")])
+
+        triggerCallback(key, GetConfigOrDefault(key, "m"))
+
+        print(GetConfigOrDefault(key, "m"))
+    end
+
+    do
+        local b = createCheckbox(L["Show seconds"], "seconds", true)
         b:SetPoint("TOPLEFT", f, 15, nextpos())
     end
 
@@ -121,7 +157,7 @@ RegEvent("PLAYER_LOGIN", function()
             s:SetValue(v)
         end)
 
-        triggerCallback(key, GetConfigOrDefault(key, 30))
+        triggerCallback(key, GetConfigOrDefault(key, 120))
     end
 
     do
@@ -132,36 +168,5 @@ RegEvent("PLAYER_LOGIN", function()
     do
         local b = createCheckbox(L["Always yellow text color"], "yellow_text", false)
         b:SetPoint("TOPLEFT", f, 15, nextpos())
-    end
-
-    do
-        local key = "time_stamp"
-        local options = {"minutes (119m)", "h:mm (1:59)"}
-        local d = CreateFrame("Frame", f, f, "UIDropDownMenuTemplate")
-
-        local l = d:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-        l:SetPoint("RIGHT", d, "LEFT", -20, 1)
-        l:SetText(L["Time Stamp Format"])
-        l:SetTextColor(1, 1, 1)
-
-        d:SetPoint("TOPLEFT", f, 40 + l:GetStringWidth(), nextpos(45))
-
-        d.initialize = function()
-            for i, option in next, options do
-                local info = UIDropDownMenu_CreateInfo()
-                info.text = options[i]
-                info.value = option
-                info.checked = option == GetConfigOrDefault(key, options[1])
-                info.func = function(self)
-                    SetConfig(key, self.value)
-                    UIDropDownMenu_SetText(d, self.value)
-                end
-
-                UIDropDownMenu_AddButton(info)
-            end
-        end
-        UIDropDownMenu_SetText(d, GetConfigOrDefault(key, options[1]))
-
-        triggerCallback(key, GetConfigOrDefault(key, options[1]))
     end
 end)
