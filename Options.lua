@@ -121,8 +121,6 @@ RegEvent("PLAYER_LOGIN", function()
         UIDropDownMenu_SetText(d, options[GetConfigOrDefault(key, options["m"])])
 
         triggerCallback(key, GetConfigOrDefault(key, options["m"]))
-
-        print(GetConfigOrDefault(key, options["m"]))
     end
 
     do
