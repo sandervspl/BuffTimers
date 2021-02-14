@@ -118,9 +118,9 @@ RegEvent("PLAYER_LOGIN", function()
                 UIDropDownMenu_AddButton(info)
             end
         end
-        UIDropDownMenu_SetText(d, options[GetConfigOrDefault(key, options["m"])])
+        UIDropDownMenu_SetText(d, options[GetConfigOrDefault(key, "m")])
 
-        triggerCallback(key, GetConfigOrDefault(key, options["m"]))
+        triggerCallback(key, GetConfigOrDefault(key, "m"))
     end
 
     do
