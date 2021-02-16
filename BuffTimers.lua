@@ -18,7 +18,7 @@ local function formatTime(time)
     local hourMinsStr = hourMins
     local secondsStr = seconds
 
-    local isBelowShowSecThreshold = minutes < showSecondsThreshold
+    local isBelowShowSecThreshold = isSecondsOption and minutes < showSecondsThreshold
     local isBelowShowMillisecThreshold = minutes < 1 and seconds < 5
 
     -- Determine if we show time as "h:mm" if not we fall back to minutes
