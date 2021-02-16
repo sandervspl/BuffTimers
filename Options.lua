@@ -124,7 +124,7 @@ RegEvent("PLAYER_LOGIN", function()
     end
 
     do
-        local b = createCheckbox(L["Show seconds"], "seconds", true)
+        local b = createCheckbox(L["Show seconds"], "seconds", false)
         b:SetPoint("TOPLEFT", f, 15, nextpos())
     end
 
@@ -155,7 +155,7 @@ RegEvent("PLAYER_LOGIN", function()
             s:SetValue(v)
         end)
 
-        triggerCallback(key, GetConfigOrDefault(key, 120))
+        triggerCallback(key, GetConfigOrDefault(key, 30))
     end
 
     do
