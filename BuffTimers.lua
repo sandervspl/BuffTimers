@@ -6,6 +6,7 @@ local function formatTime(time)
 
     local timeStamp = BuffTimersOptions["time_stamp"]
     local isSecondsOption = BuffTimersOptions["seconds"]
+    local isMillisecondsOption = BuffTimersOptions["milliseconds"]
     local showSecondsThreshold = BuffTimersOptions["seconds_threshold"]
     local seconds = floor(time % 60)
     local minutes = floor(time / 60)
@@ -19,7 +20,7 @@ local function formatTime(time)
     local secondsStr = seconds
 
     local isBelowShowSecThreshold = isSecondsOption and minutes < showSecondsThreshold
-    local isBelowShowMillisecThreshold = minutes < 1 and seconds < 5
+    local isBelowShowMillisecThreshold = isMillisecondsOption and minutes < 1 and seconds < 5
 
     -- Determine if we show time as "h:mm" if not we fall back to minutes
     if timeStamp == "hm"
