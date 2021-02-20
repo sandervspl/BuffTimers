@@ -101,10 +101,13 @@ local function formatTime(time)
                 str = str .. "s"
             end
         else
-            -- If not showing seconds, we should only show minutes and round up (Blizzlike)
-            minutes = ceil(time / 60)
-
-            str = str .. minutes .. "m"
+            -- If duration is less than an hour and seconds option is not toggled
+            if minutes < 1 then
+                str = str .. seconds .. "s"
+            else
+                minutes = ceil(time / 60)
+                str = str .. minutes .. "m"
+            end
         end
     end
 
