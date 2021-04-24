@@ -1,8 +1,8 @@
-## Interface: 11306
+## Interface: 11307
 ## Title: BuffTimers
 ## Author: mdhippie
-## Notes: v1.4.4 -- Buff time options
-## Version: 1.4.4
+## Notes: v1.4.5 -- Buff time options
+## Version: 1.4.5
 ## DefaultState: enabled
 ## SavedVariables: BuffTimersOptions
 
