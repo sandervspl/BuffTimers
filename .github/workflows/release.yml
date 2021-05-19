@@ -1,0 +1,34 @@
+name: Package and publish addon
+
+on:
+  push:
+    tags:
+      - '**'
+    paths-ignore:
+      - '.github/**'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    env:
+      CF_API_KEY: ${{ secrets.CF_API_KEY }}
+      GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Clone project
+        uses: actions/checkout@v1
+
+      - name: Package and release Classic
+        uses: BigWigsMods/packager@master
+        with:
+          args: -g classic
+        
+
+      - name: Package and release BCC
+        uses: BigWigsMods/packager@master
+        with:
+          args: -g bcc
+
+      - name: Package and release Retail
+        uses: BigWigsMods/packager@master
