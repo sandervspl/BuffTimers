@@ -1,10 +1,19 @@
-## Interface: 11307
+## Interface: 20501
+## Interface-Classic: 11307
+## Interface-BCC: 20501
+## Interface-Retail: 90005
 ## Title: BuffTimers
 ## Author: mdhippie
-## Notes: v1.4.5 -- Buff time options
-## Version: 1.4.5
+## Notes: @project-version@ -- Buff time options
+## Version: @project-version@
 ## DefaultState: enabled
 ## SavedVariables: BuffTimersOptions
+
+## X-Category: Buffs & Debuffs
+## X-Credits: mdhippie
+## X-License: All Rights Reserved: You are free to fork and modify on GitHub, please ask us about anything else.
+## X-Website: https://github.com/sandervspl/BuffTimers
+## X-Curse-Project-ID: 352620
 
 Locales.lua
 Events.lua
