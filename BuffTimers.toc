@@ -14,6 +14,7 @@
 ## X-License: All Rights Reserved: You are free to fork and modify on GitHub, please ask us about anything else.
 ## X-Website: https://github.com/sandervspl/BuffTimers
 ## X-Curse-Project-ID: 352620
+## X-Wago-ID: XrNkde6a
 
 Locales.lua
 Events.lua
