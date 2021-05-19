@@ -21,3 +21,11 @@ if locale == "enUs" then
     L["Always yellow text color"] = true
     L["Time Stamp Format"] = true
 end
+
+if locale == "ruRU" then
+    L["BuffTimers"] = "BuffTimers"
+    L["Show seconds"] = "Показать секунды"
+    L["Show milliseconds below 5 seconds"] = "Показывать миллисекунды когда осталось меньше 5 секунд"
+    L["Always yellow text color"] = "Всегда желтый цвет текста"
+    L["Time Stamp Format"] = "Формат отметки времени"
+end
