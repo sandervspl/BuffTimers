@@ -20,9 +20,6 @@ jobs:
       - name: Clone project
         uses: actions/checkout@v1
 
-      - name: Package and release Retail
-        uses: BigWigsMods/packager@master
-
       - name: Package and release Classic
         uses: BigWigsMods/packager@master
         with:

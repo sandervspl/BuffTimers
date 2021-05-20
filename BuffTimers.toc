@@ -1,7 +1,6 @@
-## Interface: 90005
+## Interface: 20501
 ## Interface-Classic: 11307
 ## Interface-BCC: 20501
-## Interface-Retail: 90005
 ## Title: BuffTimers
 ## Author: mdhippie
 ## Notes: @project-version@ -- Buff time options
