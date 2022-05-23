@@ -14,7 +14,7 @@ ADDONSELF.L = L
 
 local locale = GetLocale()
 
-if locale == "enUs" then
+if locale == "enUS" then
     L["BuffTimers"] = true
     L["Show seconds"] = true
     L["Show milliseconds below 5 seconds"] = true
@@ -22,10 +22,20 @@ if locale == "enUs" then
     L["Time Stamp Format"] = true
 end
 
+-- Russian translation by: Hubbotu
 if locale == "ruRU" then
     L["BuffTimers"] = "BuffTimers"
     L["Show seconds"] = "Показать секунды"
     L["Show milliseconds below 5 seconds"] = "Показывать миллисекунды когда осталось меньше 5 секунд"
     L["Always yellow text color"] = "Всегда желтый цвет текста"
     L["Time Stamp Format"] = "Формат отметки времени"
+end
+
+-- German translation by: ysjoelfir
+if locale == "deDE" then
+    L["BuffTimers"] = "BuffTimers"
+    L["Show seconds"] = "Sekunden anzeigen"
+    L["Show milliseconds below 5 seconds"] = "Zeige Millisekunden unter 5 Sekunden"
+    L["Always yellow text color"] = "Textfarbe immer gelb"
+    L["Time Stamp Format"] = "Zeitstempelformat"
 end
