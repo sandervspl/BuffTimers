@@ -14,14 +14,6 @@ ADDONSELF.L = L
 
 local locale = GetLocale()
 
-if locale == "enUS" then
-    L["BuffTimers"] = true
-    L["Show seconds"] = true
-    L["Show milliseconds below 5 seconds"] = true
-    L["Always yellow text color"] = true
-    L["Time Stamp Format"] = true
-end
-
 -- Russian translation by: Hubbotu
 if locale == "ruRU" then
     L["BuffTimers"] = "BuffTimers"
