@@ -1,3 +1,9 @@
+local function getMilliseconds(time)
+    local milliseconds = floor((time % 60) % 1 * 10)
+
+    return milliseconds
+end
+
 local function formatTime(time)
     -- IF YOU ARE READING THIS YOU ARE PROBABLY A NERD AS WELL
     -- IF YOU KNOW A BETTER WAY TO WRITE THIS CODE PLEASE DM ME
@@ -93,7 +99,7 @@ local function formatTime(time)
                 str = seconds
 
                 if isBelowShowMillisecThreshold then
-                    milliseconds = floor((time % 60) % 1 * 10)
+                    milliseconds = getMilliseconds(time)
 
                     str = str .. "." .. milliseconds
                 end
@@ -103,7 +109,15 @@ local function formatTime(time)
         else
             -- If duration is less than an hour and seconds option is not toggled
             if minutes < 1 then
-                str = str .. seconds .. "s"
+                str = seconds
+
+                if isBelowShowMillisecThreshold then
+                    milliseconds = getMilliseconds(time)
+
+                    str = str .. "." .. milliseconds
+                end
+
+                str = str .. "s"
             else
                 minutes = ceil(time / 60)
                 str = str .. minutes .. "m"
