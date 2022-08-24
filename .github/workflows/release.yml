@@ -3,9 +3,9 @@ name: Package and publish addon
 on:
   push:
     tags:
-      - '**'
+      - "**"
     paths-ignore:
-      - '.github/**'
+      - ".github/**"
 
 jobs:
   release:
@@ -29,3 +29,8 @@ jobs:
         uses: BigWigsMods/packager@master
         with:
           args: -g bcc
+
+      - name: Package and release Wrath
+        uses: BigWigsMods/packager@master
+        with:
+          args: -g wrath
