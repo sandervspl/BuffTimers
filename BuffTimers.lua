@@ -128,42 +128,33 @@ local function formatTime(time)
     return str
 end
 
-local function onAuraDurationUpdate(aura, time)
-    local duration = getglobal(aura:GetName() .. "Duration")
-    
-    if (time) then
-        duration:SetText(formatTime(time))
+local function onAuraDurationUpdate(aura, timeLeft)
+    if (timeLeft) then
+        aura.duration:SetText(formatTime(timeLeft))
 
         if BuffTimersOptions["yellow_text"] then
-            duration:SetTextColor(0.99999779462814, 0.81960606575012, 0)
+            aura.duration:SetTextColor(0.99999779462814, 0.81960606575012, 0)
         end
 
-        duration:Show()
+        aura.duration:Show()
     else
-        duration:Hide()
+        aura.duration:Hide()
     end
 end
 
-local function onAuraUpdate(auraSlot, index, filter)
-    local auraName = auraSlot .. index
-    local aura = getglobal(auraName)
-    local auraDuration = getglobal(auraName .. "Duration")
-    
-    if not auraDuration then
-        return
-    end
-
-    local name, _, _, _, _, expirationTime = UnitAura("player", index, filter)
-    
-    if (name and expirationTime > 0) then
-        auraDuration:Show()
+local function onAuraUpdate(aura)
+    if (aura.buttonInfo.expirationTime > 0) then
+        aura.duration:Show()
     else
-        auraDuration:Hide()
+        aura.duration:Hide()
     end
 end
 
 -- Add or remove aura event
-hooksecurefunc("AuraButton_Update", onAuraUpdate)
+hooksecurefunc(BuffButtonMixin, "OnUpdate", onAuraUpdate)
+hooksecurefunc(DebuffButtonMixin, "OnUpdate", onAuraUpdate)
 
 -- Aura duration update event
-hooksecurefunc("AuraButton_UpdateDuration", onAuraDurationUpdate)
+hooksecurefunc(BuffButtonMixin, "UpdateDuration", onAuraDurationUpdate)
+hooksecurefunc(DebuffButtonMixin, "UpdateDuration", onAuraDurationUpdate)
+ 
