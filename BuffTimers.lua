@@ -1,3 +1,7 @@
+local function IsRetail()
+  return WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
+end
+
 local function getMilliseconds(time)
     local milliseconds = floor((time % 60) % 1 * 10)
 
@@ -151,10 +155,17 @@ local function onAuraUpdate(aura)
 end
 
 -- Add or remove aura event
-hooksecurefunc(BuffButtonMixin, "OnUpdate", onAuraUpdate)
-hooksecurefunc(DebuffButtonMixin, "OnUpdate", onAuraUpdate)
+if IsRetail() then
+    hooksecurefunc(BuffButtonMixin, "OnUpdate", onAuraUpdate)
+    hooksecurefunc(DebuffButtonMixin, "OnUpdate", onAuraUpdate)
+else
+    hooksecurefunc("AuraButton_Update", onAuraUpdate)
+end
 
 -- Aura duration update event
-hooksecurefunc(BuffButtonMixin, "UpdateDuration", onAuraDurationUpdate)
-hooksecurefunc(DebuffButtonMixin, "UpdateDuration", onAuraDurationUpdate)
- 
+if IsRetail() then
+    hooksecurefunc(BuffButtonMixin, "UpdateDuration", onAuraDurationUpdate)
+    hooksecurefunc(DebuffButtonMixin, "UpdateDuration", onAuraDurationUpdate)
+else
+    hooksecurefunc("AuraButton_UpdateDuration", onAuraDurationUpdate)
+end
