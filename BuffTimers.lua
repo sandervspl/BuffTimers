@@ -1,5 +1,5 @@
 local function IsRetail()
-  return WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
+    return WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 end
 
 local function getMilliseconds(time)
@@ -33,11 +33,11 @@ local function formatTime(time)
     local isBelowShowMillisecThreshold = isMillisecondsOption and minutes < 1 and seconds < 5
 
     -- Determine if we show time as "h:mm" if not we fall back to minutes
-    if timeStamp == "hm"
-    and (
-        (minutes >= 59 and not isBelowShowSecThreshold) -- Cases like 1h, 1:01h
-        or (minutes >= 60 and isBelowShowSecThreshold) -- Cases like 1:00:59
-    ) then
+    if
+        timeStamp == "hm" and
+            ((minutes >= 59 and not isBelowShowSecThreshold) or -- Cases like 1h, 1:01h
+                (minutes >= 60 and isBelowShowSecThreshold)) -- Cases like 1:00:59
+     then
         -- Display as 2h / 1h etc without minutes
         if hourMins == 60 then
             hours = ceil(time / 60 / 60)
@@ -49,9 +49,10 @@ local function formatTime(time)
         end
 
         -- Determine if we show hourMins
-        if (minutes >= 60 and hourMins < 60) -- Cases like 1:01h through 1:59h
-        or (isBelowShowSecThreshold and minutes >= 59 and hourMins <= 60) -- Cases like 2:00:59
-        then
+        if
+            (minutes >= 60 and hourMins < 60) or -- Cases like 1:01h through 1:59h
+                (isBelowShowSecThreshold and minutes >= 59 and hourMins <= 60)
+         then -- Cases like 2:00:59
             if isBelowShowSecThreshold then
                 -- Determine if we need to show hourMins as a zero (because it ranges between 1 and 60, and 60 == 0)
                 if hourMins == 60 then
@@ -132,40 +133,68 @@ local function formatTime(time)
     return str
 end
 
-local function onAuraDurationUpdate(aura, timeLeft)
-    if (timeLeft) then
-        aura.duration:SetText(formatTime(timeLeft))
-
-        if BuffTimersOptions["yellow_text"] then
-            aura.duration:SetTextColor(0.99999779462814, 0.81960606575012, 0)
-        end
-
-        aura.duration:Show()
-    else
-        aura.duration:Hide()
-    end
-end
-
-local function onAuraUpdate(aura)
-    if (aura.buttonInfo.expirationTime > 0) then
-        aura.duration:Show()
-    else
-        aura.duration:Hide()
-    end
-end
-
--- Add or remove aura event
 if IsRetail() then
+    local function onAuraDurationUpdate(aura, timeLeft)
+        if (timeLeft) then
+            aura.duration:SetText(formatTime(timeLeft))
+
+            if BuffTimersOptions["yellow_text"] then
+                aura.duration:SetTextColor(0.99999779462814, 0.81960606575012, 0)
+            end
+
+            aura.duration:Show()
+        else
+            aura.duration:Hide()
+        end
+    end
+
+    local function onAuraUpdate(aura)
+        if (aura.buttonInfo.expirationTime > 0) then
+            aura.duration:Show()
+        else
+            aura.duration:Hide()
+        end
+    end
+
     hooksecurefunc(BuffButtonMixin, "OnUpdate", onAuraUpdate)
     hooksecurefunc(DebuffButtonMixin, "OnUpdate", onAuraUpdate)
-else
-    hooksecurefunc("AuraButton_Update", onAuraUpdate)
-end
 
--- Aura duration update event
-if IsRetail() then
     hooksecurefunc(BuffButtonMixin, "UpdateDuration", onAuraDurationUpdate)
     hooksecurefunc(DebuffButtonMixin, "UpdateDuration", onAuraDurationUpdate)
 else
+    local function onAuraDurationUpdate(aura, time)
+        local duration = getglobal(aura:GetName() .. "Duration")
+
+        if (time) then
+            duration:SetText(formatTime(time))
+
+            if BuffTimersOptions["yellow_text"] then
+                duration:SetTextColor(0.99999779462814, 0.81960606575012, 0)
+            end
+
+            duration:Show()
+        else
+            duration:Hide()
+        end
+    end
+
+    local function onAuraUpdate(auraSlot, index, filter)
+        local auraName = auraSlot .. index
+        local auraDuration = getglobal(auraName .. "Duration")
+
+        if not auraDuration then
+            return
+        end
+
+        local name, _, _, _, _, expirationTime = UnitAura("player", index, filter)
+
+        if (name and expirationTime > 0) then
+            auraDuration:Show()
+        else
+            auraDuration:Hide()
+        end
+    end
+
+    hooksecurefunc("AuraButton_Update", onAuraUpdate)
     hooksecurefunc("AuraButton_UpdateDuration", onAuraDurationUpdate)
 end
