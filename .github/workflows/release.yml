@@ -23,6 +23,11 @@ jobs:
       - name: Package and release Retail
         uses: BigWigsMods/packager@master
 
+      - name: Package and release Classic Era
+        uses: BigWigsMods/packager@master
+        with:
+          args: -g classic
+
       - name: Package and release Wrath
         uses: BigWigsMods/packager@master
         with:
