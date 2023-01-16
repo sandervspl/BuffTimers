@@ -3,9 +3,15 @@ local function IsRetail()
 end
 
 local function getMilliseconds(time)
-    local milliseconds = floor((time % 60) % 1 * 10)
+    return floor((time % 60) % 1 * 10)
+end
 
-    return milliseconds
+local function getMinutes(time)
+    if time then
+        return floor(time / 60)
+    end
+
+    return 0
 end
 
 local function formatTime(time)
@@ -19,10 +25,10 @@ local function formatTime(time)
     local isMillisecondsOption = BuffTimersOptions["milliseconds"]
     local showSecondsThreshold = BuffTimersOptions["seconds_threshold"]
     local seconds = floor(time % 60)
-    local minutes = floor(time / 60)
+    local minutes = getMinutes(time)
     local hours = floor(time / 60 / 60)
     local hourMins = ceil(time / 60 % 60) -- This calculates minutes beyond 1 hour
-    local days = ceil(time / 60 / 60 / 24)
+    local days = ceil(hours / 24)
     local milliseconds = 0
 
     -- Used so we don't accidentally compare numbers with strings
@@ -139,14 +145,25 @@ local function formatTime(time)
     return str
 end
 
-if IsRetail() then
-    local function onAuraDurationUpdate(aura, timeLeft)
-        if (timeLeft) then
-            aura.duration:SetText(formatTime(timeLeft))
+local function setDurationColor(duration, time)
+    if BuffTimersOptions["yellow_text"] then
+        duration:SetTextColor(0.99999779462814, 0.81960606575012, 0)
+    elseif BuffTimersOptions["colored_text"] then
+        if getMinutes(time) >= 10 then
+            duration:SetTextColor(0.1, 1, 0.1) -- Green
+        elseif getMinutes(time) >= 1 then
+            duration:SetTextColor(0.99999779462814, 0.81960606575012, 0) -- Yellow
+        else
+            duration:SetTextColor(1, 0.1, 0.1) -- Red
+        end
+    end
+end
 
-            if BuffTimersOptions["yellow_text"] then
-                aura.duration:SetTextColor(0.99999779462814, 0.81960606575012, 0)
-            end
+if IsRetail() then
+    local function onAuraDurationUpdate(aura, time)
+        if time then
+            aura.duration:SetText(formatTime(time))
+            setDurationColor(aura.duration, time)
 
             aura.duration:Show()
         else
@@ -155,7 +172,7 @@ if IsRetail() then
     end
 
     local function onAuraUpdate(aura)
-        if (aura.buttonInfo.expirationTime > 0) then
+        if aura.buttonInfo.expirationTime > 0 then
             aura.duration:Show()
         else
             aura.duration:Hide()
@@ -171,12 +188,9 @@ else
     local function onAuraDurationUpdate(aura, time)
         local duration = getglobal(aura:GetName() .. "Duration")
 
-        if (time) then
+        if time then
             duration:SetText(formatTime(time))
-
-            if BuffTimersOptions["yellow_text"] then
-                duration:SetTextColor(0.99999779462814, 0.81960606575012, 0)
-            end
+            setDurationColor(aura.duration, time)
 
             duration:Show()
         else
@@ -194,7 +208,7 @@ else
 
         local name, _, _, _, _, expirationTime = UnitAura("player", index, filter)
 
-        if (name and expirationTime > 0) then
+        if name and expirationTime > 0 then
             auraDuration:Show()
         else
             auraDuration:Hide()
