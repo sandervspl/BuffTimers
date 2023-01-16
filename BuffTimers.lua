@@ -22,6 +22,7 @@ local function formatTime(time)
     local minutes = floor(time / 60)
     local hours = floor(time / 60 / 60)
     local hourMins = ceil(time / 60 % 60) -- This calculates minutes beyond 1 hour
+    local days = ceil(time / 60 / 60 / 24)
     local milliseconds = 0
 
     -- Used so we don't accidentally compare numbers with strings
@@ -32,12 +33,17 @@ local function formatTime(time)
     local isBelowShowSecThreshold = isSecondsOption and minutes < showSecondsThreshold
     local isBelowShowMillisecThreshold = isMillisecondsOption and minutes < 1 and seconds < 5
 
-    -- Determine if we show time as "h:mm" if not we fall back to minutes
+    -- If time is more than 24 hours, just render the amount of days
+    if hours >= 24 then
+        return days .. "d"
+    end
+    
+     -- Determine if we show time as "h:mm" if not we fall back to minutes
     if
         timeStamp == "hm" and
             ((minutes >= 59 and not isBelowShowSecThreshold) or -- Cases like 1h, 1:01h
                 (minutes >= 60 and isBelowShowSecThreshold)) -- Cases like 1:00:59
-     then
+    then
         -- Display as 2h / 1h etc without minutes
         if hourMins == 60 then
             hours = ceil(time / 60 / 60)
