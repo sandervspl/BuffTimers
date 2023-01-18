@@ -159,46 +159,28 @@ local function setDurationColor(duration, time)
     end
 end
 
-if IsRetail() then
-    local function onAuraDurationUpdate(aura, time)
-        if time then
-            aura.duration:SetText(formatTime(time))
-            setDurationColor(aura.duration, time)
+local function onAuraDurationUpdate(aura, time)
+    if time then
+        aura.duration:SetText(formatTime(time))
+        setDurationColor(aura.duration, time)
 
-            aura.duration:Show()
-        else
-            aura.duration:Hide()
-        end
+        aura.duration:Show()
+    else
+        aura.duration:Hide()
     end
+end
 
-    local function onAuraUpdate(aura)
+local function onAuraUpdate(...)
+    if IsRetail() then
+        local aura = ...
+
         if aura.buttonInfo.expirationTime > 0 then
             aura.duration:Show()
         else
             aura.duration:Hide()
         end
-    end
-
-    hooksecurefunc(BuffButtonMixin, "OnUpdate", onAuraUpdate)
-    hooksecurefunc(DebuffButtonMixin, "OnUpdate", onAuraUpdate)
-
-    hooksecurefunc(BuffButtonMixin, "UpdateDuration", onAuraDurationUpdate)
-    hooksecurefunc(DebuffButtonMixin, "UpdateDuration", onAuraDurationUpdate)
-else
-    local function onAuraDurationUpdate(aura, time)
-        local duration = getglobal(aura:GetName() .. "Duration")
-
-        if time then
-            duration:SetText(formatTime(time))
-            setDurationColor(aura.duration, time)
-
-            duration:Show()
-        else
-            duration:Hide()
-        end
-    end
-
-    local function onAuraUpdate(auraSlot, index, filter)
+    else
+        auraSlot, index, filter = ...
         local auraName = auraSlot .. index
         local auraDuration = getglobal(auraName .. "Duration")
 
@@ -214,7 +196,15 @@ else
             auraDuration:Hide()
         end
     end
+end
 
+if IsRetail() then
+    hooksecurefunc(BuffButtonMixin, "OnUpdate", onAuraUpdate)
+    hooksecurefunc(DebuffButtonMixin, "OnUpdate", onAuraUpdate)
+
+    hooksecurefunc(BuffButtonMixin, "UpdateDuration", onAuraDurationUpdate)
+    hooksecurefunc(DebuffButtonMixin, "UpdateDuration", onAuraDurationUpdate)
+else
     hooksecurefunc("AuraButton_Update", onAuraUpdate)
     hooksecurefunc("AuraButton_UpdateDuration", onAuraDurationUpdate)
 end
