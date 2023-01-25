@@ -160,13 +160,18 @@ local function setDurationColor(duration, time)
 end
 
 local function onAuraDurationUpdate(aura, time)
-    if time then
-        aura.Duration:SetText(formatTime(time))
-        setDurationColor(aura.Duration, time)
+    local duration = aura.duration
+    if IsRetail() then
+        duration = aura.Duration
+    end
 
-        aura.Duration:Show()
+    if time then
+        duration:SetText(formatTime(time))
+        setDurationColor(duration, time)
+
+        duration:Show()
     else
-        aura.Duration:Hide()
+        duration:Hide()
     end
 end
 
