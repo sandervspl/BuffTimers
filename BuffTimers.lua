@@ -161,12 +161,12 @@ end
 
 local function onAuraDurationUpdate(aura, time)
     if time then
-        aura.duration:SetText(formatTime(time))
-        setDurationColor(aura.duration, time)
+        aura.Duration:SetText(formatTime(time))
+        setDurationColor(aura.Duration, time)
 
-        aura.duration:Show()
+        aura.Duration:Show()
     else
-        aura.duration:Hide()
+        aura.Duration:Hide()
     end
 end
 
@@ -175,9 +175,9 @@ local function onAuraUpdate(...)
         local aura = ...
 
         if aura.buttonInfo.expirationTime > 0 then
-            aura.duration:Show()
+            aura.Duration:Show()
         else
-            aura.duration:Hide()
+            aura.Duration:Hide()
         end
     else
         auraSlot, index, filter = ...
@@ -199,11 +199,10 @@ local function onAuraUpdate(...)
 end
 
 if IsRetail() then
-    hooksecurefunc(BuffButtonMixin, "OnUpdate", onAuraUpdate)
-    hooksecurefunc(DebuffButtonMixin, "OnUpdate", onAuraUpdate)
-
-    hooksecurefunc(BuffButtonMixin, "UpdateDuration", onAuraDurationUpdate)
-    hooksecurefunc(DebuffButtonMixin, "UpdateDuration", onAuraDurationUpdate)
+    for _, button in ipairs(BuffFrame.auraFrames) do
+        hooksecurefunc(button, "OnUpdate", onAuraUpdate)
+        hooksecurefunc(button, "UpdateDuration", onAuraDurationUpdate)
+    end
 else
     hooksecurefunc("AuraButton_Update", onAuraUpdate)
     hooksecurefunc("AuraButton_UpdateDuration", onAuraDurationUpdate)
