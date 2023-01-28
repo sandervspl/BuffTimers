@@ -1,6 +1,5 @@
-local function IsRetail()
-    return WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
-end
+
+local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 
 local function getMilliseconds(time)
     return floor((time % 60) % 1 * 10)
@@ -160,10 +159,7 @@ local function setDurationColor(duration, time)
 end
 
 local function onAuraDurationUpdate(aura, time)
-    local duration = aura.duration
-    if IsRetail() then
-        duration = aura.Duration
-    end
+    local duration = IsRetail and aura.Duration or aura.duration
 
     if time then
         duration:SetText(formatTime(time))
@@ -176,7 +172,7 @@ local function onAuraDurationUpdate(aura, time)
 end
 
 local function onAuraUpdate(...)
-    if IsRetail() then
+    if IsRetail then
         local aura = ...
 
         if aura.buttonInfo.expirationTime > 0 then
@@ -185,7 +181,7 @@ local function onAuraUpdate(...)
             aura.Duration:Hide()
         end
     else
-        auraSlot, index, filter = ...
+        local auraSlot, index, filter = ...
         local auraName = auraSlot .. index
         local auraDuration = getglobal(auraName .. "Duration")
 
@@ -203,10 +199,14 @@ local function onAuraUpdate(...)
     end
 end
 
-if IsRetail() then
-    for _, button in ipairs(BuffFrame.auraFrames) do
-        hooksecurefunc(button, "OnUpdate", onAuraUpdate)
-        hooksecurefunc(button, "UpdateDuration", onAuraDurationUpdate)
+if IsRetail then
+    local frames = { BuffFrame, DebuffFrame }
+
+    for i = 1, #frames do
+        for _, button in ipairs(frames[i].auraFrames) do
+            hooksecurefunc(button, "OnUpdate", onAuraUpdate)
+            hooksecurefunc(button, "UpdateDuration", onAuraDurationUpdate)
+        end
     end
 else
     hooksecurefunc("AuraButton_Update", onAuraUpdate)
