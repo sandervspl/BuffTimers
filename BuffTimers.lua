@@ -201,11 +201,14 @@ end
 
 if IsRetail then
     local frames = { BuffFrame, DebuffFrame }
-
     for i = 1, #frames do
         for _, button in ipairs(frames[i].auraFrames) do
-            hooksecurefunc(button, "OnUpdate", onAuraUpdate)
-            hooksecurefunc(button, "UpdateDuration", onAuraDurationUpdate)
+            if button.OnUpdate then
+                hooksecurefunc(button, "OnUpdate", onAuraUpdate)
+            end
+            if button.UpdateDuration then
+                hooksecurefunc(button, "UpdateDuration", onAuraDurationUpdate)
+            end
         end
     end
 else
