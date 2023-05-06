@@ -42,7 +42,7 @@ local function formatTime(time)
     if hours >= 24 then
         return days .. "d"
     end
-    
+
      -- Determine if we show time as "h:mm" if not we fall back to minutes
     if
         timeStamp == "hm" and
@@ -162,6 +162,15 @@ local function onAuraDurationUpdate(aura, time)
     local duration = IsRetail and aura.Duration or aura.duration
 
     if time then
+        local verticalPosition = BuffTimersOptions["vertical_position"]
+        -- Retail only: text cannot be displayed if verticalPosition is set to -40. don't know why
+        if (IsRetail and verticalPosition == -40) then verticalPosition = -39.9 end
+        duration:SetPoint("BOTTOM", aura, "TOP", 0, verticalPosition)
+
+        local fontSize = BuffTimersOptions["font_size"]
+        local fontName, fontHeight, fontFlags = duration:GetFont()
+        duration:SetFont(fontName, fontSize, fontFlags)
+
         duration:SetText(formatTime(time))
         setDurationColor(duration, time)
 
