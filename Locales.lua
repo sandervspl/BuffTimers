@@ -99,17 +99,23 @@ end
 if locale == "zhCN" then
     L["BuffTimers"] = "BuffTimers"
     L["Show seconds"] = "显示秒"
-    L["Show milliseconds below 5 seconds"] = "显示毫秒低于5秒"
-    L["Always yellow text color"] = "总是黄色文字颜色"
-    L["Time Stamp Format"] = "时间戳格式"
-    L["Add more colors to the timer"] = "添加更多颜色到计时器"
+    L["Show seconds below this time"] = "小于此时间才显示秒"
+    L["Show milliseconds below 5 seconds"] = "小于5秒显示毫秒"
+    L["Always yellow text color"] = "文字颜色总是使用黄色"
+    L["Time Stamp Format"] = "时间格式"
+    L["Add more colors to the timer"] = "计时器显示更多颜色"
+    L["Text vertical position"] = "文字垂直位置"
+    L["Text font size"] = "字体大小"
 end
 
 if locale == "zhTW" then
     L["BuffTimers"] = "BuffTimers"
     L["Show seconds"] = "顯示秒"
-    L["Show milliseconds below 5 seconds"] = "顯示毫秒低於5秒"
-    L["Always yellow text color"] = "總是黃色文字顏色"
-    L["Time Stamp Format"] = "時間戳格式"
-    L["Add more colors to the timer"] = "添加更多顏色到計時器"
+    L["Show seconds below this time"] = "小於此時間才顯示秒"
+    L["Show milliseconds below 5 seconds"] = "小於5秒才顯示毫秒"
+    L["Always yellow text color"] = "文字顔色總是使用黃色"
+    L["Time Stamp Format"] = "時間格式"
+    L["Add more colors to the timer"] = "計時器顯示更多顔色"
+    L["Text vertical position"] = "文字垂直位置"
+    L["Text font size"] = "字體大小"
 end
