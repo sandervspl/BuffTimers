@@ -178,6 +178,11 @@ RegEvent("PLAYER_LOGIN", function()
     end
 
     do
+        local b = createCheckbox(L["Customize text"], "customize_text", false)
+        b:SetPoint("TOPLEFT", f, 15, nextpos())
+    end
+
+    do
         local s, l = createSlider("vertical_position", -100, 100, 1, "-100", "100", L["Text vertical position"], tostring, -34)
         s:SetPoint("TOPLEFT", f, 40 + l:GetStringWidth(), nextpos(45))
     end
