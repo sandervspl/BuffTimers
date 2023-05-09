@@ -169,8 +169,6 @@ local function onAuraDurationUpdate(aura, time)
                 verticalPosition = -39.9
             end
 
-            duration:getpo
-
             duration:SetPoint("BOTTOM", aura, "TOP", 0, verticalPosition)
 
             local fontSize = BuffTimersOptions["font_size"]
