@@ -28,7 +28,7 @@ jobs:
         with:
           args: -g classic
 
-      - name: Package and release Wrath
+      - name: Package and release Cata
         uses: BigWigsMods/packager@master
         with:
-          args: -g wrath
+          args: -g cata
