@@ -44,7 +44,10 @@ end
 
 local f = CreateFrame("Frame", nil, UIParent)
 f.name = L["BuffTimers"]
-InterfaceOptions_AddCategory(f)
+
+local category, layout = Settings.RegisterCanvasLayoutCategory(f, f.name, f.name)
+category.ID = f.name
+Settings.RegisterAddOnCategory(category)
 
 do
     local t = f:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
