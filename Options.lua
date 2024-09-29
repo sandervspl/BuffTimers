@@ -73,23 +73,40 @@ local function createCheckbox(title, key, def)
     return b
 end
 
+local sliderTemplate = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and "UISliderTemplate" or "UISliderTemplateWithLabels"
+
 local function createSlider(key, minValue, maxValue, valueStep, minText, maxText, title, textOnValueChanged, default)
-    local s = CreateFrame("Slider", f, f, "OptionsSliderTemplate")
-    s:SetOrientation("HORIZONTAL")
+    local s = CreateFrame("Slider", f, f, sliderTemplate)
     s:SetHeight(14)
     s:SetWidth(160)
     s:SetMinMaxValues(minValue, maxValue)
     s:SetValueStep(valueStep)
-    s.Low:SetText(minText)
-    s.High:SetText(maxText)
+
+    if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
+        s.low = f:CreateFontString(key .. "Low_workaround", "OVERLAY")
+        s.low:SetFont([[Fonts\FRIZQT__.TTF]], 10, "OUTLINE")
+        s.low:SetPoint("TOPLEFT", s, "BOTTOMLEFT", 0, -5)
+        s.low:SetText(minText)
+
+        s.high = f:CreateFontString(key .. "High_workaround", "OVERLAY")
+        s.high:SetFont([[Fonts\FRIZQT__.TTF]], 10, "OUTLINE")
+        s.high:SetPoint("TOPRIGHT", s, "BOTTOMRIGHT", 0, -5)
+        s.high:SetText(maxText)
+    end
 
     local l = s:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    l:SetFont([[Fonts\FRIZQT__.TTF]], 10, "OUTLINE")
     l:SetPoint("RIGHT", s, "LEFT", -20, 1)
     l:SetText(title)
     l:SetTextColor(1, 1, 1)
 
+    s.current = f:CreateFontString(key .. "Current", "OVERLAY")
+    s.current:SetFont([[Fonts\FRIZQT__.TTF]], 10, "OUTLINE")
+    s.current:SetPoint("CENTER", s, "RIGHT", 24, 0)
+    s.current:SetText(default)
+
     s:SetScript("OnValueChanged", function(self, value)
-        s.Text:SetText(textOnValueChanged(value))
+        s.current:SetText(textOnValueChanged(value))
         SetConfig(key, value)
     end)
 
