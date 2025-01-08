@@ -11,7 +11,7 @@ The following languages have been translated by a robot. Please let me know if t
 - French
 - Italian
 - Spanish
-- Portuguese
+- Portuguese (Brazil)
 - Chinese (traditional and simplified)
 - Korean
 
