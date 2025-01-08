@@ -40,6 +40,17 @@ if locale == "deDE" then
     L["customize_text"] = "Text anpassen"
 end
 
+if locale == "ptPT" then
+    L["BuffTimers"] = "BuffTimers"
+    L["Show seconds"] = "Mostrar segundos"
+    L["Show milliseconds below 5 seconds"] = "Mostrar milisegundos abaixo de 5 segundos"
+    L["Always yellow text color"] = "Cor de texto sempre amarela"
+    L["Time Stamp Format"] = "Formato da hora"
+    L["Add more colors to the timer"] = "Adicionar mais cores ao temporizador"
+    L["Text vertical position"] = "Posição vertical do texto"
+    L["Text font size"] = "Tamanho da fonte do texto"
+    L["customize_text"] = "Personalizar texto"
+end
 
 --
 -- HELP!
