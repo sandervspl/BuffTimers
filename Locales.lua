@@ -20,6 +20,13 @@ if L then
     L["Only show seconds when buffs have less than this many minutes"] = "Only show seconds when buffs have less than this many minutes"
     L["Show seconds for buff timers"] = "Show seconds for buff timers"
     L["Choose the format for displaying buff duration"] = "Choose the format for displaying buff duration"
+    L["Enable"] = "Enable"
+    L["Format"] = "Format"
+    L["Seconds"] = "Seconds"
+    L["Color"] = "Color"
+    L["Customization"] = "Customization"
+    L["Time"] = "Time"
+    L["Text"] = "Text"
 end
 
 -- Russian translation
@@ -42,6 +49,13 @@ if L then
     L["Only show seconds when buffs have less than this many minutes"] = "Показывать секунды только когда баффы имеют меньше этого количества минут"
     L["Show seconds for buff timers"] = "Показывать секунды для таймеров баффов"
     L["Choose the format for displaying buff duration"] = "Выберите формат для отображения продолжительности баффа"
+    L["Enable"] = "Включить"
+    L["Format"] = "Формат"
+    L["Seconds"] = "Секунды"
+    L["Color"] = "Цвет"
+    L["Customization"] = "Настройка"
+    L["Time"] = "Время"
+    L["Text"] = "Текст"
 end
 
 -- German translation by: ysjoelfir
@@ -64,6 +78,13 @@ if L then
     L["Only show seconds when buffs have less than this many minutes"] = "Zeige Sekunden nur wenn Buffs weniger als diese Minuten verbleiben"
     L["Show seconds for buff timers"] = "Zeige Sekunden für Buff-Timer"
     L["Choose the format for displaying buff duration"] = "Wähle das Format für die Anzeige der Buff-Dauer"
+    L["Enable"] = "Aktivieren"
+    L["Format"] = "Format"
+    L["Seconds"] = "Sekunden"
+    L["Color"] = "Farbe"
+    L["Customization"] = "Anpassung"
+    L["Time"] = "Zeit"
+    L["Text"] = "Text"
 end
 
 local L = LibStub("AceLocale-3.0"):NewLocale("BuffTimers", "ptPT")
@@ -85,6 +106,13 @@ if locale == "ptPT" then
     L["Only show seconds when buffs have less than this many minutes"] = "Mostrar segundos apenas quando os buffs têm menos deste número de minutos"
     L["Show seconds for buff timers"] = "Mostrar segundos para temporizadores de buff"
     L["Choose the format for displaying buff duration"] = "Escolha o formato para exibir a duração do buff"
+    L["Enable"] = "Ativar"
+    L["Format"] = "Formato"
+    L["Seconds"] = "Segundos"
+    L["Color"] = "Cor"
+    L["Customization"] = "Personalização"
+    L["Time"] = "Tempo"
+    L["Text"] = "Texto"
 end
 
 -- French translation by: qrpino
@@ -107,6 +135,13 @@ if locale == "frFR" then
     L["Only show seconds when buffs have less than this many minutes"] = "Afficher les secondes uniquement lorsque les buffs ont moins de ce nombre de minutes"
     L["Show seconds for buff timers"] = "Afficher les secondes pour les minuteurs de buff"
     L["Choose the format for displaying buff duration"] = "Choisir le format pour afficher la durée du buff"
+    L["Enable"] = "Activer"
+    L["Format"] = "Format"
+    L["Seconds"] = "Secondes"
+    L["Color"] = "Couleur"
+    L["Customization"] = "Personnalisation"
+    L["Time"] = "Temps"
+    L["Text"] = "Texte"
 end
 
 --
@@ -134,6 +169,13 @@ if locale == "esES" then
     L["Only show seconds when buffs have less than this many minutes"] = "Mostrar segundos solo cuando los buffs tienen menos de este número de minutos"
     L["Show seconds for buff timers"] = "Mostrar segundos para temporizadores de buff"
     L["Choose the format for displaying buff duration"] = "Escoge el formato para mostrar la duración del buff"
+    L["Enable"] = "Habilitar"
+    L["Format"] = "Formato"
+    L["Seconds"] = "Segundos"
+    L["Color"] = "Color"
+    L["Customization"] = "Personalización"
+    L["Time"] = "Tiempo"
+    L["Text"] = "Texto"
 end
 
 local L = LibStub("AceLocale-3.0"):NewLocale("BuffTimers", "esMX")
@@ -155,6 +197,13 @@ if locale == "esMX" then
     L["Only show seconds when buffs have less than this many minutes"] = "Mostrar segundos solo cuando los buffs tienen menos de este número de minutos"
     L["Show seconds for buff timers"] = "Mostrar segundos para temporizadores de buff"
     L["Choose the format for displaying buff duration"] = "Escoge el formato para mostrar la duración del buff"
+    L["Enable"] = "Habilitar"
+    L["Format"] = "Formato"
+    L["Seconds"] = "Segundos"
+    L["Color"] = "Color"
+    L["Customization"] = "Personalización"
+    L["Time"] = "Tiempo"
+    L["Text"] = "Texto"
 end
 
 local L = LibStub("AceLocale-3.0"):NewLocale("BuffTimers", "itIT")
@@ -176,6 +225,13 @@ if locale == "itIT" then
     L["Only show seconds when buffs have less than this many minutes"] = "Mostra solo secondi quando i buff hanno meno di questo numero di minuti"
     L["Show seconds for buff timers"] = "Mostra secondi per i timer di buff"
     L["Choose the format for displaying buff duration"] = "Scegli il formato per visualizzare la durata del buff"
+    L["Enable"] = "Abilitare"
+    L["Format"] = "Formato"
+    L["Seconds"] = "Secondi"
+    L["Color"] = "Colore"
+    L["Customization"] = "Personalizzazione"
+    L["Time"] = "Tempo"
+    L["Text"] = "Testo"
 end
 
 local L = LibStub("AceLocale-3.0"):NewLocale("BuffTimers", "koKR")
@@ -197,6 +253,13 @@ if locale == "koKR" then
     L["Only show seconds when buffs have less than this many minutes"] = "5초 이하 마이크로초 보기"
     L["Show seconds for buff timers"] = "초 보기"
     L["Choose the format for displaying buff duration"] = "초 보기"
+    L["Enable"] = "활성화"
+    L["Format"] = "형식"
+    L["Seconds"] = "초"
+    L["Color"] = "색상"
+    L["Customization"] = "사용자 정의"
+    L["Time"] = "시간"
+    L["Text"] = "텍스트"
 end
 
 local L = LibStub("AceLocale-3.0"):NewLocale("BuffTimers", "ptBR")
@@ -218,6 +281,13 @@ if locale == "ptBR" then
     L["Only show seconds when buffs have less than this many minutes"] = "Mostrar segundos apenas quando os buffs têm menos deste número de minutos"
     L["Show seconds for buff timers"] = "Mostrar segundos para temporizadores de buff"
     L["Choose the format for displaying buff duration"] = "Escolha o formato para exibir a duração do buff"
+    L["Enable"] = "Ativar"
+    L["Format"] = "Formato"
+    L["Seconds"] = "Segundos"
+    L["Color"] = "Cor"
+    L["Customization"] = "Personalização"
+    L["Time"] = "Tempo"
+    L["Text"] = "Texto"
 end
 
 local L = LibStub("AceLocale-3.0"):NewLocale("BuffTimers", "zhCN")
@@ -240,6 +310,13 @@ if locale == "zhCN" then
     L["Only show seconds when buffs have less than this many minutes"] = "只显示秒，当buff剩余时间小于此分钟数时"
     L["Show seconds for buff timers"] = "显示秒计时器"
     L["Choose the format for displaying buff duration"] = "选择显示buff持续时间的格式"
+    L["Enable"] = "启用"
+    L["Format"] = "格式"
+    L["Seconds"] = "秒"
+    L["Color"] = "颜色"
+    L["Customization"] = "自定义"
+    L["Time"] = "时间"
+    L["Text"] = "文本"
 end
 
 local L = LibStub("AceLocale-3.0"):NewLocale("BuffTimers", "zhTW")
@@ -262,4 +339,11 @@ if locale == "zhTW" then
     L["Only show seconds when buffs have less than this many minutes"] = "只顯示秒，當buff剩餘時間小於此分鐘數時"
     L["Show seconds for buff timers"] = "顯示秒計時器"
     L["Choose the format for displaying buff duration"] = "選擇顯示buff持續時間的格式"
+    L["Enable"] = "啟用"
+    L["Format"] = "格式"
+    L["Seconds"] = "秒"
+    L["Color"] = "顏色"
+    L["Customization"] = "自訂"
+    L["Time"] = "時間"
+    L["Text"] = "文字"
 end
