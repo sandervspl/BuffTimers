@@ -1,214 +1,163 @@
-local _, ADDONSELF = ...
-local L = ADDONSELF.L
-local RegEvent = ADDONSELF.regevent
+local BuffTimers = LibStub("AceAddon-3.0"):GetAddon("BuffTimers")
+local module = BuffTimers:NewModule("Config")
+local L = LibStub("AceLocale-3.0"):GetLocale("BuffTimers")
+local db
 
-RegEvent("ADDON_LOADED", function()
-    if not BuffTimersOptions then
-        BuffTimersOptions = {}
-    end
-end)
+function module:OnInitialize()
+    db = BuffTimers.db
 
-local defs = {}
-local function GetConfigOrDefault(key, def)
-    defs[key] = def
+    local options = {
+        type = "group",
+        name = "BuffTimers",
+        args = {
+            time = {
+                type = "group",
+                name = L["Time"],
+                order = 10,
+                args = {
+                    formatGroup = {
+                        type = "group",
+                        name = L["Format"],
+                        inline = true,
+                        args = {
+                            timeFormat = {
+                                type = "select",
+                                name = L["Time Stamp Format"],
+                                desc = L["Choose the format for displaying buff duration"],
+                                values = {
+                                    ["m"] = "minutes (119m)",
+                                    ["hm"] = "h:mm (1:59h)",
+                                },
+                                get = function() return db.profile.time_stamp end,
+                                set = function(_, value) db.profile.time_stamp = value end,
+                                order = 1,
+                            },
+                        },
+                    },
+                    secondsThresholdGroup = {
+                        type = "group",
+                        name = L["Seconds"],
+                        inline = true,
+                        args = {
+                            showSeconds = {
+                                type = "toggle",
+                                name = L["Show seconds"],
+                                desc = L["Show seconds for buff timers"],
+                                get = function() return db.profile.seconds end,
+                                set = function(_, value) db.profile.seconds = value end,
+                                order = 2,
+                            },
+                            secondsThreshold = {
+                                type = "range",
+                                name = L["Show seconds below this time"],
+                                desc = L["Only show seconds when buffs have less than this many minutes"],
+                                width = "full",
+                                min = 1,
+                                max = 120,
+                                step = 1,
+                                get = function() return db.profile.seconds_threshold end,
+                                set = function(_, value) db.profile.seconds_threshold = value end,
+                                order = 3,
+                            },
+                            showMilliseconds = {
+                                type = "toggle",
+                                name = L["Show milliseconds below 5 seconds"],
+                                desc = L["Show milliseconds for buff timers with less than 5 seconds remaining"],
+                                width = "full",
+                                get = function() return db.profile.milliseconds end,
+                                set = function(_, value) db.profile.milliseconds = value end,
+                                order = 4,
+                            },
+                        }
+                    }
+                }
+            },
+            textGroup = {
+                type = "group",
+                name = L["Text"],
+                order = 15,
+                args = {
+                    colorGroup = {  
+                        type = "group",
+                        name = L["Color"],
+                        inline = true,
+                        args = {
+                            yellowText = {
+                                type = "toggle",
+                                name = L["Always yellow text color"],
+                                desc = L["Always use yellow for buff timer text"],
+                                get = function() return db.profile.yellow_text end,
+                                set = function(_, value) db.profile.yellow_text = value end,
+                                width = "full",
+                                order = 1,
+                            },
+                            coloredText = {
+                                type = "toggle",
+                                name = L["Add more colors to the timer"],
+                                desc = L["Use different colors based on remaining time"],
+                                get = function() return db.profile.colored_text end,
+                                set = function(_, value) db.profile.colored_text = value end,
+                                width = "full",
+                                order = 2,
+                            },
+                        }
+                    },
+                    customizeTextGroup = {
+                        type = "group",
+                        name = L["Customization"],
+                        inline = true,
+                        args = {
+                            enableCustomizeText = {
+                                type = "toggle",
+                                name = L["Enable"],
+                                desc = L["Enable text customization"],
+                                get = function() return db.profile.customize_text end,
+                                set = function(_, value) db.profile.customize_text = value end,
+                                width = "full",
+                                order = 7,
+                            },
+                            verticalPosition = {
+                                type = "range",
+                                name = L["Text vertical position"],
+                                desc = L["Adjust the vertical position of the timer text"],
+                                min = -100,
+                                max = 100,
+                                step = 1,
+                                get = function() return db.profile.vertical_position end,
+                                set = function(_, value) db.profile.vertical_position = value end,
+                                order = 8,
+                            },
+                            fontSize = {
+                                type = "range",
+                                name = L["Text font size"],
+                                desc = L["Adjust the font size of the timer text"],
+                                min = 1,
+                                max = 100,
+                                step = 1,
+                                get = function() return db.profile.font_size end,
+                                set = function(_, value) db.profile.font_size = value end,
+                                order = 9,
+                            },
+                        }
+                    },
+                },
+            },
+        },
+    }
 
-    if BuffTimersOptions[key] == nil then
-        BuffTimersOptions[key] = def
-    end
-
-    return BuffTimersOptions[key]
+    -- Register the options with AceConfig
+    LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("BuffTimers", options)
+    
+    -- Create the options panel
+    LibStub("AceConfigDialog-3.0"):AddToBlizOptions("BuffTimers", "BuffTimers")
 end
 
-local changedcb = {}
-local function RegisterKeyChangedCallback(key, cb)
-    if not changedcb[key] then
-        changedcb[key] = {}
-    end
-
-    table.insert(changedcb[key] , cb)
-end
-ADDONSELF.RegisterKeyChangedCallback = RegisterKeyChangedCallback
-
-local function triggerCallback(key, value)
-    for _, cb in pairs(changedcb[key] or {}) do
-        cb(value)
-    end
+function module:ShowConfig()
+	LibStub("AceConfigDialog-3.0"):Open("BuffTimers")
 end
 
-local function SetConfig(key, value)
-    BuffTimersOptions[key] = value
-
-    triggerCallback(key, value)
+SLASH_BUFFTIMERS1 = "/bufftimers"
+SLASH_BUFFTIMERS2 = "/bt"
+function SlashCmdList.BUFFTIMERS()
+	module:ShowConfig()
 end
-
-
-local f = CreateFrame("Frame", nil, UIParent)
-f.name = L["BuffTimers"]
-
-local category, layout = Settings.RegisterCanvasLayoutCategory(f, f.name, f.name)
-category.ID = f.name
-Settings.RegisterAddOnCategory(category)
-
-do
-    local t = f:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
-    t:SetText(L["BuffTimers"])
-    t:SetPoint("TOPLEFT", f, 15, -15)
-end
-
-local function createCheckbox(title, key, def)
-    local b = CreateFrame("CheckButton", nil, f, "UICheckButtonTemplate")
-    b.text = b:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    b.text:SetPoint("LEFT", b, "RIGHT", 0, 1)
-    b.text:SetText(title)
-    b.text:SetTextColor(1, 1, 1)
-    b:SetScript("OnClick", function()
-        SetConfig(key, b:GetChecked())
-    end)
-
-    RegisterKeyChangedCallback(key, function(v)
-        b:SetChecked(v)
-    end)
-
-    triggerCallback(key, GetConfigOrDefault(key, def))
-    return b
-end
-
-local sliderTemplate = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and "UISliderTemplate" or "UISliderTemplateWithLabels"
-
-local function createSlider(key, minValue, maxValue, valueStep, minText, maxText, title, textOnValueChanged, default)
-    local s = CreateFrame("Slider", f, f, sliderTemplate)
-    s:SetHeight(14)
-    s:SetWidth(160)
-    s:SetMinMaxValues(minValue, maxValue)
-    s:SetValueStep(valueStep)
-
-    if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
-        s.low = f:CreateFontString(key .. "Low_workaround", "OVERLAY")
-        s.low:SetFont([[Fonts\FRIZQT__.TTF]], 10, "OUTLINE")
-        s.low:SetPoint("TOPLEFT", s, "BOTTOMLEFT", 0, -5)
-        s.low:SetText(minText)
-
-        s.high = f:CreateFontString(key .. "High_workaround", "OVERLAY")
-        s.high:SetFont([[Fonts\FRIZQT__.TTF]], 10, "OUTLINE")
-        s.high:SetPoint("TOPRIGHT", s, "BOTTOMRIGHT", 0, -5)
-        s.high:SetText(maxText)
-    end
-
-    local l = s:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    l:SetFont([[Fonts\FRIZQT__.TTF]], 10, "OUTLINE")
-    l:SetPoint("RIGHT", s, "LEFT", -20, 1)
-    l:SetText(title)
-    l:SetTextColor(1, 1, 1)
-
-    s.current = f:CreateFontString(key .. "Current", "OVERLAY")
-    s.current:SetFont([[Fonts\FRIZQT__.TTF]], 10, "OUTLINE")
-    s.current:SetPoint("CENTER", s, "RIGHT", 24, 0)
-    s.current:SetText(default)
-
-    s:SetScript("OnValueChanged", function(self, value)
-        s.current:SetText(textOnValueChanged(value))
-        SetConfig(key, value)
-    end)
-
-    RegisterKeyChangedCallback(key, function(v)
-        s:SetValue(v)
-    end)
-
-    triggerCallback(key, GetConfigOrDefault(key, default))
-    return s, l
-end
-
-RegEvent("PLAYER_LOGIN", function()
-    f.default = function()
-        for k, v in pairs(defs) do
-            SetConfig(k, v)
-        end
-    end
-
-    f.refresh = function()
-    end
-
-    local base = -15
-    local nextpos = function(offset)
-        if not offset then
-            offset = 30
-        end
-        base = base - offset
-        return base
-    end
-
-    do
-        local key = "time_stamp"
-        local options = {
-            ["m"] = "minutes (119m)",
-            ["hm"] = "h:mm (1:59h)",
-        }
-        local d = CreateFrame("Frame", f, f, "UIDropDownMenuTemplate")
-
-        local l = d:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-        l:SetPoint("RIGHT", d, "LEFT", -20, 1)
-        l:SetText(L["Time Stamp Format"])
-        l:SetTextColor(1, 1, 1)
-
-        d:SetPoint("TOPLEFT", f, 40 + l:GetStringWidth(), nextpos(45))
-
-        d.initialize = function()
-            for k, option in next, options do
-                local info = UIDropDownMenu_CreateInfo()
-                info.text = options[k]
-                info.value = k
-                info.checked = k == GetConfigOrDefault(key, "m")
-                info.func = function(self)
-                    SetConfig(key, self.value)
-                    UIDropDownMenu_SetText(d, options[self.value])
-                end
-
-                UIDropDownMenu_AddButton(info)
-            end
-        end
-        UIDropDownMenu_SetText(d, options[GetConfigOrDefault(key, "m")])
-
-        triggerCallback(key, GetConfigOrDefault(key, "m"))
-    end
-
-    do
-        local b = createCheckbox(L["Show seconds"], "seconds", false)
-        b:SetPoint("TOPLEFT", f, 15, nextpos())
-    end
-
-    do
-        local func = function (value) return SecondsToTime(value * 60) end
-        local s, l = createSlider("seconds_threshold", 1, 120, 1, SecondsToTime(60), SecondsToTime(7200), L["Show seconds below this time"], func, 30)
-        s:SetPoint("TOPLEFT", f, 40 + l:GetStringWidth(), nextpos(45))
-    end
-
-    do
-        local b = createCheckbox(L["Show milliseconds below 5 seconds"], "milliseconds", true)
-        b:SetPoint("TOPLEFT", f, 15, nextpos())
-    end
-
-    do
-        local b = createCheckbox(L["Always yellow text color"], "yellow_text", false)
-        b:SetPoint("TOPLEFT", f, 15, nextpos())
-    end
-
-    do
-        local b = createCheckbox(L["Add more colors to the timer"], "colored_text", false)
-        b:SetPoint("TOPLEFT", f, 15, nextpos())
-    end
-
-    do
-        local b = createCheckbox(L["Customize text"], "customize_text", false)
-        b:SetPoint("TOPLEFT", f, 15, nextpos())
-    end
-
-    do
-        local s, l = createSlider("vertical_position", -100, 100, 1, "-100", "100", L["Text vertical position"], tostring, -34)
-        s:SetPoint("TOPLEFT", f, 40 + l:GetStringWidth(), nextpos(45))
-    end
-
-    do
-        local s, l = createSlider("font_size", 1, 100, 1, "1", "100", L["Text font size"], tostring, 14)
-        s:SetPoint("TOPLEFT", f, 40 + l:GetStringWidth(), nextpos(45))
-    end
-end)

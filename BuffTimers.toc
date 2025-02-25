@@ -9,7 +9,8 @@
 ## Notes: @project-version@ -- Buff time options
 ## Version: @project-version@
 ## DefaultState: enabled
-## SavedVariables: BuffTimersOptions
+## SavedVariables: BuffTimersDB
+## OptionalDeps: Ace3
 
 ## X-Category: Buffs & Debuffs
 ## X-Credits: mdhippie
@@ -18,7 +19,10 @@
 ## X-Curse-Project-ID: 352620
 ## X-Wago-ID: XrNkde6a
 
+#@no-lib-strip@
+embeds.xml
+#@end-no-lib-strip@
+
 Locales.lua
-Events.lua
-Options.lua
 BuffTimers.lua
+Options.lua
