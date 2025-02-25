@@ -1,6 +1,7 @@
 local BuffTimers = LibStub("AceAddon-3.0"):GetAddon("BuffTimers")
 local module = BuffTimers:NewModule("Config")
 local L = LibStub("AceLocale-3.0"):GetLocale("BuffTimers")
+BuffTimersLibSharedMedia = LibStub("LibSharedMedia-3.0", true)
 local db
 
 function module:OnInitialize()
@@ -127,19 +128,56 @@ function module:OnInitialize()
                                 set = function(_, value) db.profile.vertical_position = value end,
                                 order = 8,
                             },
-                            fontSize = {
-                                type = "range",
-                                name = L["Text font size"],
-                                desc = L["Adjust the font size of the timer text"],
-                                min = 1,
-                                max = 100,
-                                step = 1,
-                                get = function() return db.profile.font_size end,
-                                set = function(_, value) db.profile.font_size = value end,
-                                order = 9,
-                            },
+                            fontGroup = {
+                                type = "group",
+                                name = L["Font"],
+                                inline = true,
+                                args = {
+                                    font = {
+                                        type = "select",
+                                        name = L["Font"],
+                                        desc = L["Choose the font for the timer text"],
+                                        values = function()
+                                            local fonts = BuffTimersLibSharedMedia:List("font")
+                                            local values = {}
+                                            for _, font in ipairs(fonts) do
+                                                values[font] = font
+                                            end
+                                            return values
+                                        end,
+                                        get = function() return db.profile.font end,
+                                        set = function(_, value) db.profile.font = value end,
+                                        order = 1,
+                                    },
+                                    fontSize = {
+                                        type = "range",
+                                        name = L["Font Size"],
+                                        desc = L["Adjust the font size of the timer text"],
+                                        min = 1,
+                                        max = 100,
+                                        step = 1,
+                                        get = function() return db.profile.font_size end,
+                                        set = function(_, value) db.profile.font_size = value end,
+                                        order = 2,
+                                    },
+                                    fontOutline = {
+                                        type = "select",
+                                        name = L["Outline"],
+                                        desc = L["Choose the outline for the timer text"],
+                                        values = {
+                                            [""] = "None",
+                                            ["OUTLINE"] = "Outline",
+                                            ["THICK"] = "Thick",
+                                            ["MONOCHROME"] = "Monochrome",
+                                        },
+                                        get = function() return db.profile.font_outline end,
+                                        set = function(_, value) db.profile.font_outline = value end,
+                                        order = 3,
+                                    }
+                                }
+                            }
                         }
-                    },
+                    }
                 },
             },
         },

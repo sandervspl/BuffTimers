@@ -10,7 +10,7 @@
 ## Version: @project-version@
 ## DefaultState: enabled
 ## SavedVariables: BuffTimersDB
-## OptionalDeps: Ace3
+## OptionalDeps: Ace3, LibSharedMedia-3.0
 
 ## X-Category: Buffs & Debuffs
 ## X-Credits: mdhippie

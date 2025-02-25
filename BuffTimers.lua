@@ -22,7 +22,9 @@ function BuffTimers:OnInitialize()
             colored_text = BuffTimersOptions["colored_text"] or false,
             customize_text = BuffTimersOptions["customize_text"] or false,
             vertical_position = BuffTimersOptions["vertical_position"] or -34,
-            font_size = BuffTimersOptions["font_size"] or 14
+            font = "Friz Quadrata TT",
+            font_size = BuffTimersOptions["font_size"] or 14,
+            font_outline = "",
         }
     }
 
@@ -220,9 +222,8 @@ function BuffTimers.OnAuraDurationUpdate(aura, time)
 
             duration:SetPoint("BOTTOM", aura, "TOP", 0, verticalPosition)
 
-            local fontSize = self.db.profile.font_size
-            local fontName, fontHeight, fontFlags = duration:GetFont()
-            duration:SetFont(fontName, fontSize, fontFlags)
+            local fontPath = BuffTimersLibSharedMedia:Fetch("font", self.db.profile.font)
+            duration:SetFont(fontPath, self.db.profile.font_size, self.db.profile.font_outline)
         end
 
         duration:SetText(self:FormatTime(time))
