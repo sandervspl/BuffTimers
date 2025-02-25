@@ -1,30 +1,78 @@
+local addonName, addon = ...
+local BuffTimers = LibStub("AceAddon-3.0"):GetAddon("BuffTimers")
+local L = LibStub("AceLocale-3.0"):GetLocale("BuffTimers")
 
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
+addon.IsRetail = IsRetail
 
-local function getMilliseconds(time)
+function BuffTimers:OnInitialize()
+    if not BuffTimersOptions then
+        BuffTimersOptions = {}
+    end
+
+    -- Default configuration
+    -- Transfer from old config or use hardcoded default values
+    local defaults = {
+        profile = {
+            time_stamp = BuffTimersOptions["time_stamp"] or "m",
+            seconds = BuffTimersOptions["seconds"] or false,
+            seconds_threshold = BuffTimersOptions["seconds_threshold"] or 30,
+            milliseconds = BuffTimersOptions["milliseconds"] or true,
+            yellow_text = BuffTimersOptions["yellow_text"] or false,
+            colored_text = BuffTimersOptions["colored_text"] or false,
+            customize_text = BuffTimersOptions["customize_text"] or false,
+            vertical_position = BuffTimersOptions["vertical_position"] or -34,
+            font_size = BuffTimersOptions["font_size"] or 14
+        }
+    }
+
+    -- Initialize the addon
+    self.db = LibStub("AceDB-3.0"):New("BuffTimersDB", defaults, true)
+end
+
+function BuffTimers:OnEnable()
+    -- Hook the functions when addon is enabled
+    if IsRetail then
+        local frames = { BuffFrame, DebuffFrame }
+        for i = 1, #frames do
+            for _, button in ipairs(frames[i].auraFrames) do
+                if button.OnUpdate then
+                    hooksecurefunc(button, "OnUpdate", self.OnAuraUpdate)
+                end
+                if button.UpdateDuration then
+                    hooksecurefunc(button, "UpdateDuration", self.OnAuraDurationUpdate)
+                end
+            end
+        end
+    else
+        hooksecurefunc("AuraButton_Update", self.OnAuraUpdate)
+        hooksecurefunc("AuraButton_UpdateDuration", self.OnAuraDurationUpdate)
+    end
+end
+
+function BuffTimers:GetMilliseconds(time)
     return floor((time % 60) % 1 * 10)
 end
 
-local function getMinutes(time)
+function BuffTimers:GetMinutes(time)
     if time then
         return floor(time / 60)
     end
-
     return 0
 end
 
-local function formatTime(time)
+function BuffTimers:FormatTime(time)
     -- IF YOU ARE READING THIS YOU ARE PROBABLY A NERD AS WELL
     -- IF YOU KNOW A BETTER WAY TO WRITE THIS CODE PLEASE DM ME
     -- This all is a mess because of the different options in which to display the timestamp
     -- I really tried my best ok
 
-    local timeStamp = BuffTimersOptions["time_stamp"]
-    local isSecondsOption = BuffTimersOptions["seconds"]
-    local isMillisecondsOption = BuffTimersOptions["milliseconds"]
-    local showSecondsThreshold = BuffTimersOptions["seconds_threshold"]
+    local timeStamp = self.db.profile.time_stamp
+    local isSecondsOption = self.db.profile.seconds
+    local isMillisecondsOption = self.db.profile.milliseconds
+    local showSecondsThreshold = self.db.profile.seconds_threshold
     local seconds = floor(time % 60)
-    local minutes = getMinutes(time)
+    local minutes = self:GetMinutes(time)
     local hours = floor(time / 60 / 60)
     local hourMins = ceil(time / 60 % 60) -- This calculates minutes beyond 1 hour
     local days = ceil(hours / 24)
@@ -115,7 +163,7 @@ local function formatTime(time)
                 str = seconds
 
                 if isBelowShowMillisecThreshold then
-                    milliseconds = getMilliseconds(time)
+                    milliseconds = self:getMilliseconds(time)
 
                     str = str .. "." .. milliseconds
                 end
@@ -128,7 +176,7 @@ local function formatTime(time)
                 str = seconds
 
                 if isBelowShowMillisecThreshold then
-                    milliseconds = getMilliseconds(time)
+                    milliseconds = self:getMilliseconds(time)
 
                     str = str .. "." .. milliseconds
                 end
@@ -144,13 +192,13 @@ local function formatTime(time)
     return str
 end
 
-local function setDurationColor(duration, time)
-    if BuffTimersOptions["yellow_text"] then
+function BuffTimers:SetDurationColor(duration, time)
+    if self.db.profile.yellow_text then
         duration:SetTextColor(0.99999779462814, 0.81960606575012, 0)
-    elseif BuffTimersOptions["colored_text"] then
-        if getMinutes(time) >= 10 then
+    elseif self.db.profile.colored_text then
+        if self:GetMinutes(time) >= 10 then
             duration:SetTextColor(0.1, 1, 0.1) -- Green
-        elseif getMinutes(time) >= 1 then
+        elseif self:GetMinutes(time) >= 1 then
             duration:SetTextColor(0.99999779462814, 0.81960606575012, 0) -- Yellow
         else
             duration:SetTextColor(1, 0.1, 0.1) -- Red
@@ -158,12 +206,13 @@ local function setDurationColor(duration, time)
     end
 end
 
-local function onAuraDurationUpdate(aura, time)
+function BuffTimers.OnAuraDurationUpdate(aura, time)
     local duration = IsRetail and aura.Duration or aura.duration
+    local self = BuffTimers
 
     if time then
-        if BuffTimersOptions["customize_text"] then
-            local verticalPosition = BuffTimersOptions["vertical_position"]
+        if self.db.profile.customize_text then
+            local verticalPosition = self.db.profile.vertical_position
             -- Retail only: text cannot be displayed if verticalPosition is set to -40. don't know why
             if (IsRetail and verticalPosition == -40) then 
                 verticalPosition = -39.9
@@ -171,13 +220,13 @@ local function onAuraDurationUpdate(aura, time)
 
             duration:SetPoint("BOTTOM", aura, "TOP", 0, verticalPosition)
 
-            local fontSize = BuffTimersOptions["font_size"]
+            local fontSize = self.db.profile.font_size
             local fontName, fontHeight, fontFlags = duration:GetFont()
             duration:SetFont(fontName, fontSize, fontFlags)
         end
 
-        duration:SetText(formatTime(time))
-        setDurationColor(duration, time)
+        duration:SetText(self:FormatTime(time))
+        self:SetDurationColor(duration, time)
 
         duration:Show()
     else
@@ -185,7 +234,7 @@ local function onAuraDurationUpdate(aura, time)
     end
 end
 
-local function onAuraUpdate(...)
+function BuffTimers.OnAuraUpdate(...)
     if IsRetail then
         local aura = ...
 
@@ -211,21 +260,4 @@ local function onAuraUpdate(...)
             auraDuration:Hide()
         end
     end
-end
-
-if IsRetail then
-    local frames = { BuffFrame, DebuffFrame }
-    for i = 1, #frames do
-        for _, button in ipairs(frames[i].auraFrames) do
-            if button.OnUpdate then
-                hooksecurefunc(button, "OnUpdate", onAuraUpdate)
-            end
-            if button.UpdateDuration then
-                hooksecurefunc(button, "UpdateDuration", onAuraDurationUpdate)
-            end
-        end
-    end
-else
-    hooksecurefunc("AuraButton_Update", onAuraUpdate)
-    hooksecurefunc("AuraButton_UpdateDuration", onAuraDurationUpdate)
 end
