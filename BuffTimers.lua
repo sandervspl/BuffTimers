@@ -5,6 +5,17 @@ local L = LibStub("AceLocale-3.0"):GetLocale("BuffTimers")
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 addon.IsRetail = IsRetail
 
+local function GetMilliseconds(time)
+    return floor((time % 60) % 1 * 10)
+end
+
+local function GetMinutes(time)
+    if time then
+        return floor(time / 60)
+    end
+    return 0
+end
+
 function BuffTimers:OnInitialize()
     if not BuffTimersOptions then
         BuffTimersOptions = {}
@@ -22,7 +33,9 @@ function BuffTimers:OnInitialize()
             colored_text = BuffTimersOptions["colored_text"] or false,
             customize_text = BuffTimersOptions["customize_text"] or false,
             vertical_position = BuffTimersOptions["vertical_position"] or -34,
-            font_size = BuffTimersOptions["font_size"] or 14
+            font = "Friz Quadrata TT",
+            font_size = BuffTimersOptions["font_size"] or 14,
+            font_outline = "",
         }
     }
 
@@ -50,17 +63,6 @@ function BuffTimers:OnEnable()
     end
 end
 
-function BuffTimers:GetMilliseconds(time)
-    return floor((time % 60) % 1 * 10)
-end
-
-function BuffTimers:GetMinutes(time)
-    if time then
-        return floor(time / 60)
-    end
-    return 0
-end
-
 function BuffTimers:FormatTime(time)
     -- IF YOU ARE READING THIS YOU ARE PROBABLY A NERD AS WELL
     -- IF YOU KNOW A BETTER WAY TO WRITE THIS CODE PLEASE DM ME
@@ -72,7 +74,7 @@ function BuffTimers:FormatTime(time)
     local isMillisecondsOption = self.db.profile.milliseconds
     local showSecondsThreshold = self.db.profile.seconds_threshold
     local seconds = floor(time % 60)
-    local minutes = self:GetMinutes(time)
+    local minutes = GetMinutes(time)
     local hours = floor(time / 60 / 60)
     local hourMins = ceil(time / 60 % 60) -- This calculates minutes beyond 1 hour
     local days = ceil(hours / 24)
@@ -163,7 +165,7 @@ function BuffTimers:FormatTime(time)
                 str = seconds
 
                 if isBelowShowMillisecThreshold then
-                    milliseconds = self:getMilliseconds(time)
+                    milliseconds = GetMilliseconds(time)
 
                     str = str .. "." .. milliseconds
                 end
@@ -176,7 +178,7 @@ function BuffTimers:FormatTime(time)
                 str = seconds
 
                 if isBelowShowMillisecThreshold then
-                    milliseconds = self:getMilliseconds(time)
+                    milliseconds = GetMilliseconds(time)
 
                     str = str .. "." .. milliseconds
                 end
@@ -194,14 +196,14 @@ end
 
 function BuffTimers:SetDurationColor(duration, time)
     if self.db.profile.yellow_text then
-        duration:SetTextColor(0.99999779462814, 0.81960606575012, 0)
+        duration:SetTextColor(0.99999779462814, 0.81960606575012, 0, 1)
     elseif self.db.profile.colored_text then
-        if self:GetMinutes(time) >= 10 then
-            duration:SetTextColor(0.1, 1, 0.1) -- Green
-        elseif self:GetMinutes(time) >= 1 then
-            duration:SetTextColor(0.99999779462814, 0.81960606575012, 0) -- Yellow
+        if GetMinutes(time) >= 10 then
+            duration:SetTextColor(0.1, 1, 0.1, 1) -- Green
+        elseif GetMinutes(time) >= 1 then
+            duration:SetTextColor(0.99999779462814, 0.81960606575012, 0, 1) -- Yellow
         else
-            duration:SetTextColor(1, 0.1, 0.1) -- Red
+            duration:SetTextColor(1, 0.1, 0.1, 1) -- Red
         end
     end
 end
@@ -220,9 +222,8 @@ function BuffTimers.OnAuraDurationUpdate(aura, time)
 
             duration:SetPoint("BOTTOM", aura, "TOP", 0, verticalPosition)
 
-            local fontSize = self.db.profile.font_size
-            local fontName, fontHeight, fontFlags = duration:GetFont()
-            duration:SetFont(fontName, fontSize, fontFlags)
+            local fontPath = BuffTimersLibSharedMedia:Fetch("font", self.db.profile.font)
+            duration:SetFont(fontPath, self.db.profile.font_size, self.db.profile.font_outline)
         end
 
         duration:SetText(self:FormatTime(time))

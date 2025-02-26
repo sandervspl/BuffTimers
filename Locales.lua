@@ -9,7 +9,6 @@ if L then
     L["Time Stamp Format"] = "Time Stamp Format"
     L["Add more colors to the timer"] = "Add more colors to the timer"
     L["Text vertical position"] = "Text vertical position"
-    L["Text font size"] = "Text font size"
     L["Customize text"] = "Customize text"
     L["Adjust the font size of the timer text"] = "Adjust the font size of the timer text"
     L["Adjust the vertical position of the timer text"] = "Adjust the vertical position of the timer text"
@@ -27,6 +26,11 @@ if L then
     L["Customization"] = "Customization"
     L["Time"] = "Time"
     L["Text"] = "Text"
+    L["Font"] = "Font"
+    L["Choose the font for the timer text"] = "Choose the font for the timer text"
+    L["Font Size"] = "Font Size"
+    L["Outline"] = "Outline"
+    L["Choose the outline for the timer text"] = "Choose the outline for the timer text"
 end
 
 -- Russian translation
@@ -38,7 +42,6 @@ if L then
     L["Time Stamp Format"] = "Формат отметки времени"
     L["Add more colors to the timer"] = "Добавить больше цветов к таймеру"
     L["Text vertical position"] = "Вертикальное положение текста"
-    L["Text font size"] = "Размер шрифта текста"
     L["Customize text"] = "Настроить текст"
     L["Adjust the font size of the timer text"] = "Настроить размер шрифта таймера"
     L["Adjust the vertical position of the timer text"] = "Настроить вертикальное положение текста таймера"
@@ -56,6 +59,11 @@ if L then
     L["Customization"] = "Настройка"
     L["Time"] = "Время"
     L["Text"] = "Текст"
+    L["Font"] = "Шрифт"
+    L["Choose the font for the timer text"] = "Выберите шрифт для текста таймера"
+    L["Font Size"] = "Размер шрифта"
+    L["Outline"] = "Обводка"
+    L["Choose the outline for the timer text"] = "Выберите обводку для текста таймера"
 end
 
 -- German translation by: ysjoelfir
@@ -67,7 +75,6 @@ if L then
     L["Time Stamp Format"] = "Zeitstempelformat"
     L["Add more colors to the timer"] = "Füge mehr Farben zum Timer hinzu"
     L["Text vertical position"] = "Text vertikale Position"
-    L["Text font size"] = "Text Schriftgröße"
     L["Customize text"] = "Text anpassen"
     L["Adjust the font size of the timer text"] = "Schriftgröße des Timer-Texts anpassen"
     L["Adjust the vertical position of the timer text"] = "Vertikale Position des Timer-Texts anpassen"
@@ -85,6 +92,11 @@ if L then
     L["Customization"] = "Anpassung"
     L["Time"] = "Zeit"
     L["Text"] = "Text"
+    L["Font"] = "Schriftart"
+    L["Choose the font for the timer text"] = "Wähle die Schriftart für den Timer-Text"
+    L["Font Size"] = "Schriftgröße"
+    L["Outline"] = "Umriss"
+    L["Choose the outline for the timer text"] = "Wähle den Umriss für den Timer-Text"
 end
 
 local L = LibStub("AceLocale-3.0"):NewLocale("BuffTimers", "ptPT")
@@ -95,7 +107,6 @@ if locale == "ptPT" then
     L["Time Stamp Format"] = "Formato da hora"
     L["Add more colors to the timer"] = "Adicionar mais cores ao temporizador"
     L["Text vertical position"] = "Posição vertical do texto"
-    L["Text font size"] = "Tamanho da fonte do texto"
     L["customize_text"] = "Personalizar texto"
     L["Adjust the font size of the timer text"] = "Ajustar o tamanho da fonte do texto do temporizador"
     L["Adjust the vertical position of the timer text"] = "Ajustar a posição vertical do texto do temporizador"
@@ -113,6 +124,11 @@ if locale == "ptPT" then
     L["Customization"] = "Personalização"
     L["Time"] = "Tempo"
     L["Text"] = "Texto"
+    L["Font"] = "Fonte"
+    L["Choose the font for the timer text"] = "Escolha a fonte para o texto do temporizador"
+    L["Font Size"] = "Tamanho da fonte"
+    L["Outline"] = "Contorno"
+    L["Choose the outline for the timer text"] = "Escolha o contorno para o texto do temporizador"
 end
 
 -- French translation by: qrpino
@@ -124,7 +140,6 @@ if locale == "frFR" then
     L["Time Stamp Format"] = "Format de l'horodatage"
     L["Add more colors to the timer"] = "Ajouter plus de couleurs au minuteur"
     L["Text vertical position"] = "Position verticale du texte"
-    L["Text font size"] = "Taille de la police du texte"
     L["customize_text"] = "Personnaliser le texte"
     L["Adjust the font size of the timer text"] = "Ajuster la taille de la police du texte du minuteur"
     L["Adjust the vertical position of the timer text"] = "Ajuster la position verticale du texte du minuteur"
@@ -142,6 +157,11 @@ if locale == "frFR" then
     L["Customization"] = "Personnalisation"
     L["Time"] = "Temps"
     L["Text"] = "Texte"
+    L["Font"] = "Police"
+    L["Choose the font for the timer text"] = "Choisir la police pour le texte du minuteur"
+    L["Font Size"] = "Taille de police"
+    L["Outline"] = "Contour"
+    L["Choose the outline for the timer text"] = "Choisir le contour pour le texte du minuteur"
 end
 
 --
@@ -158,7 +178,6 @@ if locale == "esES" then
     L["Time Stamp Format"] = "Formato de la hora"
     L["Add more colors to the timer"] = "Añadir más colores al temporizador"
     L["Text vertical position"] = "Posición vertical del texto"
-    L["Text font size"] = "Tamaño de fuente del texto"
     L["customize_text"] = "Personalizar texto"
     L["Adjust the font size of the timer text"] = "Ajustar el tamaño de la fuente del texto del temporizador"
     L["Adjust the vertical position of the timer text"] = "Ajustar la posición vertical del texto del temporizador"
@@ -176,6 +195,11 @@ if locale == "esES" then
     L["Customization"] = "Personalización"
     L["Time"] = "Tiempo"
     L["Text"] = "Texto"
+    L["Font"] = "Fuente"
+    L["Choose the font for the timer text"] = "Elige la fuente para el texto del temporizador"
+    L["Font Size"] = "Tamaño de fuente"
+    L["Outline"] = "Contorno"
+    L["Choose the outline for the timer text"] = "Elige el contorno para el texto del temporizador"
 end
 
 local L = LibStub("AceLocale-3.0"):NewLocale("BuffTimers", "esMX")
@@ -186,7 +210,6 @@ if locale == "esMX" then
     L["Time Stamp Format"] = "Formato de la hora"
     L["Add more colors to the timer"] = "Añadir más colores al temporizador"
     L["Text vertical position"] = "Posición vertical del texto"
-    L["Text font size"] = "Tamaño de fuente del texto"
     L["customize_text"] = "Personalizar texto"
     L["Adjust the font size of the timer text"] = "Ajustar el tamaño de la fuente del texto del temporizador"
     L["Adjust the vertical position of the timer text"] = "Ajustar la posición vertical del texto del temporizador"
@@ -204,6 +227,11 @@ if locale == "esMX" then
     L["Customization"] = "Personalización"
     L["Time"] = "Tiempo"
     L["Text"] = "Texto"
+    L["Font"] = "Fuente"
+    L["Choose the font for the timer text"] = "Elige la fuente para el texto del temporizador"
+    L["Font Size"] = "Tamaño de fuente"
+    L["Outline"] = "Contorno"
+    L["Choose the outline for the timer text"] = "Elige el contorno para el texto del temporizador"
 end
 
 local L = LibStub("AceLocale-3.0"):NewLocale("BuffTimers", "itIT")
@@ -214,7 +242,6 @@ if locale == "itIT" then
     L["Time Stamp Format"] = "Formato dell'ora"
     L["Add more colors to the timer"] = "Aggiungi più colori al timer"
     L["Text vertical position"] = "Posizione verticale del testo"
-    L["Text font size"] = "Dimensione del carattere del testo"
     L["customize_text"] = "Personalizza testo"
     L["Adjust the font size of the timer text"] = "Ajusta la dimensione del carattere del testo del timer"
     L["Adjust the vertical position of the timer text"] = "Ajusta la posizione verticale del testo del timer"
@@ -232,6 +259,11 @@ if locale == "itIT" then
     L["Customization"] = "Personalizzazione"
     L["Time"] = "Tempo"
     L["Text"] = "Testo"
+    L["Font"] = "Carattere"
+    L["Choose the font for the timer text"] = "Scegli il carattere per il testo del timer"
+    L["Font Size"] = "Dimensione carattere"
+    L["Outline"] = "Contorno"
+    L["Choose the outline for the timer text"] = "Scegli il contorno per il testo del timer"
 end
 
 local L = LibStub("AceLocale-3.0"):NewLocale("BuffTimers", "koKR")
@@ -242,7 +274,6 @@ if locale == "koKR" then
     L["Time Stamp Format"] = "시간 표시 형식"
     L["Add more colors to the timer"] = "타이머에 더 많은 색상 추가"
     L["Text vertical position"] = "텍스트 수직 위치"
-    L["Text font size"] = "텍스트 글꼴 크기"
     L["customize_text"] = "텍스트 사용자 정의"
     L["Adjust the font size of the timer text"] = "타이머 텍스트의 글꼴 크기 조정"
     L["Adjust the vertical position of the timer text"] = "타이머 텍스트의 수직 위치 조정"
@@ -260,6 +291,11 @@ if locale == "koKR" then
     L["Customization"] = "사용자 정의"
     L["Time"] = "시간"
     L["Text"] = "텍스트"
+    L["Font"] = "글꼴"
+    L["Choose the font for the timer text"] = "타이머 텍스트의 글꼴 선택"
+    L["Font Size"] = "글꼴 크기"
+    L["Outline"] = "외곽선"
+    L["Choose the outline for the timer text"] = "타이머 텍스트의 외곽선 선택"
 end
 
 local L = LibStub("AceLocale-3.0"):NewLocale("BuffTimers", "ptBR")
@@ -270,7 +306,6 @@ if locale == "ptBR" then
     L["Time Stamp Format"] = "Formato da hora"
     L["Add more colors to the timer"] = "Adicionar mais cores ao temporizador"
     L["Text vertical position"] = "Posição vertical do texto"
-    L["Text font size"] = "Tamanho da fonte do texto"
     L["customize_text"] = "Personalizar texto"
     L["Adjust the font size of the timer text"] = "Ajustar o tamanho da fonte do texto do temporizador"
     L["Adjust the vertical position of the timer text"] = "Ajustar a posição vertical do texto do temporizador"
@@ -288,6 +323,11 @@ if locale == "ptBR" then
     L["Customization"] = "Personalização"
     L["Time"] = "Tempo"
     L["Text"] = "Texto"
+    L["Font"] = "Fonte"
+    L["Choose the font for the timer text"] = "Escolha a fonte para o texto do temporizador"
+    L["Font Size"] = "Tamanho da fonte"
+    L["Outline"] = "Contorno"
+    L["Choose the outline for the timer text"] = "Escolha o contorno para o texto do temporizador"
 end
 
 local L = LibStub("AceLocale-3.0"):NewLocale("BuffTimers", "zhCN")
@@ -299,7 +339,6 @@ if locale == "zhCN" then
     L["Time Stamp Format"] = "时间格式"
     L["Add more colors to the timer"] = "计时器显示更多颜色"
     L["Text vertical position"] = "文字垂直位置"
-    L["Text font size"] = "字体大小"
     L["customize_text"] = "自定义文字"
     L["Adjust the font size of the timer text"] = "调整计时器文字大小"
     L["Adjust the vertical position of the timer text"] = "调整计时器文字垂直位置"
@@ -317,6 +356,11 @@ if locale == "zhCN" then
     L["Customization"] = "自定义"
     L["Time"] = "时间"
     L["Text"] = "文本"
+    L["Font"] = "字体"
+    L["Choose the font for the timer text"] = "选择计时器文字的字体"
+    L["Font Size"] = "字体大小"
+    L["Outline"] = "描边"
+    L["Choose the outline for the timer text"] = "选择计时器文字的描边"
 end
 
 local L = LibStub("AceLocale-3.0"):NewLocale("BuffTimers", "zhTW")
@@ -328,7 +372,6 @@ if locale == "zhTW" then
     L["Time Stamp Format"] = "時間格式"
     L["Add more colors to the timer"] = "計時器顯示更多顔色"
     L["Text vertical position"] = "文字垂直位置"
-    L["Text font size"] = "字體大小"
     L["customize_text"] = "自定義文字"
     L["Adjust the font size of the timer text"] = "調整計時器文字大小"
     L["Adjust the vertical position of the timer text"] = "調整計時器文字垂直位置"
@@ -346,4 +389,9 @@ if locale == "zhTW" then
     L["Customization"] = "自訂"
     L["Time"] = "時間"
     L["Text"] = "文字"
+    L["Font"] = "字體"
+    L["Choose the font for the timer text"] = "選擇計時器文字的字體"
+    L["Font Size"] = "字體大小"
+    L["Outline"] = "描邊"
+    L["Choose the outline for the timer text"] = "選擇計時器文字的描邊"
 end
