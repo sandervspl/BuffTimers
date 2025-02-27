@@ -11,6 +11,7 @@
 ## DefaultState: enabled
 ## SavedVariables: BuffTimersDB
 ## OptionalDeps: Ace3, LibSharedMedia-3.0
+## Category: Buffs & Debuffs
 
 ## X-Category: Buffs & Debuffs
 ## X-Credits: mdhippie
