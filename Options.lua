@@ -195,7 +195,6 @@ function module:ShowConfig()
 end
 
 SLASH_BUFFTIMERS1 = "/bufftimers"
-SLASH_BUFFTIMERS2 = "/bt"
 function SlashCmdList.BUFFTIMERS()
 	module:ShowConfig()
 end
