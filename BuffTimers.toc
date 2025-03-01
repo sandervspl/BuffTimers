@@ -12,7 +12,7 @@
 ## SavedVariables: BuffTimersDB
 ## OptionalDeps: Ace3, LibSharedMedia-3.0
 ## Category: Buffs & Debuffs
-## Category-ruRU: Баффы & дебаффы
+## Category-ruRU: Баффы & Дебаффы
 
 ## X-Category: Buffs & Debuffs
 ## X-Credits: mdhippie
