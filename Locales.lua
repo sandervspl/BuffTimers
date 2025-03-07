@@ -37,19 +37,19 @@ end
 local L = LibStub("AceLocale-3.0"):NewLocale("BuffTimers", "ruRU")
 if L then
     L["Show seconds"] = "Показать секунды"
-    L["Show milliseconds below 5 seconds"] = "Показывать миллисекунды когда осталось меньше 5 секунд"
+    L["Show milliseconds below 5 seconds"] = "Показывать миллисекунды, когда осталось меньше 5 секунд"
     L["Always yellow text color"] = "Всегда желтый цвет текста"
     L["Time Stamp Format"] = "Формат отметки времени"
     L["Add more colors to the timer"] = "Добавить больше цветов к таймеру"
     L["Text vertical position"] = "Вертикальное положение текста"
     L["Customize text"] = "Настроить текст"
-    L["Adjust the font size of the timer text"] = "Настроить размер шрифта таймера"
+    L["Adjust the font size of the timer text"] = "Настроить размер шрифта текста таймера"
     L["Adjust the vertical position of the timer text"] = "Настроить вертикальное положение текста таймера"
     L["Enable text customization"] = "Включить настройку текста"
     L["Use different colors based on remaining time"] = "Использовать разные цвета в зависимости от оставшегося времени"
     L["Always use yellow for buff timer text"] = "Всегда использовать желтый цвет для текста таймера баффа"
-    L["Show milliseconds for buff timers with less than 5 seconds remaining"] = "Показывать миллисекунды для таймеров баффов с меньше 5 секунд"
-    L["Only show seconds when buffs have less than this many minutes"] = "Показывать секунды только когда баффы имеют меньше этого количества минут"
+    L["Show milliseconds for buff timers with less than 5 seconds remaining"] = "Показывать миллисекунды для таймеров баффов, у которых осталось меньше 5 секунд"
+    L["Only show seconds when buffs have less than this many minutes"] = "Показывать секунды только тогда, когда у баффов меньше указанного количества минут"
     L["Show seconds for buff timers"] = "Показывать секунды для таймеров баффов"
     L["Choose the format for displaying buff duration"] = "Выберите формат для отображения продолжительности баффа"
     L["Enable"] = "Включить"
@@ -62,8 +62,8 @@ if L then
     L["Font"] = "Шрифт"
     L["Choose the font for the timer text"] = "Выберите шрифт для текста таймера"
     L["Font Size"] = "Размер шрифта"
-    L["Outline"] = "Обводка"
-    L["Choose the outline for the timer text"] = "Выберите обводку для текста таймера"
+    L["Outline"] = "Контур"
+    L["Choose the outline for the timer text"] = "Выберите контур для текста таймера"
 end
 
 -- German translation by: ysjoelfir
