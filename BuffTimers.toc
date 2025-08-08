@@ -1,17 +1,19 @@
-## Interface: 110105, 110107
+## Interface: 110200
 ## Interface-Classic: 11507
 ## Interface-BCC: 20504
-## Interface-Wrath: 30404
+## Interface-Wrath: 30405
 ## Interface-Cata: 40402
 ## Interface-Mists: 50500
 ## IconTexture: Interface\AddOns\BuffTimers\Media\icon
 ## Title: BuffTimers
 ## Author: mdhippie
 ## Notes: @project-version@ -- Buff time options
+## Notes-ruRU: Отображает точную длительность действия баффов, с возможностью указания секунд и миллисекунд
 ## Version: @project-version@
 ## DefaultState: enabled
 ## SavedVariables: BuffTimersDB
 ## OptionalDeps: Ace3, LibSharedMedia-3.0
+
 ## Category-enUS: Buffs & Debuffs
 ## Category-deDE: Buffs & Debuffs
 ## Category-esES: Beneficios y Perjuicios
