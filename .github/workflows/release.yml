@@ -28,7 +28,7 @@ jobs:
         with:
           args: -g classic
 
-      - name: Package and release Cata
+      - name: Package and release MoP
         uses: BigWigsMods/packager@master
         with:
-          args: -g cata
+          args: -g mists
