@@ -2,8 +2,8 @@ local addonName, addon = ...
 local BuffTimers = LibStub("AceAddon-3.0"):GetAddon("BuffTimers")
 local L = LibStub("AceLocale-3.0"):GetLocale("BuffTimers")
 
-local isNotClassicEra = WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC
-addon.isNotClassicEra = isNotClassicEra
+local isNotClassic = WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC and WOW_PROJECT_ID ~= WOW_PROJECT_MISTS_CLASSIC
+addon.isNotClassic = isNotClassic
 
 local function GetMilliseconds(time)
     return floor((time % 60) % 1 * 10)
@@ -45,7 +45,7 @@ end
 
 function BuffTimers:OnEnable()
     -- Hook the functions when addon is enabled
-    if isNotClassicEra then
+    if isNotClassic then
         local frames = { BuffFrame, DebuffFrame }
         for i = 1, #frames do
             for _, button in ipairs(frames[i].auraFrames) do
@@ -209,14 +209,14 @@ function BuffTimers:SetDurationColor(duration, time)
 end
 
 function BuffTimers.OnAuraDurationUpdate(aura, time)
-    local duration = isNotClassicEra and aura.Duration or aura.duration
+    local duration = isNotClassic and aura.Duration or aura.duration
     local self = BuffTimers
 
     if time then
         if self.db.profile.customize_text then
             local verticalPosition = self.db.profile.vertical_position
             -- Non-classic Era only: text cannot be displayed if verticalPosition is set to -40. don't know why
-            if (isNotClassicEra and verticalPosition == -40) then 
+            if (isNotClassic and verticalPosition == -40) then 
                 verticalPosition = -39.9
             end
 
@@ -236,7 +236,7 @@ function BuffTimers.OnAuraDurationUpdate(aura, time)
 end
 
 function BuffTimers.OnAuraUpdate(...)
-    if isNotClassicEra then
+    if isNotClassic then
         local aura = ...
 
         if aura.buttonInfo.expirationTime > 0 then
