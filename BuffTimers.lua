@@ -240,7 +240,11 @@ function BuffTimers.OnAuraUpdate(...)
         local aura = ...
 
         if aura.buttonInfo.expirationTime > 0 then
+            local time = aura.buttonInfo.expirationTime - GetTime()
             aura.Duration:Show()
+            if time >= 60 then
+                BuffTimers:SetDurationColor(aura.Duration, time)
+            end
         else
             aura.Duration:Hide()
         end
