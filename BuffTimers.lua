@@ -196,7 +196,9 @@ end
 
 function BuffTimers:SetDurationColor(duration, time)
     if self.db.profile.yellow_text then
-        duration:SetTextColor(0.99999779462814, 0.81960606575012, 0, 1)
+        if time >= 60 then
+            duration:SetTextColor(0.99999779462814, 0.81960606575012, 0, 1)
+        end
     elseif self.db.profile.colored_text then
         if GetMinutes(time) >= 10 then
             duration:SetTextColor(0.1, 1, 0.1, 1) -- Green
