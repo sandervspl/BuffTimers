@@ -195,6 +195,13 @@ function BuffTimers:FormatTime(time)
 end
 
 function BuffTimers:SetDurationColor(duration, time)
+    -- TBCC introduced a bug (?) where the timer starts ticking down in seconds at 90 seconds instead of 60 seconds
+    -- Which also means the time will be white from 90 seconds
+    -- This should force the text to be yellow until < 60 seconds
+    if time >= 60 then
+        duration:SetTextColor(0.99999779462814, 0.81960606575012, 0, 1)
+    end
+
     if self.db.profile.yellow_text then
         duration:SetTextColor(0.99999779462814, 0.81960606575012, 0, 1)
     elseif self.db.profile.colored_text then
