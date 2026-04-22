@@ -64,11 +64,6 @@ function BuffTimers:OnEnable()
 end
 
 function BuffTimers:FormatTime(time)
-    -- IF YOU ARE READING THIS YOU ARE PROBABLY A NERD AS WELL
-    -- IF YOU KNOW A BETTER WAY TO WRITE THIS CODE PLEASE DM ME
-    -- This all is a mess because of the different options in which to display the timestamp
-    -- I really tried my best ok
-
     local timeStamp = self.db.profile.time_stamp
     local isSecondsOption = self.db.profile.seconds
     local isMillisecondsOption = self.db.profile.milliseconds
@@ -260,7 +255,7 @@ function BuffTimers.OnAuraUpdate(...)
         local auraInstanceID = info.auraInstanceID
 
         if not auraIndex then
-            aura.Duration:Hide()
+            -- Temporary weapon enchants can have duration updates without a normal aura index.
             return
         end
 
