@@ -230,7 +230,11 @@ function BuffTimers.OnAuraDurationUpdate(aura, time)
                 duration:SetPoint("BOTTOM", aura, "TOP", 0, verticalPosition)
 
                 local fontPath = BuffTimersLibSharedMedia:Fetch("font", self.db.profile.font)
-                duration:SetFont(fontPath, self.db.profile.font_size, self.db.profile.font_outline)
+                -- "" (None) must be passed as nil, and the old "THICK" preset isn't a real font
+                -- flag ("THICKOUTLINE" is); the modern client's SetFont rejects both, so normalize.
+                local outline = self.db.profile.font_outline
+                if outline == "THICK" then outline = "THICKOUTLINE" end
+                duration:SetFont(fontPath, self.db.profile.font_size, outline ~= "" and outline or nil)
             end
 
             duration:SetText(result)

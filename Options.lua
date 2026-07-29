@@ -167,7 +167,7 @@ function module:OnInitialize()
                                         values = {
                                             [""] = "None",
                                             ["OUTLINE"] = "Outline",
-                                            ["THICK"] = "Thick",
+                                            ["THICKOUTLINE"] = "Thick",
                                             ["MONOCHROME"] = "Monochrome",
                                         },
                                         get = function() return db.profile.font_outline end,
