@@ -2,7 +2,10 @@ local addonName, addon = ...
 local BuffTimers = LibStub("AceAddon-3.0"):GetAddon("BuffTimers")
 local L = LibStub("AceLocale-3.0"):GetLocale("BuffTimers")
 
-local isNotClassic = WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC and WOW_PROJECT_ID ~= WOW_PROJECT_MISTS_CLASSIC
+-- Retail has always used the modern buff frame, and after its UI modernization Classic Era
+-- does too. Detect it directly -- BuffFrame.auraFrames replaced the old AuraButton_Update
+-- global we hook below, and a WOW_PROJECT_ID check can't tell modernized Era apart (same id).
+local isNotClassic = BuffFrame.auraFrames ~= nil
 addon.isNotClassic = isNotClassic
 
 local function GetMilliseconds(time)
@@ -48,7 +51,7 @@ function BuffTimers:OnEnable()
     if isNotClassic then
         local frames = { BuffFrame, DebuffFrame }
         for i = 1, #frames do
-            for _, button in ipairs(frames[i].auraFrames) do
+            for _, button in ipairs(frames[i].auraFrames or {}) do
                 if button.OnUpdate then
                     hooksecurefunc(button, "OnUpdate", self.OnAuraUpdate)
                 end
