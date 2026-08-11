@@ -1,2 +1,4 @@
 .gitattributes
 .release
+.cache/wow-ui-source/
+.DS_Store
