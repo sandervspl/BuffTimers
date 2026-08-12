@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# This helper is also run through WSL on Windows, so it must keep LF line endings.
 set -euo pipefail
 
 usage() {
