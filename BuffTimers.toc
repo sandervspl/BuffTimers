@@ -1,4 +1,4 @@
-## Interface: 11508, 120001, 20505, 30405, 40402, 50503
+## Interface: 120100, 50504, 38002, 20506, 11509
 ## IconTexture: Interface\AddOns\BuffTimers\Media\icon
 ## Title: BuffTimers
 ## Author: mdhippie
