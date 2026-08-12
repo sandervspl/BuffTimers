@@ -29,8 +29,30 @@ Unit tests use [Mechanic](https://github.com/Falkicon/Mechanic) v1.4.2 and Buste
 ```powershell
 git clone --branch v1.4.2 --depth 1 https://github.com/Falkicon/Mechanic.git ..\Mechanic
 python -m pip install --editable ..\Mechanic\desktop
+$mechanicScripts = python -c "import sysconfig; print(sysconfig.get_path('scripts', scheme='nt_user'))"
+$env:Path = "$mechanicScripts;$env:Path"
 luarocks install busted
+mech setup-busted
 mech call addon.test '{\"addon\":\"BuffTimers\",\"path\":\".\"}'
 ```
 
 The same suite can be run directly with `busted`.
+
+### Client compatibility matrix
+
+`addon.test` runs the compatibility cases in `Tests/client_compatibility_spec.lua` for every
+interface declared by `BuffTimers.toc`:
+
+- Retail (`120100`, upstream `live`)
+- Mists of Pandaria Classic (`50504`, upstream `classic`)
+- Titan (`38002`, upstream `classic_titan`)
+- Anniversary (`20506`, upstream `classic_anniversary`)
+- Classic Era (`11509`, upstream `classic_era`)
+
+The fixtures mirror Blizzard's current normal buff, debuff, temporary-enchant, and deadly-debuff
+button records. The matrix also fails if the interfaces in the TOC and tests drift apart.
+
+Mechanic's offline tests do not launch or emulate a WoW client. After they pass, use
+`addon.sync` to link BuffTimers into each installed client and perform an in-game smoke test.
+Mechanic v1.4.2's `addon.validate` command has a hard-coded, older Retail interface list, so the
+WoW UI source audit and the TOC matrix test are the compatibility authorities for these versions.

@@ -13,7 +13,7 @@ describe("BuffTimers client integration", function()
         assert.is_false(env.namespace.isNotClassic)
     end)
 
-    it("hooks available modern aura button methods", function()
+    it("hooks only the modern duration method", function()
         local buffButton = {
             OnUpdate = function() end,
             UpdateDuration = function() end,
@@ -31,10 +31,9 @@ describe("BuffTimers client integration", function()
 
         env.addon:OnEnable()
 
-        assert.equals(3, #env.hooks)
-        assert.same({ buffButton, "OnUpdate", env.addon.OnAuraUpdate }, env.hooks[1])
-        assert.same({ buffButton, "UpdateDuration", env.addon.OnAuraDurationUpdate }, env.hooks[2])
-        assert.same({ debuffButton, "UpdateDuration", env.addon.OnAuraDurationUpdate }, env.hooks[3])
+        assert.equals(2, #env.hooks)
+        assert.same({ buffButton, "UpdateDuration", env.addon.OnAuraDurationUpdate }, env.hooks[1])
+        assert.same({ debuffButton, "UpdateDuration", env.addon.OnAuraDurationUpdate }, env.hooks[2])
     end)
 
     it("hooks the legacy global aura functions", function()
@@ -99,67 +98,6 @@ describe("BuffTimers.OnAuraDurationUpdate", function()
         assert.same({ "BOTTOM", aura, "TOP", 0, -39.9 }, duration.point)
         assert.same({ "Fonts\\Mock.ttf", 18, "THICKOUTLINE" }, duration.font)
         assert.same({ { mediaType = "font", name = "Mock Font" } }, env.mediaQueries)
-    end)
-end)
-
-describe("BuffTimers.OnAuraUpdate on modern clients", function()
-    it("shows a timed aura that has not expired", function()
-        local env = Helpers.loadAddon({ modern = true, now = 100 })
-        local duration = Helpers.newDuration()
-        env.auraData = { expirationTime = 101 }
-
-        env.addon.OnAuraUpdate({
-            Duration = duration,
-            buttonInfo = {
-                index = 2,
-                auraType = "Buff",
-                auraInstanceID = 77,
-            },
-        })
-
-        assert.is_true(duration.visible)
-        assert.equals(0, env.timerCallbacks[1].delay)
-        assert.same({ { unit = "player", auraInstanceID = 77 } }, env.auraQueries)
-    end)
-
-    it("hides an expired aura", function()
-        local env = Helpers.loadAddon({ modern = true, now = 100 })
-        local duration = Helpers.newDuration()
-        env.auraData = { expirationTime = 100 }
-
-        env.addon.OnAuraUpdate({
-            Duration = duration,
-            buttonInfo = {
-                index = 2,
-                auraType = "Buff",
-                auraInstanceID = 77,
-            },
-        })
-
-        assert.is_false(duration.visible)
-    end)
-
-    it("ignores temporary enchants without an aura index", function()
-        local env = Helpers.loadAddon({ modern = true })
-
-        env.addon.OnAuraUpdate({
-            Duration = Helpers.newDuration(),
-            buttonInfo = {
-                auraType = "TempEnchant",
-            },
-        })
-
-        assert.equals(0, #env.timerCallbacks)
-        assert.equals(0, #env.auraQueries)
-    end)
-
-    it("ignores missing aura data", function()
-        local env = Helpers.loadAddon({ modern = true })
-
-        env.addon.OnAuraUpdate(nil)
-        env.addon.OnAuraUpdate({})
-
-        assert.equals(0, #env.timerCallbacks)
     end)
 end)
 

@@ -49,12 +49,12 @@ end
 function BuffTimers:OnEnable()
     -- Hook the functions when addon is enabled
     if isNotClassic then
+        -- Blizzard's OnUpdate already calls UpdateDuration for every timed aura type.
+        -- Hooking OnUpdate separately would add per-frame work and normal aura records
+        -- do not expose an auraInstanceID for a second lookup.
         local frames = { BuffFrame, DebuffFrame }
         for i = 1, #frames do
             for _, button in ipairs(frames[i].auraFrames or {}) do
-                if button.OnUpdate then
-                    hooksecurefunc(button, "OnUpdate", self.OnAuraUpdate)
-                end
                 if button.UpdateDuration then
                     hooksecurefunc(button, "UpdateDuration", self.OnAuraDurationUpdate)
                 end
@@ -249,51 +249,19 @@ function BuffTimers.OnAuraDurationUpdate(aura, time)
     end
 end
 
-function BuffTimers.OnAuraUpdate(...)
-    if isNotClassic then
-        local aura = ...
-        if not aura then return end
+function BuffTimers.OnAuraUpdate(auraSlot, index, filter)
+    local auraName = auraSlot .. index
+    local auraDuration = getglobal(auraName .. "Duration")
 
-        local info = aura.buttonInfo
-        if not info then return end
+    if not auraDuration then
+        return
+    end
 
-        local auraIndex = info.index
-        local auraType = info.auraType
-        local auraInstanceID = info.auraInstanceID
+    local name, _, _, _, _, expirationTime = UnitAura("player", index, filter)
 
-        if not auraIndex then
-            -- Temporary weapon enchants can have duration updates without a normal aura index.
-            return
-        end
-
-        C_Timer.After(0, function()
-            local auraData = auraInstanceID and
-                C_UnitAuras.GetAuraDataByAuraInstanceID("player", auraInstanceID) or nil
-
-            local now = GetTime()
-            local hasTimer = auraData and auraData.expirationTime and auraData.expirationTime > now
-
-            if hasTimer then
-                aura.Duration:Show()
-            else
-                aura.Duration:Hide()
-            end
-        end)
+    if name and expirationTime > 0 then
+        auraDuration:Show()
     else
-        local auraSlot, index, filter = ...
-        local auraName = auraSlot .. index
-        local auraDuration = getglobal(auraName .. "Duration")
-
-        if not auraDuration then
-            return
-        end
-
-        local name, _, _, _, _, expirationTime = UnitAura("player", index, filter)
-
-        if name and expirationTime > 0 then
-            auraDuration:Show()
-        else
-            auraDuration:Hide()
-        end
+        auraDuration:Hide()
     end
 end
