@@ -1,0 +1,34 @@
+name: Unit tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out BuffTimers
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Lua and Busted
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes lua5.1 lua-busted
+
+      - name: Install Mechanic v1.4.2
+        run: |
+          git clone --branch v1.4.2 --depth 1 https://github.com/Falkicon/Mechanic.git "$RUNNER_TEMP/Mechanic"
+          python -m pip install --editable "$RUNNER_TEMP/Mechanic/desktop"
+
+      - name: Run tests through Mechanic
+        run: mech call addon.test '{"addon":"BuffTimers","path":"."}'
+
+      - name: Verify the Busted exit status
+        run: busted
