@@ -3,6 +3,59 @@ local module = BuffTimers:NewModule("Config")
 local L = LibStub("AceLocale-3.0"):GetLocale("BuffTimers")
 BuffTimersLibSharedMedia = LibStub("LibSharedMedia-3.0", true)
 local db
+local exportText = ""
+local importText = ""
+local transferStatus
+
+local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
+local AceConfigDialog = LibStub("AceConfigDialog-3.0")
+local AceDBOptions = LibStub("AceDBOptions-3.0")
+local AceGUI = LibStub("AceGUI-3.0")
+
+local importErrors = {
+    EMPTY = "Paste a profile string first.",
+    TOO_LONG = "The profile string is too long.",
+    INVALID_FORMAT = "This is not a BuffTimers profile string.",
+    INVALID_DATA = "The profile string is damaged or incomplete.",
+    INVALID_PROFILE = "The profile data is invalid.",
+}
+
+local function SetTransferStatus(message, isError, notify)
+    local color = isError and "ffff4040" or "ff40ff40"
+    transferStatus = "|c" .. color .. message .. "|r"
+    if notify ~= false then
+        AceConfigRegistry:NotifyChange("BuffTimers")
+    end
+end
+
+local function SelectExportString()
+    if exportText == "" then
+        return false
+    end
+
+    -- AceConfig creates this option with AceGUI's bundled MultiLineEditBox widget.
+    -- Clipboard writes are protected, so select the text for the user's normal copy shortcut.
+    for index = 1, AceGUI:GetWidgetCount("MultiLineEditBox") do
+        local editBox = _G["MultiLineEditBox" .. index .. "Edit"]
+        if editBox and editBox:IsVisible() and editBox:GetText() == exportText then
+            editBox:SetFocus()
+            editBox:HighlightText()
+            return true
+        end
+    end
+
+    return false
+end
+
+local function GetImportError(errorCode, detail)
+    if errorCode == "UNSUPPORTED_VERSION" then
+        return L["This profile string uses an unsupported version (%s)."]:format(detail or "?")
+    elseif errorCode == "INVALID_VALUE" then
+        return L["The profile contains an invalid value for %s."]:format(detail or "?")
+    end
+
+    return L[importErrors[errorCode] or "The profile data is invalid."]
+end
 
 function module:OnInitialize()
     db = BuffTimers.db
@@ -121,8 +174,8 @@ function module:OnInitialize()
                                 type = "range",
                                 name = L["Text vertical position"],
                                 desc = L["Adjust the vertical position of the timer text"],
-                                min = -100,
-                                max = 100,
+                                min = BuffTimers.VERTICAL_POSITION_MIN,
+                                max = BuffTimers.VERTICAL_POSITION_MAX,
                                 step = 1,
                                 get = function() return db.profile.vertical_position end,
                                 set = function(_, value) db.profile.vertical_position = value end,
@@ -180,18 +233,105 @@ function module:OnInitialize()
                     }
                 },
             },
+            importExport = {
+                type = "group",
+                name = L["Import / Export"],
+                desc = L["Share or restore the currently active profile."],
+                order = 30,
+                args = {
+                    description = {
+                        type = "description",
+                        name = L["Share or restore the currently active profile."],
+                        order = 1,
+                    },
+                    exportString = {
+                        type = "input",
+                        name = L["Export string"],
+                        desc = L["Click the field and press Ctrl+A, then Ctrl+C to copy the active profile."],
+                        multiline = 8,
+                        width = "full",
+                        get = function()
+                            exportText = BuffTimers:ExportProfile()
+                            return exportText
+                        end,
+                        set = function() end,
+                        order = 2,
+                    },
+                    selectExport = {
+                        type = "execute",
+                        name = L["Select for copying"],
+                        desc = L["Select the export string, then press Ctrl+C to copy it."],
+                        func = function()
+                            SetTransferStatus(L["Export string selected. Press Ctrl+C to copy it."], false, false)
+
+                            -- AceConfig redraws after execute controls run. Select on the next frame so
+                            -- the newly-created export edit box keeps focus and its selection.
+                            C_Timer.After(0, function()
+                                if not SelectExportString() then
+                                    SetTransferStatus(
+                                        L["Could not select the export string. Click the field and press Ctrl+A, then Ctrl+C."],
+                                        true
+                                    )
+                                end
+                            end)
+                        end,
+                        order = 3,
+                    },
+                    importString = {
+                        type = "input",
+                        name = L["Import string"],
+                        desc = L["Paste a BuffTimers profile string here."],
+                        multiline = 8,
+                        width = "full",
+                        get = function() return importText end,
+                        set = function(_, value)
+                            importText = value
+                            transferStatus = nil
+                        end,
+                        order = 4,
+                    },
+                    importProfile = {
+                        type = "execute",
+                        name = L["Import profile"],
+                        confirm = function()
+                            return BuffTimers:WillImportReplaceProfile(importText)
+                        end,
+                        confirmText = L["A profile with this name already exists and will be replaced. Continue?"],
+                        disabled = function() return importText:match("^%s*$") ~= nil end,
+                        func = function()
+                            local success, errorCode, detail = BuffTimers:ImportProfile(importText)
+                            if success then
+                                importText = ""
+                                SetTransferStatus(L["The profile was imported successfully."], false)
+                            else
+                                SetTransferStatus(GetImportError(errorCode, detail), true)
+                            end
+                        end,
+                        order = 5,
+                    },
+                    status = {
+                        type = "description",
+                        name = function() return transferStatus or "" end,
+                        order = 6,
+                    },
+                },
+            },
         },
     }
 
+    local profileOptions = AceDBOptions:GetOptionsTable(db)
+    profileOptions.order = 20
+    options.args.profiles = profileOptions
+
     -- Register the options with AceConfig
-    LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("BuffTimers", options)
+    AceConfigRegistry:RegisterOptionsTable("BuffTimers", options)
     
     -- Create the options panel
-    LibStub("AceConfigDialog-3.0"):AddToBlizOptions("BuffTimers", "BuffTimers")
+    AceConfigDialog:AddToBlizOptions("BuffTimers", "BuffTimers")
 end
 
 function module:ShowConfig()
-	LibStub("AceConfigDialog-3.0"):Open("BuffTimers")
+	AceConfigDialog:Open("BuffTimers")
 end
 
 SLASH_BUFFTIMERS1 = "/bufftimers"

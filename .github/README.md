@@ -56,3 +56,17 @@ Mechanic's offline tests do not launch or emulate a WoW client. After they pass,
 `addon.sync` to link BuffTimers into each installed client and perform an in-game smoke test.
 Mechanic v1.4.2's `addon.validate` command has a hard-coded, older Retail interface list, so the
 WoW UI source audit and the TOC matrix test are the compatibility authorities for these versions.
+
+To copy the addon files into every locally installed WoW game version instead, run:
+
+```powershell
+.\scripts\copy-to-wow.ps1
+```
+
+The script discovers standard Battle.net installations and registered custom locations. For an
+installation it cannot discover automatically, pass the directory that contains `_retail_`,
+`_classic_`, and the other game-version folders:
+
+```powershell
+.\scripts\copy-to-wow.ps1 -WowRoot "D:\World of Warcraft"
+```
