@@ -8,7 +8,11 @@ local LEGACY_PROFILE_EXPORT_VERSION = 1
 local PROFILE_EXPORT_PREFIX = "BuffTimers:" .. PROFILE_EXPORT_VERSION .. ":"
 local PROFILE_EXPORT_MAX_LENGTH = 10000
 local VERTICAL_POSITION_MIN = -100
-local VERTICAL_POSITION_MAX = -31
+local VERTICAL_POSITION_MAX = 0
+local DEFAULT_TEXT_VERTICAL_POSITION = -34
+local DEFAULT_TEXT_FONT = "Friz Quadrata TT"
+local DEFAULT_TEXT_FONT_SIZE = 14
+local DEFAULT_TEXT_FONT_OUTLINE = ""
 BuffTimers.VERTICAL_POSITION_MIN = VERTICAL_POSITION_MIN
 BuffTimers.VERTICAL_POSITION_MAX = VERTICAL_POSITION_MAX
 local PROFILE_KEYS = {
@@ -38,6 +42,100 @@ local BOOLEAN_PROFILE_KEYS = {
 local isNotClassic = BuffFrame.auraFrames ~= nil
 addon.isNotClassic = isNotClassic
 
+-- Keep Blizzard's resolved font object and anchors for each duration region while it is
+-- customized. These values can vary by locale and by the modern aura-frame layout.
+local nativeDurationStyles = setmetatable({}, { __mode = "k" })
+
+local function CaptureNativeDurationStyle(duration)
+    local fontFile, fontHeight, fontFlags = duration:GetFont()
+    local style = {
+        fontFile = fontFile,
+        fontHeight = fontHeight,
+        fontFlags = fontFlags,
+        fontObject = duration:GetFontObject(),
+        points = {},
+    }
+
+    for index = 1, duration:GetNumPoints() do
+        local point, relativeTo, relativePoint, offsetX, offsetY = duration:GetPoint(index)
+        style.points[index] = {
+            point = point,
+            relativeTo = relativeTo,
+            relativePoint = relativePoint,
+            offsetX = offsetX,
+            offsetY = offsetY,
+        }
+    end
+
+    nativeDurationStyles[duration] = style
+end
+
+local function RestoreNativeDurationStyle(duration)
+    local style = nativeDurationStyles[duration]
+    if not style then
+        return
+    end
+
+    duration:ClearAllPoints()
+    for _, anchor in ipairs(style.points) do
+        duration:SetPoint(
+            anchor.point,
+            anchor.relativeTo,
+            anchor.relativePoint,
+            anchor.offsetX,
+            anchor.offsetY
+        )
+    end
+    if style.fontFile then
+        local fontFlags = style.fontFlags ~= "" and style.fontFlags or nil
+        duration:SetFont(style.fontFile, style.fontHeight, fontFlags)
+    end
+    duration:SetFontObject(style.fontObject)
+
+    nativeDurationStyles[duration] = nil
+end
+
+local function ApplyDurationTextStyle(self, aura, duration)
+    if not self.db.profile.customize_text then
+        RestoreNativeDurationStyle(duration)
+        return
+    end
+
+    if not nativeDurationStyles[duration] then
+        CaptureNativeDurationStyle(duration)
+    end
+
+    local verticalPosition = self.db.profile.vertical_position
+
+    if isNotClassic and verticalPosition == -40 then
+        verticalPosition = -39.9
+    end
+
+    duration:ClearAllPoints()
+    duration:SetPoint("BOTTOM", aura, "TOP", 0, verticalPosition)
+
+    local fontPath = BuffTimersLibSharedMedia:Fetch("font", self.db.profile.font)
+    -- "" (None) must be passed as nil, and the old "THICK" preset isn't a real font
+    -- flag ("THICKOUTLINE" is); the modern client's SetFont rejects both, so normalize.
+    local outline = self.db.profile.font_outline
+    if outline == "THICK" then outline = "THICKOUTLINE" end
+    duration:SetFont(fontPath, self.db.profile.font_size, outline ~= "" and outline or nil)
+end
+
+function BuffTimers:SetTextCustomizationEnabled(enabled)
+    self.db.profile.customize_text = enabled
+
+    if enabled then
+        return
+    end
+
+    local duration = next(nativeDurationStyles)
+    while duration do
+        RestoreNativeDurationStyle(duration)
+        duration = next(nativeDurationStyles)
+    end
+end
+
 local function GetMilliseconds(time)
     return floor((time % 60) % 1 * 10)
 end
@@ -65,10 +163,10 @@ function BuffTimers:OnInitialize()
             yellow_text = BuffTimersOptions["yellow_text"] or false,
             colored_text = BuffTimersOptions["colored_text"] or false,
             customize_text = BuffTimersOptions["customize_text"] or false,
-            vertical_position = BuffTimersOptions["vertical_position"] or -34,
-            font = "Friz Quadrata TT",
-            font_size = BuffTimersOptions["font_size"] or 14,
-            font_outline = "",
+            vertical_position = BuffTimersOptions["vertical_position"] or DEFAULT_TEXT_VERTICAL_POSITION,
+            font = DEFAULT_TEXT_FONT,
+            font_size = BuffTimersOptions["font_size"] or DEFAULT_TEXT_FONT_SIZE,
+            font_outline = DEFAULT_TEXT_FONT_OUTLINE,
         }
     }
 
@@ -246,13 +344,16 @@ function BuffTimers:OnEnable()
     -- Hook the functions when addon is enabled
     if isNotClassic then
         -- Blizzard's OnUpdate already calls UpdateDuration for every timed aura type.
-        -- Hooking OnUpdate separately would add per-frame work and normal aura records
-        -- do not expose an auraInstanceID for a second lookup.
         local frames = { BuffFrame, DebuffFrame }
         for i = 1, #frames do
             for _, button in ipairs(frames[i].auraFrames or {}) do
                 if button.UpdateDuration then
                     hooksecurefunc(button, "UpdateDuration", self.OnAuraDurationUpdate)
+                end
+                -- The zhTW layout adjusts long-duration fonts after UpdateDuration returns.
+                -- Reapply only the text style after that adjustment has finished.
+                if SMALLER_AURA_DURATION_FONT_MIN_THRESHOLD and button.OnUpdate then
+                    hooksecurefunc(button, "OnUpdate", self.OnAuraFrameUpdate)
                 end
             end
         end
@@ -413,29 +514,14 @@ function BuffTimers.OnAuraDurationUpdate(aura, time)
     local duration = isNotClassic and aura.Duration or aura.duration
     local self = BuffTimers
 
+    ApplyDurationTextStyle(self, aura, duration)
+
     if time then
         local ok, result = pcall(function()
             return self:FormatTime(time)
         end)
 
         if ok and result then
-            if self.db.profile.customize_text then
-                local verticalPosition = self.db.profile.vertical_position
-
-                if (isNotClassic and verticalPosition == -40) then
-                    verticalPosition = -39.9
-                end
-
-                duration:SetPoint("BOTTOM", aura, "TOP", 0, verticalPosition)
-
-                local fontPath = BuffTimersLibSharedMedia:Fetch("font", self.db.profile.font)
-                -- "" (None) must be passed as nil, and the old "THICK" preset isn't a real font
-                -- flag ("THICKOUTLINE" is); the modern client's SetFont rejects both, so normalize.
-                local outline = self.db.profile.font_outline
-                if outline == "THICK" then outline = "THICKOUTLINE" end
-                duration:SetFont(fontPath, self.db.profile.font_size, outline ~= "" and outline or nil)
-            end
-
             duration:SetText(result)
             self:SetDurationColor(duration, time)
             duration:Show()
@@ -443,6 +529,10 @@ function BuffTimers.OnAuraDurationUpdate(aura, time)
     else
         duration:Hide()
     end
+end
+
+function BuffTimers.OnAuraFrameUpdate(aura)
+    ApplyDurationTextStyle(BuffTimers, aura, aura.Duration)
 end
 
 function BuffTimers.OnAuraUpdate(auraSlot, index, filter)

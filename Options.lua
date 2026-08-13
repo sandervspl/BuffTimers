@@ -57,6 +57,10 @@ local function GetImportError(errorCode, detail)
     return L[importErrors[errorCode] or "The profile data is invalid."]
 end
 
+local function IsTextCustomizationDisabled()
+    return not db.profile.customize_text
+end
+
 function module:OnInitialize()
     db = BuffTimers.db
 
@@ -166,7 +170,7 @@ function module:OnInitialize()
                                 name = L["Enable"],
                                 desc = L["Enable text customization"],
                                 get = function() return db.profile.customize_text end,
-                                set = function(_, value) db.profile.customize_text = value end,
+                                set = function(_, value) BuffTimers:SetTextCustomizationEnabled(value) end,
                                 width = "full",
                                 order = 7,
                             },
@@ -179,6 +183,7 @@ function module:OnInitialize()
                                 step = 1,
                                 get = function() return db.profile.vertical_position end,
                                 set = function(_, value) db.profile.vertical_position = value end,
+                                disabled = IsTextCustomizationDisabled,
                                 order = 8,
                             },
                             fontGroup = {
@@ -200,6 +205,7 @@ function module:OnInitialize()
                                         end,
                                         get = function() return db.profile.font end,
                                         set = function(_, value) db.profile.font = value end,
+                                        disabled = IsTextCustomizationDisabled,
                                         order = 1,
                                     },
                                     fontSize = {
@@ -211,6 +217,7 @@ function module:OnInitialize()
                                         step = 1,
                                         get = function() return db.profile.font_size end,
                                         set = function(_, value) db.profile.font_size = value end,
+                                        disabled = IsTextCustomizationDisabled,
                                         order = 2,
                                     },
                                     fontOutline = {
@@ -225,6 +232,7 @@ function module:OnInitialize()
                                         },
                                         get = function() return db.profile.font_outline end,
                                         set = function(_, value) db.profile.font_outline = value end,
+                                        disabled = IsTextCustomizationDisabled,
                                         order = 3,
                                     }
                                 }

@@ -35,7 +35,7 @@ describe("profile options", function()
         local addon = {
             db = { profile = {} },
             VERTICAL_POSITION_MIN = -100,
-            VERTICAL_POSITION_MAX = -31,
+            VERTICAL_POSITION_MAX = 0,
         }
         local profileOptions = { type = "group", name = "Profiles", args = {} }
         local locale = setmetatable({}, {
@@ -57,6 +57,10 @@ describe("profile options", function()
         function addon:WillImportReplaceProfile(value)
             env.confirmedText = value
             return env.willReplaceProfile
+        end
+        function addon:SetTextCustomizationEnabled(value)
+            env.customizationToggle = value
+            self.db.profile.customize_text = value
         end
 
         local libraries = {
@@ -137,7 +141,35 @@ describe("profile options", function()
 
         local verticalPosition = env.options.args.textGroup.args.customizeTextGroup.args.verticalPosition
         assert.equals(-100, verticalPosition.min)
-        assert.equals(-31, verticalPosition.max)
+        assert.equals(0, verticalPosition.max)
+
+        local customization = env.options.args.textGroup.args.customizeTextGroup.args
+        local fontOptions = customization.fontGroup.args
+        assert.is_true(verticalPosition.disabled())
+        assert.is_true(fontOptions.font.disabled())
+        assert.is_true(fontOptions.fontSize.disabled())
+        assert.is_true(fontOptions.fontOutline.disabled())
+
+        customization.enableCustomizeText.set(nil, true)
+        assert.is_false(verticalPosition.disabled())
+        assert.is_false(fontOptions.font.disabled())
+        assert.is_false(fontOptions.fontSize.disabled())
+        assert.is_false(fontOptions.fontOutline.disabled())
+
+        addon.db.profile.vertical_position = -45
+        addon.db.profile.font = "Custom Font"
+        addon.db.profile.font_size = 22
+        addon.db.profile.font_outline = "THICKOUTLINE"
+        customization.enableCustomizeText.set(nil, false)
+        assert.is_false(env.customizationToggle)
+        assert.equals(-45, addon.db.profile.vertical_position)
+        assert.equals("Custom Font", addon.db.profile.font)
+        assert.equals(22, addon.db.profile.font_size)
+        assert.equals("THICKOUTLINE", addon.db.profile.font_outline)
+        assert.is_true(verticalPosition.disabled())
+        assert.is_true(fontOptions.font.disabled())
+        assert.is_true(fontOptions.fontSize.disabled())
+        assert.is_true(fontOptions.fontOutline.disabled())
 
         local transfer = env.options.args.importExport.args
         assert.equals("BuffTimers:2:export1", transfer.exportString.get())

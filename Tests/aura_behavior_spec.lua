@@ -36,6 +36,42 @@ describe("BuffTimers client integration", function()
         assert.same({ debuffButton, "UpdateDuration", env.addon.OnAuraDurationUpdate }, env.hooks[2])
     end)
 
+    it("reapplies custom text after Blizzard's locale-specific duration styling", function()
+        local buffButton = {
+            OnUpdate = function() end,
+            UpdateDuration = function() end,
+        }
+        local env = Helpers.loadAddon({
+            modern = true,
+            modernFrames = { buffs = { buffButton } },
+            smallerAuraDurationFont = true,
+            profile = {
+                customize_text = true,
+                vertical_position = -45,
+                font = "Mock Font",
+                font_size = 18,
+                font_outline = "OUTLINE",
+            },
+        })
+        local duration = Helpers.newDuration()
+        local aura = { Duration = duration }
+        duration:SetPoint("TOP", aura, "BOTTOM", 0, -2)
+
+        env.addon:OnEnable()
+
+        assert.same({ buffButton, "UpdateDuration", env.addon.OnAuraDurationUpdate }, env.hooks[1])
+        assert.same({ buffButton, "OnUpdate", env.addon.OnAuraFrameUpdate }, env.hooks[2])
+
+        env.hooks[1][3](aura, 7200)
+        duration:SetFontObject("GameFontHighlightSmall2")
+        duration:SetPoint("TOP", aura, "BOTTOM", 0, -2)
+        env.hooks[2][3](aura)
+
+        assert.same({ "BOTTOM", aura, "TOP", 0, -45 }, duration.point)
+        assert.equals(1, #duration.points)
+        assert.same({ "Fonts\\Mock.ttf", 18, "OUTLINE" }, duration.font)
+    end)
+
     it("hooks the legacy global aura functions", function()
         local env = Helpers.loadAddon({ modern = false })
 
@@ -98,6 +134,53 @@ describe("BuffTimers.OnAuraDurationUpdate", function()
         assert.same({ "BOTTOM", aura, "TOP", 0, -39.9 }, duration.point)
         assert.same({ "Fonts\\Mock.ttf", 18, "THICKOUTLINE" }, duration.font)
         assert.same({ { mediaType = "font", name = "Mock Font" } }, env.mediaQueries)
+    end)
+
+    it("restores Blizzard's complete font while preserving customization values", function()
+        local env = Helpers.loadAddon({
+            modern = true,
+            profile = {
+                customize_text = true,
+                vertical_position = -45,
+                font = "Mock Font",
+                font_size = 18,
+                font_outline = "OUTLINE",
+            },
+        })
+        local duration = Helpers.newDuration()
+        local aura = { Duration = duration }
+        duration:SetPoint("TOP", aura, "BOTTOM", 2, -3)
+
+        env.addon.OnAuraDurationUpdate(aura, 30)
+
+        assert.same({ "BOTTOM", aura, "TOP", 0, -45 }, duration.point)
+        assert.equals(1, #duration.points)
+        assert.same({ "Fonts\\Mock.ttf", 18, "OUTLINE" }, duration.font)
+
+        env.addon:SetTextCustomizationEnabled(false)
+
+        assert.same({ "TOP", aura, "BOTTOM", 2, -3 }, duration.point)
+        assert.equals(1, #duration.points)
+        assert.equals("GameFontNormalSmall", duration.fontObject)
+        assert.same({ "Fonts\\FRIZQT__.TTF", 10 }, duration.font)
+        assert.equals(-45, env.addon.db.profile.vertical_position)
+        assert.equals("Mock Font", env.addon.db.profile.font)
+        assert.equals(18, env.addon.db.profile.font_size)
+        assert.equals("OUTLINE", env.addon.db.profile.font_outline)
+
+        env.addon.OnAuraDurationUpdate(aura, nil)
+        assert.is_false(duration.visible)
+
+        env.addon:SetTextCustomizationEnabled(true)
+        env.addon.OnAuraDurationUpdate(aura, 28)
+
+        assert.same({ "BOTTOM", aura, "TOP", 0, -45 }, duration.point)
+        assert.same({ "Fonts\\Mock.ttf", 18, "OUTLINE" }, duration.font)
+        assert.same({ mediaType = "font", name = "Mock Font" }, env.mediaQueries[#env.mediaQueries])
+
+        env.addon:SetTextCustomizationEnabled(false)
+        assert.same({ "Fonts\\FRIZQT__.TTF", 10 }, duration.font)
+        assert.equals(18, env.addon.db.profile.font_size)
     end)
 end)
 
