@@ -35,7 +35,10 @@ end
 function Helpers.newDuration()
     local duration = {
         colorCalls = {},
+        font = { "Fonts\\FRIZQT__.TTF", 10 },
+        fontObject = "GameFontNormalSmall",
         hideCount = 0,
+        points = {},
         showCount = 0,
     }
 
@@ -46,10 +49,37 @@ function Helpers.newDuration()
 
     function duration:SetPoint(...)
         self.point = { ... }
+        table.insert(self.points, self.point)
+    end
+
+    function duration:GetNumPoints()
+        return #self.points
+    end
+
+    function duration:GetPoint(index)
+        return unpackValues(self.points[index])
+    end
+
+    function duration:ClearAllPoints()
+        self.point = nil
+        self.points = {}
+        self.clearAllPointsCount = (self.clearAllPointsCount or 0) + 1
     end
 
     function duration:SetFont(...)
         self.font = { ... }
+    end
+
+    function duration:GetFont()
+        return unpackValues(self.font)
+    end
+
+    function duration:GetFontObject()
+        return self.fontObject
+    end
+
+    function duration:SetFontObject(fontObject)
+        self.fontObject = fontObject
     end
 
     function duration:SetText(text)
@@ -197,6 +227,7 @@ function Helpers.loadAddon(options)
     _G.ceil = math.ceil
     _G.BuffTimersOptions = options.oldOptions
     _G.BuffTimersDB = nil
+    _G.SMALLER_AURA_DURATION_FONT_MIN_THRESHOLD = options.smallerAuraDurationFont and 3600 or nil
 
     local modernFrames = options.modernFrames or {}
     if options.modern == false then

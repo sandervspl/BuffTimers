@@ -31,7 +31,7 @@ describe("profile import and export", function()
             time_stamp = "hm",
             seconds = true,
             seconds_threshold = 45,
-            vertical_position = -31,
+            vertical_position = 0,
             font = "Imported Font",
             font_size = 22,
             font_outline = "THICK",
@@ -65,7 +65,7 @@ describe("profile import and export", function()
             time_stamp = "hm",
             seconds = true,
             seconds_threshold = 45,
-            vertical_position = -31,
+            vertical_position = 0,
             font = "Imported Font",
             font_size = 22,
             font_outline = "THICKOUTLINE",
@@ -163,8 +163,8 @@ describe("profile import and export", function()
         assert.is_nil(env.profileResetCount)
     end)
 
-    it("rejects a vertical position above -31", function()
-        local imported = Helpers.defaultProfile({ vertical_position = -30 })
+    it("rejects a vertical position above 0", function()
+        local imported = Helpers.defaultProfile({ vertical_position = 1 })
         local env = Helpers.loadAddon({
             deserialize = function()
                 return true, {
