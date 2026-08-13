@@ -14,6 +14,8 @@ describe("addon manifest", function()
             '<Include file="libs\\AceAddon-3.0\\AceAddon-3.0.xml"/>',
             '<Script file="libs\\AceLocale-3.0\\AceLocale-3.0.lua"/>',
             '<Include file="libs\\AceDB-3.0\\AceDB-3.0.xml"/>',
+            '<Include file="libs\\AceDBOptions-3.0\\AceDBOptions-3.0.xml"/>',
+            '<Include file="libs\\AceSerializer-3.0\\AceSerializer-3.0.xml"/>',
             '<Include file="libs\\AceConfig-3.0\\AceConfig-3.0.xml"/>',
             '<Include file="libs\\LibSharedMedia-3.0\\lib.xml"/>',
         }

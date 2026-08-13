@@ -1,6 +1,36 @@
 local addonName, addon = ...
 local BuffTimers = LibStub("AceAddon-3.0"):GetAddon("BuffTimers")
 local L = LibStub("AceLocale-3.0"):GetLocale("BuffTimers")
+local Serializer = LibStub("AceSerializer-3.0")
+
+local PROFILE_EXPORT_VERSION = 2
+local LEGACY_PROFILE_EXPORT_VERSION = 1
+local PROFILE_EXPORT_PREFIX = "BuffTimers:" .. PROFILE_EXPORT_VERSION .. ":"
+local PROFILE_EXPORT_MAX_LENGTH = 10000
+local VERTICAL_POSITION_MIN = -100
+local VERTICAL_POSITION_MAX = -31
+BuffTimers.VERTICAL_POSITION_MIN = VERTICAL_POSITION_MIN
+BuffTimers.VERTICAL_POSITION_MAX = VERTICAL_POSITION_MAX
+local PROFILE_KEYS = {
+    "time_stamp",
+    "seconds",
+    "seconds_threshold",
+    "milliseconds",
+    "yellow_text",
+    "colored_text",
+    "customize_text",
+    "vertical_position",
+    "font",
+    "font_size",
+    "font_outline",
+}
+local BOOLEAN_PROFILE_KEYS = {
+    "seconds",
+    "milliseconds",
+    "yellow_text",
+    "colored_text",
+    "customize_text",
+}
 
 -- Retail has always used the modern buff frame, and after its UI modernization Classic Era
 -- does too. Detect it directly -- BuffFrame.auraFrames replaced the old AuraButton_Update
@@ -44,6 +74,172 @@ function BuffTimers:OnInitialize()
 
     -- Initialize the addon
     self.db = LibStub("AceDB-3.0"):New("BuffTimersDB", defaults, true)
+end
+
+local function IsIntegerInRange(value, minimum, maximum)
+    return type(value) == "number" and value == floor(value) and value >= minimum and value <= maximum
+end
+
+local function ValidateProfileName(profileName)
+    if
+        type(profileName) ~= "string" or
+        #profileName > 200 or
+        not profileName:find("%S") or
+        profileName:find("[%c]")
+    then
+        return nil, "INVALID_VALUE", "profile_name"
+    end
+
+    return profileName
+end
+
+local function ValidateImportedProfile(profile)
+    if type(profile) ~= "table" then
+        return nil, "INVALID_PROFILE"
+    end
+
+    local validated = {}
+
+    if profile.time_stamp ~= "m" and profile.time_stamp ~= "hm" then
+        return nil, "INVALID_VALUE", "time_stamp"
+    end
+    validated.time_stamp = profile.time_stamp
+
+    for _, key in ipairs(BOOLEAN_PROFILE_KEYS) do
+        if type(profile[key]) ~= "boolean" then
+            return nil, "INVALID_VALUE", key
+        end
+        validated[key] = profile[key]
+    end
+
+    if not IsIntegerInRange(profile.seconds_threshold, 1, 120) then
+        return nil, "INVALID_VALUE", "seconds_threshold"
+    end
+    validated.seconds_threshold = profile.seconds_threshold
+
+    if not IsIntegerInRange(profile.vertical_position, VERTICAL_POSITION_MIN, VERTICAL_POSITION_MAX) then
+        return nil, "INVALID_VALUE", "vertical_position"
+    end
+    validated.vertical_position = profile.vertical_position
+
+    if type(profile.font) ~= "string" or profile.font == "" or #profile.font > 200 then
+        return nil, "INVALID_VALUE", "font"
+    end
+    validated.font = profile.font
+
+    if not IsIntegerInRange(profile.font_size, 1, 100) then
+        return nil, "INVALID_VALUE", "font_size"
+    end
+    validated.font_size = profile.font_size
+
+    local outline = profile.font_outline
+    if outline == "THICK" then
+        outline = "THICKOUTLINE"
+    end
+    if outline ~= "" and outline ~= "OUTLINE" and outline ~= "THICKOUTLINE" and outline ~= "MONOCHROME" then
+        return nil, "INVALID_VALUE", "font_outline"
+    end
+    validated.font_outline = outline
+
+    return validated
+end
+
+local function DecodeProfileExport(database, exportString)
+    if type(exportString) ~= "string" or exportString:match("^%s*$") then
+        return false, "EMPTY"
+    end
+    if #exportString > PROFILE_EXPORT_MAX_LENGTH then
+        return false, "TOO_LONG"
+    end
+
+    local cleaned = exportString:match("^%s*(.-)%s*$")
+    local version = cleaned:match("^BuffTimers:(%d+):")
+    if not version then
+        return false, "INVALID_FORMAT"
+    end
+    local versionNumber = tonumber(version)
+    if versionNumber ~= PROFILE_EXPORT_VERSION and versionNumber ~= LEGACY_PROFILE_EXPORT_VERSION then
+        return false, "UNSUPPORTED_VERSION", version
+    end
+
+    local prefix = "BuffTimers:" .. version .. ":"
+    local success, payload = Serializer:Deserialize(cleaned:sub(#prefix + 1))
+    if not success then
+        return false, "INVALID_DATA"
+    end
+
+    local profileName
+    local profile
+    if versionNumber == LEGACY_PROFILE_EXPORT_VERSION then
+        -- Version 1 did not include a name, so preserve its original active-profile behavior.
+        profileName = database:GetCurrentProfile()
+        profile = payload
+    elseif type(payload) == "table" then
+        profileName = payload.profile_name
+        profile = payload.profile
+    end
+
+    local validatedName, nameErrorCode, nameField = ValidateProfileName(profileName)
+    if not validatedName then
+        return false, nameErrorCode, nameField
+    end
+
+    local validated, errorCode, field = ValidateImportedProfile(profile)
+    if not validated then
+        return false, errorCode, field
+    end
+
+    return true, validatedName, validated
+end
+
+function BuffTimers:ExportProfile()
+    local profile = {}
+
+    for _, key in ipairs(PROFILE_KEYS) do
+        profile[key] = self.db.profile[key]
+    end
+
+    if profile.font_outline == "THICK" then
+        profile.font_outline = "THICKOUTLINE"
+    end
+
+    return PROFILE_EXPORT_PREFIX .. Serializer:Serialize({
+        profile_name = self.db:GetCurrentProfile(),
+        profile = profile,
+    })
+end
+
+function BuffTimers:WillImportReplaceProfile(exportString)
+    local success, profileName = DecodeProfileExport(self.db, exportString)
+    if not success then
+        return false
+    end
+
+    local profiles = self.db:GetProfiles()
+    for _, existingName in ipairs(profiles) do
+        if existingName == profileName then
+            return true
+        end
+    end
+
+    return false
+end
+
+function BuffTimers:ImportProfile(exportString)
+    local success, profileName, profile = DecodeProfileExport(self.db, exportString)
+    if not success then
+        return false, profileName, profile
+    end
+
+    -- SetProfile creates or selects the exact exported name. Validation happens first, so
+    -- malformed imports never switch profiles or change settings.
+    self.db:SetProfile(profileName)
+    self.db:ResetProfile()
+    for key, value in pairs(profile) do
+        self.db.profile[key] = value
+    end
+
+    return true, profileName
 end
 
 function BuffTimers:OnEnable()

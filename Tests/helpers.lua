@@ -82,9 +82,57 @@ function Helpers.loadAddon(options)
     local addon = {}
     local namespace = {}
 
-    addon.db = {
-        profile = Helpers.defaultProfile(options.profile),
-    }
+    env.profileSetRequests = {}
+
+    local function newDatabase(profile, profileName)
+        local database = {
+            currentProfile = profileName,
+            profile = profile,
+            profiles = {
+                [profileName] = profile,
+            },
+        }
+
+        function database:GetCurrentProfile()
+            return self.currentProfile
+        end
+
+        function database:GetProfiles(destination)
+            destination = destination or {}
+            for key in pairs(destination) do
+                destination[key] = nil
+            end
+
+            local count = 0
+            for name in pairs(self.profiles) do
+                count = count + 1
+                destination[count] = name
+            end
+            if not self.profiles[self.currentProfile] then
+                count = count + 1
+                destination[count] = self.currentProfile
+            end
+
+            return destination, count
+        end
+
+        function database:SetProfile(name)
+            table.insert(env.profileSetRequests, name)
+            self.currentProfile = name
+            self.profile = self.profiles[name] or Helpers.defaultProfile()
+            self.profiles[name] = self.profile
+        end
+
+        function database:ResetProfile()
+            env.profileResetCount = (env.profileResetCount or 0) + 1
+            self.profile = Helpers.defaultProfile()
+            self.profiles[self.currentProfile] = self.profile
+        end
+
+        return database
+    end
+
+    addon.db = newDatabase(Helpers.defaultProfile(options.profile), options.profileName or "Default")
 
     local aceAddon = {}
     function aceAddon:GetAddon(name)
@@ -109,14 +157,32 @@ function Helpers.loadAddon(options)
             defaults = defaults,
             defaultProfile = defaultProfile,
         }
-        env.database = { profile = defaults.profile }
+        local profileName = defaultProfile == true and "Default" or defaultProfile or "Character"
+        env.database = newDatabase(defaults.profile, profileName)
         return env.database
+    end
+
+    local serializer = {}
+    function serializer:Serialize(value)
+        env.serializeRequest = value
+        if options.serialize then
+            return options.serialize(value)
+        end
+        return "^1mock^^"
+    end
+    function serializer:Deserialize(value)
+        env.deserializeRequest = value
+        if options.deserialize then
+            return options.deserialize(value)
+        end
+        return false, "invalid mock serialization"
     end
 
     local libraries = {
         ["AceAddon-3.0"] = aceAddon,
         ["AceLocale-3.0"] = aceLocale,
         ["AceDB-3.0"] = aceDB,
+        ["AceSerializer-3.0"] = serializer,
     }
 
     _G.LibStub = function(name)
