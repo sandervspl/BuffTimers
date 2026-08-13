@@ -1,3 +1,5 @@
 ignore:
   - .busted
   - Tests
+  - scripts
+  - Media/639039782553811263.webp
