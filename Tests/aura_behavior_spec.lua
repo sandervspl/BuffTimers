@@ -83,8 +83,32 @@ describe("BuffTimers client integration", function()
 end)
 
 describe("BuffTimers.OnAuraDurationUpdate", function()
+    it("leaves Blizzard's text in place for a secret timer value", function()
+        local secretTime = {}
+        local env = Helpers.loadAddon({
+            modern = true,
+            issecretvalue = function(value) return value == secretTime end,
+        })
+        local duration = Helpers.newDuration()
+        duration.text = "Blizzard timer"
+        local aura = { Duration = duration }
+        local formatCalls = 0
+        env.addon.FormatTime = function()
+            formatCalls = formatCalls + 1
+        end
+
+        env.addon.OnAuraDurationUpdate(aura, secretTime)
+
+        assert.equals(0, formatCalls)
+        assert.equals("Blizzard timer", duration.text)
+        assert.is_nil(duration.color)
+    end)
+
     it("updates and shows modern duration text", function()
-        local env = Helpers.loadAddon({ modern = true })
+        local env = Helpers.loadAddon({
+            modern = true,
+            issecretvalue = function() return false end,
+        })
         local duration = Helpers.newDuration()
         local aura = { Duration = duration }
 

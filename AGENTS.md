@@ -4,7 +4,14 @@
 
 For every task that diagnoses, reviews, or changes WoW addon behavior, Lua, XML, or TOC compatibility, consult [Gethe/wow-ui-source](https://github.com/Gethe/wow-ui-source) before reaching a conclusion or editing code. Do not rely on memory when the reference can answer the question.
 
-1. Determine the affected clients from the task and the supported interface versions in `BuffTimers.toc`. Treat changes to shared runtime files (`BuffTimers.lua`, `Options.lua`, `Locales.lua`, and `embeds.xml`) as cross-client unless the code path or task is explicitly client-specific. Use only `live` for confirmed Retail-only work. Available upstream branches can be listed with `git -C .cache/wow-ui-source branch -r`.
+1. Determine the affected clients from the task and the supported interface versions in `BuffTimers.toc`. Treat changes to shared runtime files (`BuffTimers.lua`, `Options.lua`, `Locales.lua`, and `embeds.xml`) as cross-client unless the code path or task is explicitly client-specific. For cross-client work, inspect every supported branch below. Use only `live` for confirmed Retail-only work. Available upstream branches can be listed with `git -C .cache/wow-ui-source branch -r`.
+   - Retail (`120100`): `live`
+   - Mists of Pandaria Classic (`50504`): `classic`
+   - Titan (`38002`): `classic_titan`
+   - Anniversary (`20506`): `classic_anniversary`
+   - Classic Era (`11509`): `classic_era`
+   - Forever (`16001`, `camelot` game type): `forever`
+   Update this mapping when supported interfaces change. Do not infer one client's UI from another branch.
 2. Inspect affected branches sequentially because the helper maintains one working checkout: run `scripts/sync-wow-ui-source.sh <branch>`, inspect that branch, and record its commit and relevant files before switching to the next branch.
 3. Search `.cache/wow-ui-source/Interface/AddOns` for the Blizzard implementation and generated API documentation relevant to the task. Prefer `rg` for searches.
 4. Treat the checkout as read-only. Never edit or commit files below `.cache/wow-ui-source`.

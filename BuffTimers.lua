@@ -36,9 +36,9 @@ local BOOLEAN_PROFILE_KEYS = {
     "customize_text",
 }
 
--- Retail has always used the modern buff frame, and after its UI modernization Classic Era
+-- Retail and Forever use the modern buff frame, and after its UI modernization Classic Era
 -- does too. Detect it directly -- BuffFrame.auraFrames replaced the old AuraButton_Update
--- global we hook below, and a WOW_PROJECT_ID check can't tell modernized Era apart (same id).
+-- global we hook below, and project ID alone does not identify the frame implementation.
 local isNotClassic = BuffFrame.auraFrames ~= nil
 addon.isNotClassic = isNotClassic
 
@@ -515,6 +515,12 @@ function BuffTimers.OnAuraDurationUpdate(aura, time)
     local self = BuffTimers
 
     ApplyDurationTextStyle(self, aura, duration)
+
+    -- Modern clients can pass secret timer values to Blizzard's secure duration update.
+    -- Leave Blizzard's already-rendered text intact when addon code cannot read the time.
+    if issecretvalue and issecretvalue(time) then
+        return
+    end
 
     if time then
         local ok, result = pcall(function()
