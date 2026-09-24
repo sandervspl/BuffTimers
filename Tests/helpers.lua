@@ -8,6 +8,7 @@ Helpers.supportedClients = {
     { name = "Titan", interface = 38002, branch = "classic_titan" },
     { name = "Anniversary", interface = 20506, branch = "classic_anniversary" },
     { name = "Classic Era", interface = 11509, branch = "classic_era" },
+    { name = "Forever", interface = 16001, branch = "forever" },
 }
 
 function Helpers.defaultProfile(overrides)
@@ -37,6 +38,8 @@ function Helpers.newDuration()
         colorCalls = {},
         font = { "Fonts\\FRIZQT__.TTF", 10 },
         fontObject = "GameFontNormalSmall",
+        drawLayer = "BACKGROUND",
+        drawSublevel = 0,
         hideCount = 0,
         points = {},
         showCount = 0,
@@ -80,6 +83,15 @@ function Helpers.newDuration()
 
     function duration:SetFontObject(fontObject)
         self.fontObject = fontObject
+    end
+
+    function duration:GetDrawLayer()
+        return self.drawLayer, self.drawSublevel
+    end
+
+    function duration:SetDrawLayer(layer, sublevel)
+        self.drawLayer = layer
+        self.drawSublevel = sublevel or 0
     end
 
     function duration:SetText(text)
@@ -225,6 +237,7 @@ function Helpers.loadAddon(options)
 
     _G.floor = math.floor
     _G.ceil = math.ceil
+    _G.issecretvalue = options.issecretvalue
     _G.BuffTimersOptions = options.oldOptions
     _G.BuffTimersDB = nil
     _G.SMALLER_AURA_DURATION_FONT_MIN_THRESHOLD = options.smallerAuraDurationFont and 3600 or nil

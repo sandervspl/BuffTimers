@@ -32,3 +32,8 @@ jobs:
         uses: BigWigsMods/packager@master
         with:
           args: -g mists
+
+      - name: Package and release Forever
+        uses: BigWigsMods/packager@master
+        with:
+          args: -g forever

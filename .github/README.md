@@ -48,6 +48,7 @@ interface declared by `BuffTimers.toc`:
 - Titan (`38002`, upstream `classic_titan`)
 - Anniversary (`20506`, upstream `classic_anniversary`)
 - Classic Era (`11509`, upstream `classic_era`)
+- Forever (`16001`, upstream `forever`)
 
 The fixtures mirror Blizzard's current normal buff, debuff, temporary-enchant, and deadly-debuff
 button records. The matrix also fails if the interfaces in the TOC and tests drift apart.
