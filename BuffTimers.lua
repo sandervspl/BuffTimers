@@ -42,17 +42,20 @@ local BOOLEAN_PROFILE_KEYS = {
 local isNotClassic = BuffFrame.auraFrames ~= nil
 addon.isNotClassic = isNotClassic
 
--- Keep Blizzard's resolved font object and anchors for each duration region while it is
+-- Keep Blizzard's resolved font object, anchors, and draw layer for each duration region while it is
 -- customized. These values can vary by locale and by the modern aura-frame layout.
 local nativeDurationStyles = setmetatable({}, { __mode = "k" })
 
 local function CaptureNativeDurationStyle(duration)
     local fontFile, fontHeight, fontFlags = duration:GetFont()
+    local drawLayer, drawSublevel = duration:GetDrawLayer()
     local style = {
         fontFile = fontFile,
         fontHeight = fontHeight,
         fontFlags = fontFlags,
         fontObject = duration:GetFontObject(),
+        drawLayer = drawLayer,
+        drawSublevel = drawSublevel,
         points = {},
     }
 
@@ -91,6 +94,7 @@ local function RestoreNativeDurationStyle(duration)
         duration:SetFont(style.fontFile, style.fontHeight, fontFlags)
     end
     duration:SetFontObject(style.fontObject)
+    duration:SetDrawLayer(style.drawLayer, style.drawSublevel)
 
     nativeDurationStyles[duration] = nil
 end
@@ -104,6 +108,10 @@ local function ApplyDurationTextStyle(self, aura, duration)
     if not nativeDurationStyles[duration] then
         CaptureNativeDurationStyle(duration)
     end
+
+    -- Blizzard puts duration text in BACKGROUND and weapon-enchant borders in OVERLAY.
+    -- Custom positioning can overlap the border, so draw the text above it.
+    duration:SetDrawLayer("OVERLAY", 1)
 
     local verticalPosition = self.db.profile.vertical_position
 

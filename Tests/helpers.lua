@@ -38,6 +38,8 @@ function Helpers.newDuration()
         colorCalls = {},
         font = { "Fonts\\FRIZQT__.TTF", 10 },
         fontObject = "GameFontNormalSmall",
+        drawLayer = "BACKGROUND",
+        drawSublevel = 0,
         hideCount = 0,
         points = {},
         showCount = 0,
@@ -81,6 +83,15 @@ function Helpers.newDuration()
 
     function duration:SetFontObject(fontObject)
         self.fontObject = fontObject
+    end
+
+    function duration:GetDrawLayer()
+        return self.drawLayer, self.drawSublevel
+    end
+
+    function duration:SetDrawLayer(layer, sublevel)
+        self.drawLayer = layer
+        self.drawSublevel = sublevel or 0
     end
 
     function duration:SetText(text)

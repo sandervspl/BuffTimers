@@ -160,7 +160,7 @@ describe("BuffTimers.OnAuraDurationUpdate", function()
         assert.same({ { mediaType = "font", name = "Mock Font" } }, env.mediaQueries)
     end)
 
-    it("restores Blizzard's complete font while preserving customization values", function()
+    it("restores Blizzard's font and layering while preserving customization values", function()
         local env = Helpers.loadAddon({
             modern = true,
             profile = {
@@ -174,18 +174,21 @@ describe("BuffTimers.OnAuraDurationUpdate", function()
         local duration = Helpers.newDuration()
         local aura = { Duration = duration }
         duration:SetPoint("TOP", aura, "BOTTOM", 2, -3)
+        duration:SetDrawLayer("BACKGROUND", 2)
 
         env.addon.OnAuraDurationUpdate(aura, 30)
 
         assert.same({ "BOTTOM", aura, "TOP", 0, -45 }, duration.point)
         assert.equals(1, #duration.points)
         assert.same({ "Fonts\\Mock.ttf", 18, "OUTLINE" }, duration.font)
+        assert.same({ "OVERLAY", 1 }, { duration:GetDrawLayer() })
 
         env.addon:SetTextCustomizationEnabled(false)
 
         assert.same({ "TOP", aura, "BOTTOM", 2, -3 }, duration.point)
         assert.equals(1, #duration.points)
         assert.equals("GameFontNormalSmall", duration.fontObject)
+        assert.same({ "BACKGROUND", 2 }, { duration:GetDrawLayer() })
         assert.same({ "Fonts\\FRIZQT__.TTF", 10 }, duration.font)
         assert.equals(-45, env.addon.db.profile.vertical_position)
         assert.equals("Mock Font", env.addon.db.profile.font)
@@ -198,11 +201,13 @@ describe("BuffTimers.OnAuraDurationUpdate", function()
         env.addon:SetTextCustomizationEnabled(true)
         env.addon.OnAuraDurationUpdate(aura, 28)
 
+        assert.same({ "OVERLAY", 1 }, { duration:GetDrawLayer() })
         assert.same({ "BOTTOM", aura, "TOP", 0, -45 }, duration.point)
         assert.same({ "Fonts\\Mock.ttf", 18, "OUTLINE" }, duration.font)
         assert.same({ mediaType = "font", name = "Mock Font" }, env.mediaQueries[#env.mediaQueries])
 
         env.addon:SetTextCustomizationEnabled(false)
+        assert.same({ "BACKGROUND", 2 }, { duration:GetDrawLayer() })
         assert.same({ "Fonts\\FRIZQT__.TTF", 10 }, duration.font)
         assert.equals(18, env.addon.db.profile.font_size)
     end)
