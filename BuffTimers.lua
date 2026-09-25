@@ -522,11 +522,23 @@ function BuffTimers.OnAuraDurationUpdate(aura, time)
     local duration = isNotClassic and aura.Duration or aura.duration
     local self = BuffTimers
 
+    if isNotClassic then
+        if aura.isExample then
+            return
+        end
+        if CVarCallbackRegistry and not CVarCallbackRegistry:GetCVarValueBool("buffDurations") then
+            return
+        end
+    end
+
     ApplyDurationTextStyle(self, aura, duration)
 
-    -- Modern clients can pass secret timer values to Blizzard's secure duration update.
-    -- Leave Blizzard's already-rendered text intact when addon code cannot read the time.
+    -- This string operation explicitly permits secret arguments from addon code.
+    -- Direct numeric formatter/curve evaluation requires untainted execution.
     if issecretvalue and issecretvalue(time) then
+        if C_StringUtil and C_StringUtil.RemoveContiguousSpaces then
+            duration:SetText(C_StringUtil.RemoveContiguousSpaces(duration:GetText(), 0))
+        end
         return
     end
 
