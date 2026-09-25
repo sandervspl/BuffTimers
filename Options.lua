@@ -90,6 +90,15 @@ function module:OnInitialize()
                                 set = function(_, value) db.profile.time_stamp = value end,
                                 order = 1,
                             },
+                            detailedTimeOnHover = {
+                                type = "toggle",
+                                name = L["Show detailed time on hover"],
+                                desc = L["Show detailed time on hover when at least one minute remains"],
+                                get = function() return db.profile.detailed_time_on_hover end,
+                                set = function(_, value) db.profile.detailed_time_on_hover = value end,
+                                width = "full",
+                                order = 2,
+                            },
                         },
                     },
                     secondsThresholdGroup = {

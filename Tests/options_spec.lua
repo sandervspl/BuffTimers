@@ -139,6 +139,11 @@ describe("profile options", function()
         assert.equals(20, profileOptions.order)
         assert.same({ "BuffTimers", "BuffTimers" }, env.blizzardOptions)
 
+        local detailedTimeOnHover = env.options.args.time.args.formatGroup.args.detailedTimeOnHover
+        detailedTimeOnHover.set(nil, true)
+        assert.is_true(detailedTimeOnHover.get())
+        assert.is_true(addon.db.profile.detailed_time_on_hover)
+
         local verticalPosition = env.options.args.textGroup.args.customizeTextGroup.args.verticalPosition
         assert.equals(-100, verticalPosition.min)
         assert.equals(0, verticalPosition.max)

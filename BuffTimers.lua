@@ -20,6 +20,7 @@ local PROFILE_KEYS = {
     "seconds",
     "seconds_threshold",
     "milliseconds",
+    "detailed_time_on_hover",
     "yellow_text",
     "colored_text",
     "customize_text",
@@ -31,6 +32,7 @@ local PROFILE_KEYS = {
 local BOOLEAN_PROFILE_KEYS = {
     "seconds",
     "milliseconds",
+    "detailed_time_on_hover",
     "yellow_text",
     "colored_text",
     "customize_text",
@@ -45,6 +47,15 @@ addon.isNotClassic = isNotClassic
 -- Keep Blizzard's resolved font object, anchors, and draw layer for each duration region while it is
 -- customized. These values can vary by locale and by the modern aura-frame layout.
 local nativeDurationStyles = setmetatable({}, { __mode = "k" })
+local hoveredAuras = setmetatable({}, { __mode = "k" })
+
+local function OnAuraEnter(aura)
+    hoveredAuras[aura] = true
+end
+
+local function OnAuraLeave(aura)
+    hoveredAuras[aura] = nil
+end
 
 local function CaptureNativeDurationStyle(duration)
     local fontFile, fontHeight, fontFlags = duration:GetFont()
@@ -168,6 +179,7 @@ function BuffTimers:OnInitialize()
             seconds = BuffTimersOptions["seconds"] or false,
             seconds_threshold = BuffTimersOptions["seconds_threshold"] or 30,
             milliseconds = BuffTimersOptions["milliseconds"] or true,
+            detailed_time_on_hover = BuffTimersOptions["detailed_time_on_hover"] or false,
             yellow_text = BuffTimersOptions["yellow_text"] or false,
             colored_text = BuffTimersOptions["colored_text"] or false,
             customize_text = BuffTimersOptions["customize_text"] or false,
@@ -212,10 +224,15 @@ local function ValidateImportedProfile(profile)
     validated.time_stamp = profile.time_stamp
 
     for _, key in ipairs(BOOLEAN_PROFILE_KEYS) do
-        if type(profile[key]) ~= "boolean" then
+        -- Exports created before this setting existed do not contain the key.
+        local value = profile[key]
+        if key == "detailed_time_on_hover" and value == nil then
+            value = false
+        end
+        if type(value) ~= "boolean" then
             return nil, "INVALID_VALUE", key
         end
-        validated[key] = profile[key]
+        validated[key] = value
     end
 
     if not IsIntegerInRange(profile.seconds_threshold, 1, 120) then
@@ -357,6 +374,11 @@ function BuffTimers:OnEnable()
             for _, button in ipairs(frames[i].auraFrames or {}) do
                 if button.UpdateDuration then
                     hooksecurefunc(button, "UpdateDuration", self.OnAuraDurationUpdate)
+                    if button.HookScript then
+                        button:HookScript("OnEnter", OnAuraEnter)
+                        button:HookScript("OnLeave", OnAuraLeave)
+                        button:HookScript("OnHide", OnAuraLeave)
+                    end
                 end
                 -- The zhTW layout adjusts long-duration fonts after UpdateDuration returns.
                 -- Reapply only the text style after that adjustment has finished.
@@ -497,6 +519,21 @@ function BuffTimers:FormatTime(time)
     return str
 end
 
+function BuffTimers:FormatDetailedTime(time)
+    local totalSeconds = floor(time)
+    local hours = floor(totalSeconds / 3600)
+    local minutes = floor(totalSeconds / 60) % 60
+    local seconds = totalSeconds % 60
+
+    if hours >= 1 then
+        return ("%02d:%02d:%02d"):format(hours, minutes, seconds)
+    elseif minutes >= 1 then
+        return ("%02d:%02d"):format(minutes, seconds)
+    end
+
+    return ("%02d"):format(seconds)
+end
+
 function BuffTimers:SetDurationColor(duration, time)
     -- TBCC introduced a bug (?) where the timer starts ticking down in seconds at 90 seconds instead of 60 seconds
     -- Which also means the time will be white from 90 seconds
@@ -544,6 +581,10 @@ function BuffTimers.OnAuraDurationUpdate(aura, time)
 
     if time then
         local ok, result = pcall(function()
+            if self.db.profile.detailed_time_on_hover and time >= 60 and
+                (hoveredAuras[aura] or aura:IsMouseOver()) then
+                return self:FormatDetailedTime(time)
+            end
             return self:FormatTime(time)
         end)
 

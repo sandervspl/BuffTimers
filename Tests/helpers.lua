@@ -17,6 +17,7 @@ function Helpers.defaultProfile(overrides)
         seconds = false,
         seconds_threshold = 30,
         milliseconds = true,
+        detailed_time_on_hover = false,
         yellow_text = false,
         colored_text = false,
         customize_text = false,

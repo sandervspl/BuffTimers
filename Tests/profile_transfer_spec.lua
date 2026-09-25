@@ -7,6 +7,7 @@ describe("profile import and export", function()
             profile = {
                 time_stamp = "hm",
                 seconds = true,
+                detailed_time_on_hover = true,
                 font = "A Font With Spaces",
                 font_outline = "THICK",
             },
@@ -20,6 +21,7 @@ describe("profile import and export", function()
         assert.same(Helpers.defaultProfile({
             time_stamp = "hm",
             seconds = true,
+            detailed_time_on_hover = true,
             font = "A Font With Spaces",
             font_outline = "THICKOUTLINE",
         }), env.serializeRequest.profile)
@@ -117,6 +119,22 @@ describe("profile import and export", function()
         assert.equals("Legacy Target", importedName)
         assert.equals("Legacy Target", env.addon.db:GetCurrentProfile())
         assert.is_true(env.addon.db.profile.seconds)
+    end)
+
+    it("defaults the hover setting when importing a profile exported before it existed", function()
+        local imported = Helpers.defaultProfile()
+        imported.detailed_time_on_hover = nil
+        local env = Helpers.loadAddon({
+            profile = { detailed_time_on_hover = true },
+            deserialize = function()
+                return true, { profile_name = "Older Profile", profile = imported }
+            end,
+        })
+
+        local success = env.addon:ImportProfile("BuffTimers:2:^1payload^^")
+
+        assert.is_true(success)
+        assert.is_false(env.addon.db.profile.detailed_time_on_hover)
     end)
 
     it("rejects malformed and unsupported strings without changing the profile", function()

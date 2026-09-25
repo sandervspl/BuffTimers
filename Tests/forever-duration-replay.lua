@@ -3,7 +3,8 @@
 -- This replays upstream Lua; it cannot emulate WoW combat protection or taint.
 -- Failure cases: native text winning after a tick, locale styling winning last,
 -- disabled durations being shown, stale text after removal/reuse, wrong timeMod,
--- edit previews being overwritten, and arithmetic on secret timer values.
+-- edit previews being overwritten, mouse hit testing missing an entered buff,
+-- and arithmetic on secret timer values.
 local Helpers = dofile("Tests/helpers.lua")
 local showDurations = true
 CVarCallbackRegistry = {
@@ -22,7 +23,13 @@ end
 dofile(".cache/wow-ui-source/Interface/AddOns/Blizzard_BuffFrame/BuffFrame.lua")
 
 PlayerFrame = { unit = "player" }
-GameTooltip = { IsOwned = function() return false end }
+GameTooltip = {
+    IsOwned = function(self, button) return self.owner == button end,
+    SetOwner = function(self, button) self.owner = button end,
+    SetFrameLevel = function() end,
+    SetUnitAura = function() end,
+    Hide = function(self) self.owner = nil end,
+}
 BUFF_DURATION_WARNING_TIME = 60
 HIGHLIGHT_FONT_COLOR = { r = 1, g = 1, b = 1 }
 NORMAL_FONT_COLOR = { r = 1, g = 0.82, b = 0 }
@@ -45,6 +52,8 @@ local function newButton(auraType)
     end
     button.Duration.SetVertexColor = button.Duration.SetTextColor
     function button:GetParent() return nil end
+    function button:GetFrameLevel() return 1 end
+    function button:IsMouseOver() return false end
     function button:SetAlpha() end
     function button:Hide() self.hidden = true end
     function button:SetScript(name, callback) self[name .. "Script"] = callback end
@@ -98,9 +107,24 @@ check(buff.Duration.text == "30m", "direct duration update applies formatting wi
 tick(buff, 100)
 check(buff.Duration.text == "60m", "long buff uses custom text")
 check(buff.Duration.font[2] == 18, "custom font survives the registered locale update")
+env.addon.db.profile.detailed_time_on_hover = true
+buff:OnEnter()
+buff.OnEnterHook(buff)
+tick(buff, 100)
+check(buff.Duration.text == "01:00:00", "entered buff uses detailed time when hit testing misses")
+buff:OnLeave()
+buff.OnLeaveHook(buff)
+tick(buff, 100)
+check(buff.Duration.text == "60m", "leaving buff restores normal time")
 tick(buff, 1900)
 tick(enchant, 100)
 check(buff.Duration.text == "30m" and enchant.Duration.text == "30m", "buff and weapon enchant at 30 minutes")
+function enchant:IsMouseOver() return true end
+tick(enchant, 100)
+check(enchant.Duration.text == "30:00", "weapon enchant still uses mouse hit testing")
+function enchant:IsMouseOver() return false end
+tick(enchant, 100)
+check(enchant.Duration.text == "30m", "weapon enchant restores normal time")
 tick(buff, 1961)
 tick(enchant, 161)
 check(buff.Duration.text == "29m" and enchant.Duration.text == "29m", "both timers cross the minute boundary")

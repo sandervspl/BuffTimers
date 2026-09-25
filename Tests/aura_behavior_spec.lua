@@ -87,11 +87,15 @@ describe("BuffTimers.OnAuraDurationUpdate", function()
         local secretTime = {}
         local env = Helpers.loadAddon({
             modern = true,
+            profile = { detailed_time_on_hover = true },
             issecretvalue = function(value) return value == secretTime end,
         })
         local duration = Helpers.newDuration()
         duration.text = "Blizzard timer"
-        local aura = { Duration = duration }
+        local aura = {
+            Duration = duration,
+            IsMouseOver = function() error("secret time must not query hover") end,
+        }
         local formatCalls = 0
         env.addon.FormatTime = function()
             formatCalls = formatCalls + 1
@@ -117,6 +121,84 @@ describe("BuffTimers.OnAuraDurationUpdate", function()
         assert.equals("2m", duration.text)
         assert.is_true(duration.visible)
         assert.same({ 0.99999779462814, 0.81960606575012, 0, 1 }, duration.color)
+    end)
+
+    it("shows detailed time on hover only with minutes remaining", function()
+        local env = Helpers.loadAddon({
+            modern = true,
+            profile = { detailed_time_on_hover = true },
+        })
+        local duration = Helpers.newDuration()
+        local hovering = false
+        local hoverChecks = 0
+        local aura = {
+            Duration = duration,
+            IsMouseOver = function()
+                hoverChecks = hoverChecks + 1
+                return hovering
+            end,
+        }
+
+        env.addon.OnAuraDurationUpdate(aura, 3661)
+        assert.equals("62m", duration.text)
+
+        hovering = true
+        env.addon.OnAuraDurationUpdate(aura, 4.9)
+        assert.equals("4.9s", duration.text)
+        env.addon.OnAuraDurationUpdate(aura, 9)
+        assert.equals("9s", duration.text)
+        env.addon.OnAuraDurationUpdate(aura, 59.9)
+        assert.equals("59s", duration.text)
+        assert.equals(1, hoverChecks)
+        env.addon.OnAuraDurationUpdate(aura, 60)
+        assert.equals("01:00", duration.text)
+        env.addon.OnAuraDurationUpdate(aura, 61)
+        assert.equals("01:01", duration.text)
+        env.addon.OnAuraDurationUpdate(aura, 3599)
+        assert.equals("59:59", duration.text)
+        env.addon.OnAuraDurationUpdate(aura, 3600)
+        assert.equals("01:00:00", duration.text)
+        env.addon.OnAuraDurationUpdate(aura, 3661)
+        assert.equals("01:01:01", duration.text)
+        env.addon.OnAuraDurationUpdate(aura, 90061)
+        assert.equals("25:01:01", duration.text)
+
+        hovering = false
+        env.addon.OnAuraDurationUpdate(aura, 3661)
+        assert.equals("62m", duration.text)
+    end)
+
+    it("tracks Blizzard's enter and leave scripts when mouse hit testing misses a buff", function()
+        local duration = Helpers.newDuration()
+        local scripts = {}
+        local button = {
+            Duration = duration,
+            UpdateDuration = function() end,
+            IsMouseOver = function() return false end,
+            HookScript = function(_, name, callback) scripts[name] = callback end,
+        }
+        local env = Helpers.loadAddon({
+            modern = true,
+            modernFrames = { buffs = { button } },
+            profile = { detailed_time_on_hover = true },
+        })
+        env.addon:OnEnable()
+
+        env.addon.OnAuraDurationUpdate(button, 3661)
+        assert.equals("62m", duration.text)
+
+        scripts.OnEnter(button)
+        env.addon.OnAuraDurationUpdate(button, 3661)
+        assert.equals("01:01:01", duration.text)
+
+        scripts.OnLeave(button)
+        env.addon.OnAuraDurationUpdate(button, 3661)
+        assert.equals("62m", duration.text)
+
+        scripts.OnEnter(button)
+        scripts.OnHide(button)
+        env.addon.OnAuraDurationUpdate(button, 3661)
+        assert.equals("62m", duration.text)
     end)
 
     it("updates the legacy lowercase duration region", function()
