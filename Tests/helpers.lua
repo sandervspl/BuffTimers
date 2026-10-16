@@ -3,7 +3,7 @@ local Helpers = {}
 local unpackValues = unpack or table.unpack
 
 Helpers.supportedClients = {
-    { name = "Retail", interface = 120100, branch = "live" },
+    { name = "Retail", interface = 120105, branch = "live" },
     { name = "Mists of Pandaria Classic", interface = 50504, branch = "classic" },
     { name = "Titan", interface = 38002, branch = "classic_titan" },
     { name = "Anniversary", interface = 20506, branch = "classic_anniversary" },

@@ -5,7 +5,7 @@
 For every task that diagnoses, reviews, or changes WoW addon behavior, Lua, XML, or TOC compatibility, consult [Gethe/wow-ui-source](https://github.com/Gethe/wow-ui-source) before reaching a conclusion or editing code. Do not rely on memory when the reference can answer the question.
 
 1. Determine the affected clients from the task and the supported interface versions in `BuffTimers.toc`. Treat changes to shared runtime files (`BuffTimers.lua`, `Options.lua`, `Locales.lua`, and `embeds.xml`) as cross-client unless the code path or task is explicitly client-specific. For cross-client work, inspect every supported branch below. Use only `live` for confirmed Retail-only work. Available upstream branches can be listed with `git -C .cache/wow-ui-source branch -r`.
-   - Retail (`120100`): `live`
+   - Retail (`120105`): `live`
    - Mists of Pandaria Classic (`50504`): `classic`
    - Titan (`38002`): `classic_titan`
    - Anniversary (`20506`): `classic_anniversary`
