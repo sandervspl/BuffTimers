@@ -12,6 +12,7 @@ CVarCallbackRegistry = {
     GetCVarValueBool = function() return showDurations end,
 }
 HelpTip = { ButtonStyle = {}, Point = {}, Alignment = {} }
+InputUtil = { IsGamepadUIEnabled = function() return false end }
 Enum = { FrameTutorialAccount = {} }
 function CreateFromMixins(...)
     local result = {}

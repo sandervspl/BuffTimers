@@ -161,7 +161,8 @@ function module:OnInitialize()
                             coloredText = {
                                 type = "toggle",
                                 name = L["Add more colors to the timer"],
-                                desc = L["Use different colors based on remaining time"],
+                                desc = L["Use different colors based on remaining time"] .. " " ..
+                                    L["When WoW restricts remaining time, timers use Blizzard's colors. Enable Always yellow text color for a consistent color in combat."],
                                 get = function() return db.profile.colored_text end,
                                 set = function(_, value) db.profile.colored_text = value end,
                                 width = "full",

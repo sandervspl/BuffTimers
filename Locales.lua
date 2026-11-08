@@ -14,6 +14,7 @@ if L then
     L["Adjust the vertical position of the timer text"] = "Adjust the vertical position of the timer text"
     L["Enable text customization"] = "Enable text customization"
     L["Use different colors based on remaining time"] = "Use different colors based on remaining time"
+    L["When WoW restricts remaining time, timers use Blizzard's colors. Enable Always yellow text color for a consistent color in combat."] = true
     L["Always use yellow for buff timer text"] = "Always use yellow for buff timer text"
     L["Show milliseconds for buff timers with less than 5 seconds remaining"] = "Show milliseconds for buff timers with less than 5 seconds remaining"
     L["Only show seconds when buffs have less than this many minutes"] = "Only show seconds when buffs have less than this many minutes"

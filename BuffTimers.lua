@@ -573,6 +573,11 @@ function BuffTimers.OnAuraDurationUpdate(aura, time)
     -- This string operation explicitly permits secret arguments from addon code.
     -- Direct numeric formatter/curve evaluation requires untainted execution.
     if issecretvalue and issecretvalue(time) then
+        -- A fixed color does not need access to the restricted remaining time.
+        -- Blizzard reapplies its native color on every duration update.
+        if self.db.profile.yellow_text then
+            duration:SetTextColor(0.99999779462814, 0.81960606575012, 0, 1)
+        end
         if C_StringUtil and C_StringUtil.RemoveContiguousSpaces then
             duration:SetText(C_StringUtil.RemoveContiguousSpaces(duration:GetText(), 0))
         end
