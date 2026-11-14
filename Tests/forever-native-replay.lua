@@ -4,6 +4,9 @@
 -- Replays addon configuration and lifecycle, not WoW's secret/taint engine.
 -- Failure scenarios: accidental other-client activation, duplicate legacy art,
 -- combat access to adopted objects, lost settings, hide/show, and failed setup.
+-- Additional failure cases: an icon/frame becoming forbidden independently of
+-- combat; secret access-check results; cleanup failing after an update error;
+-- and aura restrictions continuing after combat ends.
 local function check(value, message)
     assert(value, message)
     print("PASS " .. message)
@@ -17,6 +20,10 @@ end
 check(true, "all other supported clients return before accessing addon/native APIs")
 
 local combat, showDurations, editing, expanded, gamepad = false, true, false, true, false
+local aurasSecret = false
+local secretAccess = {}
+function issecretvalue(value) return value == secretAccess end
+C_Secrets = { ShouldAurasBeSecret = function() return aurasSecret end }
 local showEnchantSpellIcon = true
 local modules, ticker, root, messages = {}, nil, nil, {}
 local containers = {}
@@ -52,7 +59,10 @@ function LibStub(name)
     return assert(libraries[name], name)
 end
 local originalPrint = print
-function print(message) messages[#messages + 1] = message; originalPrint(message) end
+function print(message)
+    if message:sub(1, 12) == "BuffTimers: " then messages[#messages + 1] = message end
+    originalPrint(message)
+end
 function hooksecurefunc(object, name, callback)
     local original = object[name]
     object[name] = function(...) original(...); callback(...) end
@@ -128,16 +138,25 @@ local mouseover = {}
 local mouseOn, mouseOff = {}, {}
 local function region(restricted)
     local object = { alpha = 1, mouse = true }
+    function object:CanBeAccessedInContext()
+        if self.secretAccess then return secretAccess end
+        return not (self.denied or (restricted and (combat or aurasSecret)))
+    end
+    local function assertAccessible(self)
+        assert(not self.secretAccess and self:CanBeAccessedInContext(), "accessed forbidden display object")
+    end
     local function write(self, key, ...)
-        assert(not (restricted and combat), "accessed adopted native object in combat")
+        assertAccessible(self)
         self[key] = { ... }
     end
-    function object:SetAlpha(alpha) self.alpha = alpha end
+    function object:SetAlpha(alpha) assertAccessible(self); self.alpha = alpha end
     function object:SetAlphaFromBoolean(value, yes, no)
+        assertAccessible(self)
         assert(value == mouseOn or value == mouseOff, "mouseover is passed directly to native alpha selection")
         self.alpha = value == mouseOn and yes or no
     end
     function object:IsMouseOver()
+        assertAccessible(self)
         assert(not restricted, "queried restricted aura button")
         return mouseover[self.SetAllPointsArgs[1]] and mouseOn or mouseOff
     end
@@ -191,11 +210,17 @@ function CreateFrame(frameType, _, parent, template)
                 hoverUpdate = callback
             end }
         end
-        check(template == (parent == BuffFrame and "DisableUntrustedLayoutScriptsTemplate"
+        if parent == BuffFrame and not template then
+            local host = region(false)
+            host.isEnchantHost = true
+            return host
+        end
+        check(template == ((parent == BuffFrame or parent.isEnchantHost) and "DisableUntrustedLayoutScriptsTemplate"
             or "DisableUntrustedScriptsTemplate,DisableUntrustedLayoutScriptsTemplate"),
             "addon-owned display frames opt into required script restrictions")
         local frame = region(false)
-        if parent == BuffFrame then
+        frame.parent = parent
+        if parent == BuffFrame or parent.isEnchantHost then
             local createTexture = frame.CreateTexture
             function frame:CreateTexture(...)
                 iconFrames[#iconFrames + 1] = self
@@ -288,6 +313,26 @@ if #iconFrames > 0 then
     ticker()
     check(iconFrames[1].textures[1].SetTextureArgs[1] == 222 and iconFrames[2].textures[1].SetTextureArgs[1] == 555,
         "main-hand and off-hand enchant icons remain associated with their own slots")
+    local icon = iconFrames[1]
+    icon.denied = true
+    weaponEnchants[0][1].enchantIconID = 666
+    for _ = 1, 4 do ticker() end
+    check(root.enabled and BuffTimersNativeDB.enabled and icon.textures[1].SetTextureArgs[1] == 222,
+        "forbidden enchant frames are left alone without disabling the renderer or retrying Hide")
+    icon.denied = false
+    icon.textures[1].secretAccess = true
+    ticker()
+    check(root.enabled and icon.textures[1].SetTextureArgs[1] == 222,
+        "a secret texture access result is not tested as a Lua boolean or mutated")
+    icon.textures[1].secretAccess = false
+    ticker()
+    check(icon.textures[1].SetTextureArgs[1] == 666, "enchant icon catches up when access returns")
+    icon.denied = true
+    toggle.set(nil, false)
+    check(not root.enabled and legacy.alpha == 1 and not icon.parent.shown[1],
+        "opting out hides the independent icon host even while an icon frame is forbidden")
+    icon.denied = false
+    toggle.set(nil, true)
 else
     check(root.children[3].icon ~= nil, "clients without the spell-icon API retain native weapon icons")
 end
@@ -325,7 +370,30 @@ mouseover[child], mouseover[hoverChild] = nil, nil
 hoverUpdate()
 check(timerText.parent.alpha == 1 and hoverText.parent.alpha == 0,
     "leaving combat hover restores compact text without overlapping labels")
+mouseover[child], mouseover[hoverChild] = true, true
+timerText.parent.denied = true
+hoverUpdate()
+check(timerText.parent.alpha == 1 and hoverText.parent.alpha == 0,
+    "a forbidden hover parent defers both sides of the swap without overlap or errors")
+timerText.parent.denied = false
+hoverUpdate()
+check(timerText.parent.alpha == 0 and hoverText.parent.alpha == 1,
+    "hover swapping resumes after frame access returns")
+mouseover[child], mouseover[hoverChild] = nil, nil
+hoverUpdate()
 combat = false
+aurasSecret = true
+profile.font_size = 17
+ticker()
+check(child.duration[1].SetFontArgs[2] == 10 and BuffTimersNativeDB.enabled,
+    "aura restrictions after combat defer native reconfiguration")
+check(not modules.NativeAuras:SetNativeEnabled(false) and BuffTimersNativeDB.enabled,
+    "a restricted out-of-combat toggle cannot mutate the native renderer")
+aurasSecret = false
+ticker()
+check(child.duration[1].SetFontArgs[2] == 17, "deferred configuration resumes once aura access returns")
+profile.font_size = 10
+ticker()
 for _, sample in ipairs({ { 6300, "01:45:00" }, { 3600, "01:00:00" }, { 3599.9, "59:59" },
     { 60, "01:00" }, { 59, "59s" }, { 4.9, "4.9s" } }) do
     check(display(child, hoverChild, sample[1], true) == sample[2], "hover sample " .. sample[1])
@@ -483,11 +551,40 @@ ticker()
 check(not root.enabled and legacy.alpha == 1, "collapsed view uses original rendering")
 expanded = true
 ticker()
+if #iconFrames > 0 then
+    -- Reproduce a primary update error with a second, forbidden icon present.
+    -- The original implementation then threw from Restore's per-icon Hide.
+    local savedInfo = C_PaperDollInfo.GetTemporaryEnchantmentInfo
+    C_PaperDollInfo.GetTemporaryEnchantmentInfo = function() error("simulated enchant metadata failure") end
+    iconFrames[1].denied = true
+    local messageCount = #messages
+    combat = true
+    ticker()
+    check(not BuffTimersNativeDB.enabled and not modules.NativeAuras:IsNativeActive() and #messages == messageCount + 1,
+        "an update failure disables the renderer before deferred cleanup and reports once")
+    for _ = 1, 4 do ticker(); hoverUpdate() end
+    legacy:SetAlpha(secret)
+    check(#messages == messageCount + 1 and legacy.alpha == 0,
+        "repeated restricted ticks do not rethrow cleanup errors or reveal duplicate original buffs")
+    combat, aurasSecret = false, true
+    ticker()
+    check(legacy.alpha == 0 and root.enabled, "failed-renderer cleanup waits for post-combat aura restrictions")
+    aurasSecret = false
+    ticker()
+    check(legacy.alpha == 1 and legacy.mouse and not root.enabled and not iconFrames[1].parent.shown[1],
+        "deferred fallback restores originals and hides the icon host without touching the forbidden icon")
+    ticker()
+    check(#messages == messageCount + 1, "cleanup remains silent on subsequent ticks")
+    C_PaperDollInfo.GetTemporaryEnchantmentInfo = savedInfo
+    iconFrames[1].denied = false
+    toggle.set(nil, true)
+    check(root.enabled and legacy.alpha == 0, "native mode can be re-enabled after the failure is resolved")
+end
 toggle.set(nil, false)
 check(not toggle.get() and nativeGroup.args.status.hidden() and nativeGroup.args.status.name() == "",
     "options toggle persists disabled state without redundant status text")
 check(not root.enabled and legacy.alpha == 1 and legacy.mouse, "explicit opt-out restores originals")
-for _, frame in ipairs(iconFrames) do check(not frame.shown[1], "opting out hides independent enchant icons") end
+for _, frame in ipairs(iconFrames) do check(not frame.parent.shown[1], "opting out hides independent enchant icons") end
 check(BuffFrame.size[1] == 1072.5, "opt-out restores legacy host capacity for the active layout")
 failFormatter = true
 toggle.set(nil, true)

@@ -245,7 +245,9 @@ coordinates or visibility. Public weapon-enchant metadata supplies the selected
 icon, matching the enchant ID chosen by the native duration renderer. With the
 spell-icon preference off, the equipped weapon texture is used. Slots without
 an active enchant hide their icon, and disabling the replacement hides all these
-frames. Updates also run during combat without accessing adopted aura regions.
+frames through an independent parent with no native layout anchors. Updates also
+run during combat when both the icon frame and texture are accessible. If either
+access check is denied or secret, the last icon is retained until access returns.
 Clients without the spell-icon API retain the existing native inventory icon.
 No buff ordering changes are included.
 
@@ -263,3 +265,44 @@ Inspected `forever` `bebcb6bf309c` and `live` `297d7aaaa736` sequentially:
 `ItemDocumentation.lua` (`WeaponEnchantInfo`), `PaperDollInfoDocumentation.lua`
 (`GetTemporaryEnchantmentInfo`, imbue priority), and
 `Blizzard_SharedXMLBase/ForbiddenAspectTemplates.xml` (safe layout opt-in).
+
+## Forbidden icon recovery
+
+The reported error was a second failure in recovery: `SafeRefresh` caught an
+update error, then `Restore` called `Hide` on a forbidden enchant frame before
+the saved enabled flag or active flag could be cleared. Every ticker pulse could
+repeat that sequence. The prior replay treated all independently created frames
+as permanently accessible, which missed this failure mode.
+
+`CanBeAccessedInContext` now gates enchant frame/texture writes and the complete
+hover opacity swap. A secret access-check result is rejected with
+`issecretvalue` before any Lua boolean branch. A blocked hover swap retains both
+labels' previous opacity, preventing a partial swap from showing both labels.
+The enchant frames share an unanchored parent, so restoring the original display
+can hide their parent without calling methods on the individual forbidden
+frames. The supplied UI source documents access restrictions but does not expose
+the engine's complete frame/anchor propagation rules; the user's trace establishes
+that retaining an addon-created icon frame did not guarantee access in this case.
+
+Native reconfiguration and restoration wait for both combat lockdown and
+`C_Secrets.ShouldAurasBeSecret()` to end. On an actual update error, the disabled
+preference and inactive state are set before protected cleanup. Subsequent
+ticks finish deferred restoration without repeating the stop message. Original
+buttons remain suppressed until that restoration completes, preventing duplicate
+art while native countdown bindings continue to run.
+
+The extended replay rejects all mutations on simulated forbidden objects. It
+checks a forbidden icon outside combat, secret texture access, icon catch-up,
+opt-out with a forbidden child, a blocked hover swap, and aura restrictions after
+combat. It also injects an independent metadata error during combat while another
+icon is forbidden, repeats ticker/hover updates, keeps aura restrictions active
+after combat, then verifies restoration and successful re-enabling. These are API
+contract simulations; real-client security behavior still needs `/reload` and an
+in-game combat/opt-out check. Output is in `forever-native-replay-output.txt`.
+
+Inspected `live` `297d7aaaa736` followed by `forever` `bebcb6bf309c` for this fix:
+`Blizzard_AuraContainerFrameProviders.lua` (restrictions applied after frame
+initialization), `Blizzard_CustomAuraButton.lua` (descendant region binding),
+`SimpleFrameScriptObjectAPIDocumentation.lua` (`CanBeAccessedInContext`, secret
+security results), `SecretPredicateAPIDocumentation.lua` (`ShouldAurasBeSecret`),
+and `Blizzard_SharedXMLBase/ForbiddenAspectTemplates.xml` (layout restrictions).

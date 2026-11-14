@@ -41,6 +41,11 @@ PASS native containers use identical assignment ordering and aligned layout
 PASS combat hover hides compact text and shows detailed text with no backplate
 PASS other buffs retain only their compact timers
 PASS leaving combat hover restores compact text without overlapping labels
+PASS a forbidden hover parent defers both sides of the swap without overlap or errors
+PASS hover swapping resumes after frame access returns
+PASS aura restrictions after combat defer native reconfiguration
+PASS a restricted out-of-combat toggle cannot mutate the native renderer
+PASS deferred configuration resumes once aura access returns
 PASS hover sample 6300
 PASS hover sample 3600
 PASS hover sample 3599.9
@@ -163,7 +168,7 @@ PASS collapsed view uses original rendering
 PASS options toggle persists disabled state without redundant status text
 PASS explicit opt-out restores originals
 PASS opt-out restores legacy host capacity for the active layout
-BuffTimers: Native mode stopped: NativeAuras.lua:130: native timer formatter failed its checks
+BuffTimers: Native mode stopped: NativeAuras.lua:148: native timer formatter failed its checks
 PASS failed native formatter self-check disables mode without hiding original buffs
 PASS a saved disabled preference remains disabled after addon initialization
 BuffTimers: Native aura APIs are unavailable on this client. Using the existing renderer.
@@ -204,6 +209,10 @@ PASS weapon-icon preference is respected in combat
 PASS removing an enchant hides its independent icon
 PASS only active enchant slots have visible icons
 PASS main-hand and off-hand enchant icons remain associated with their own slots
+PASS forbidden enchant frames are left alone without disabling the renderer or retrying Hide
+PASS a secret texture access result is not tested as a Lua boolean or mutated
+PASS enchant icon catches up when access returns
+PASS opting out hides the independent icon host even while an icon frame is forbidden
 PASS container belongs to existing buff host
 PASS addon-owned display frames opt into required script restrictions
 PASS addon-owned display frames opt into required script restrictions
@@ -223,6 +232,11 @@ PASS native containers use identical assignment ordering and aligned layout
 PASS combat hover hides compact text and shows detailed text with no backplate
 PASS other buffs retain only their compact timers
 PASS leaving combat hover restores compact text without overlapping labels
+PASS a forbidden hover parent defers both sides of the swap without overlap or errors
+PASS hover swapping resumes after frame access returns
+PASS aura restrictions after combat defer native reconfiguration
+PASS a restricted out-of-combat toggle cannot mutate the native renderer
+PASS deferred configuration resumes once aura access returns
 PASS hover sample 6300
 PASS hover sample 3600
 PASS hover sample 3599.9
@@ -342,13 +356,20 @@ PASS mouse/keyboard navigation reactivates existing native container
 PASS Edit Mode restores Blizzard previews
 BuffTimers: Expand your buffs to use native mode. Using the existing renderer while buffs are collapsed.
 PASS collapsed view uses original rendering
+BuffTimers: Native mode stopped: [string "<python>"]:558: simulated enchant metadata failure
+PASS an update failure disables the renderer before deferred cleanup and reports once
+PASS repeated restricted ticks do not rethrow cleanup errors or reveal duplicate original buffs
+PASS failed-renderer cleanup waits for post-combat aura restrictions
+PASS deferred fallback restores originals and hides the icon host without touching the forbidden icon
+PASS cleanup remains silent on subsequent ticks
+PASS native mode can be re-enabled after the failure is resolved
 PASS options toggle persists disabled state without redundant status text
 PASS explicit opt-out restores originals
 PASS opting out hides independent enchant icons
 PASS opting out hides independent enchant icons
 PASS opting out hides independent enchant icons
 PASS opt-out restores legacy host capacity for the active layout
-BuffTimers: Native mode stopped: NativeAuras.lua:130: native timer formatter failed its checks
+BuffTimers: Native mode stopped: NativeAuras.lua:148: native timer formatter failed its checks
 PASS failed native formatter self-check disables mode without hiding original buffs
 PASS a saved disabled preference remains disabled after addon initialization
 BuffTimers: Native aura APIs are unavailable on this client. Using the existing renderer.

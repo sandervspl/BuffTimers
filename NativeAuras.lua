@@ -5,7 +5,8 @@ if interface ~= 16001 and interface ~= 120105 then return end
 
 local BuffTimers = LibStub("AceAddon-3.0"):GetAddon("BuffTimers")
 local Native = BuffTimers:NewModule("NativeAuras")
-local root, hoverRoot, current, applied, active, timer, hoverDriver
+local root, hoverRoot, enchantHost, current, applied, active, timer, hoverDriver
+local originalsHidden = false
 local available = false
 local buttons = {}
 local enchantIcons = {}
@@ -18,6 +19,16 @@ local suppressingAlpha = false
 -- rolls back to the existing renderer when its supported configuration changes.
 local function Message(text)
     print("BuffTimers: " .. text)
+end
+
+local function CanAccess(object)
+    local allowed = object:CanBeAccessedInContext()
+    -- Security accessors may themselves return a secret. Never branch on it.
+    return not (issecretvalue and issecretvalue(allowed)) and allowed
+end
+
+local function ConfigurationRestricted()
+    return InCombatLockdown() or (C_Secrets and C_Secrets.ShouldAurasBeSecret and C_Secrets.ShouldAurasBeSecret())
 end
 
 local function SetOriginalsVisible(visible)
@@ -48,6 +59,12 @@ local function ResizeHost(capacity)
 end
 
 local function Restore()
+    -- Stop addon-driven work first, even if native cleanup must wait. Keep the
+    -- separate originalsHidden flag until the original display is restored.
+    active = false
+    if ConfigurationRestricted() then return end
+    if (root and not CanAccess(root)) or (hoverRoot and not CanAccess(hoverRoot))
+        or (enchantHost and not CanAccess(enchantHost)) then return end
     if root then
         root:SetEnabled(false)
         root:Hide()
@@ -56,10 +73,11 @@ local function Restore()
         hoverRoot:SetEnabled(false)
         hoverRoot:Hide()
     end
-    for _, entry in ipairs(enchantIcons) do entry.frame:Hide() end
-    local wasActive = active
-    active = false
-    if wasActive then
+    -- This parent has no anchors into native aura objects. Hiding it needs no
+    -- calls on the individual enchant frames, which may have become forbidden.
+    if enchantHost then enchantHost:Hide() end
+    if originalsHidden then
+        originalsHidden = false
         SetOriginalsVisible(true)
         ResizeHost(BuffFrame.maxAuras)
     end
@@ -212,7 +230,8 @@ local function InitializeButton(button, enchant, hover, container)
             -- while adopted native aura regions become inaccessible in combat.
             -- Anchoring to the native icon proxy follows its secret layout
             -- without querying coordinates, visibility or aura identities.
-            local frame = CreateFrame("Frame", nil, BuffFrame, "DisableUntrustedLayoutScriptsTemplate")
+            if not enchantHost then enchantHost = CreateFrame("Frame", nil, BuffFrame) end
+            local frame = CreateFrame("Frame", nil, enchantHost, "DisableUntrustedLayoutScriptsTemplate")
             frame:SetAllPoints(icon)
             frame:SetFrameLevel(container:GetFrameLevel())
             local image = frame:CreateTexture(nil, "ARTWORK")
@@ -260,6 +279,11 @@ end
 
 local function UpdateHover()
     if not active or not current.showDurations or not current.profile.detailed_time_on_hover then return end
+    -- Keep both labels in their previous state if any related frame is locked;
+    -- updating only one side of the swap could expose overlapping text.
+    for _, entry in ipairs(buttons) do
+        if not CanAccess(entry.textFrame) or not CanAccess(entry.hoverRegion) then return end
+    end
     for _, entry in ipairs(buttons) do
         -- Mouseover can be secret when anchored to a secret layout. Pass
         -- it straight to the native alpha setter; never branch on it in Lua.
@@ -305,10 +329,11 @@ local function ConfigureContainer(container, layout)
 end
 
 local function UpdateEnchantIcons()
+    if not active then return end
     for _, entry in ipairs(enchantIcons) do
-        if not active then
-            entry.frame:Hide()
-        else
+        -- A frame being addon-created does not guarantee continued access once
+        -- it depends on native aura layout. Keep its last icon until accessible.
+        if CanAccess(entry.frame) and CanAccess(entry.texture) then
             local info = C_PaperDollInfo.GetTemporaryEnchantmentInfo(entry.inventorySlot)
             if info then
                 local texture = GetInventoryItemTexture("player", entry.inventorySlot)
@@ -341,7 +366,7 @@ end
 local function Refresh()
     -- Configuration touches native button objects. Their engine-driven updates
     -- continue in combat; addon configuration waits until combat ends.
-    if InCombatLockdown() then return end
+    if ConfigurationRestricted() then return end
     if not BuffTimersNativeDB.enabled then Restore(); return end
     local profile, layout = BuffTimers.db.profile, BuffFrame.AuraContainer
     local reason = UnsupportedReason()
@@ -391,9 +416,11 @@ local function Refresh()
     end
     root:Show()
     root:SetEnabled(true)
+    if enchantHost then enchantHost:Show() end
     active = true
     UpdateHover()
     SetOriginalsVisible(false)
+    originalsHidden = true
     ResizeHost(BuffFrame.maxAuras + 3)
     applied = signature
 end
@@ -404,9 +431,13 @@ local function SafeRefresh()
         UpdateEnchantIcons()
     end)
     if not ok then
-        Restore()
+        local wasEnabled = BuffTimersNativeDB.enabled
+        -- Persist the fallback before cleanup. An error in recovery must not
+        -- leave the failing renderer enabled and retrying every ticker pulse.
         BuffTimersNativeDB.enabled = false
-        Message("Native mode stopped: " .. tostring(reason))
+        active = false
+        pcall(Restore)
+        if wasEnabled then Message("Native mode stopped: " .. tostring(reason)) end
     end
 end
 
@@ -423,7 +454,7 @@ function Native:IsNativeActive()
 end
 
 function Native:SetNativeEnabled(enabled)
-    if InCombatLockdown() or not available then return false end
+    if ConfigurationRestricted() or not available then return false end
     BuffTimersNativeDB.enabled = enabled == true
     SafeRefresh()
     return true
@@ -461,7 +492,7 @@ function Native:OnEnable()
     for _, button in ipairs(BuffFrame.auraFrames) do
         if not button.isAuraAnchor then
             hooksecurefunc(button, "SetAlpha", function(original)
-                if active and not suppressingAlpha then
+                if originalsHidden and not suppressingAlpha then
                     suppressingAlpha = true
                     original:SetAlpha(0)
                     suppressingAlpha = false
@@ -478,5 +509,5 @@ end
 function Native:OnDisable()
     if hoverDriver then hoverDriver:SetScript("OnUpdate", nil); hoverDriver = nil end
     if timer then timer:Cancel(); timer = nil end
-    if not InCombatLockdown() then Restore() end
+    Restore()
 end
