@@ -31,8 +31,6 @@ if L then
     L["Combat timers"] = "Combat timers"
     L["Use replacement buff renderer"] = "Use replacement buff renderer"
     L["Replaces Blizzard’s buff display to keep timer formatting in combat. If it causes problems, disable it and report the issue on CurseForge."] = true
-    L["Native buff timers are disabled."] = true
-    L["Native buff timers are active."] = true
     L["Native buff timers are paused during Edit Mode."] = true
     L["Native buff timers will resume after combat."] = true
     L["Native aura APIs are unavailable on this client. Using the existing renderer."] = true

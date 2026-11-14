@@ -26,7 +26,8 @@ layout/interaction case; the extended checklist below remains useful coverage.
 (interface 120105) and Forever (16001). It starts enabled when no preference has
 been saved. Open BuffTimers options (`/bufftimers`), then **Time > Combat timers**.
 The **Use replacement buff renderer** toggle enables or disables the renderer outside
-combat. The status beneath it explains active, disabled or fallback states.
+combat. A status message appears only when the renderer is paused or unavailable;
+the toggle itself shows the normal enabled/disabled state.
 The `/btnative` command has been removed. The choice persists separately in `BuffTimersNativeDB`;
 profile import/export is unaffected. The choice is stored separately by each
 installed client. An existing saved `enabled = false` remains disabled; use

@@ -363,12 +363,12 @@ function Native:SetNativeEnabled(enabled)
 end
 
 function Native:GetStatus()
-    if not self:GetNativeEnabled() then return "Native buff timers are disabled." end
+    if not self:GetNativeEnabled() then return "" end
     if not available then return "Native aura APIs are unavailable on this client. Using the existing renderer." end
     local reason = UnsupportedReason()
     if reason then return reason end
     if BuffFrame:IsEditing() then return "Native buff timers are paused during Edit Mode." end
-    if active then return "Native buff timers are active." end
+    if active then return "" end
     return "Native buff timers will resume after combat."
 end
 

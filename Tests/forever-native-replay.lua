@@ -194,7 +194,7 @@ modules.NativeAuras:OnEnable()
 local nativeGroup = uiOptions.args.time.args.nativeTimers
 local toggle = nativeGroup.args.enabled
 check(not nativeGroup.hidden() and not toggle.disabled() and toggle.get(), "options expose enabled native timers on supported clients")
-check(nativeGroup.args.status.name() == "Native buff timers are active.", "options display native renderer status")
+check(nativeGroup.args.status.hidden() and nativeGroup.args.status.name() == "", "active renderer has no redundant status text")
 check(not SlashCmdList.BUFFTIMERSNATIVE and not SLASH_BUFFTIMERSNATIVE1, "native slash command is removed")
 check(root and root.enabled and BuffTimersNativeDB.enabled, "native mode starts enabled without a saved preference")
 check(root.enabled and root.filter == "HELPFUL" and root.unit == "player", "enabling delegates real player buffs to native container")
@@ -213,7 +213,7 @@ check(child.SetSizeArgs[1] == 30 and child.SetFontArgs == nil and child.duration
 profile.detailed_time_on_hover = true
 ticker()
 local hoverRoot = containers[2]
-check(root.enabled and hoverRoot.enabled and nativeGroup.args.status.name() == "Native buff timers are active.",
+check(root.enabled and hoverRoot.enabled and nativeGroup.args.status.hidden(),
     "enabling detailed hover keeps the replacement renderer active")
 local hoverChild = hoverRoot.children[1]
 local hoverText = hoverChild.duration[1]
@@ -387,8 +387,8 @@ check(not root.enabled and legacy.alpha == 1, "collapsed view uses original rend
 expanded = true
 ticker()
 toggle.set(nil, false)
-check(not toggle.get() and nativeGroup.args.status.name() == "Native buff timers are disabled.",
-    "options toggle persists disabled state and displays it")
+check(not toggle.get() and nativeGroup.args.status.hidden() and nativeGroup.args.status.name() == "",
+    "options toggle persists disabled state without redundant status text")
 check(not root.enabled and legacy.alpha == 1 and legacy.mouse, "explicit opt-out restores originals")
 check(BuffFrame.size[1] == 1072.5, "opt-out restores legacy host capacity for the active layout")
 failFormatter = true
@@ -406,7 +406,7 @@ ticker = nil
 BuffTimersNativeDB.enabled = true
 dofile("NativeAuras.lua")
 modules.NativeAuras:OnEnable()
-check(toggle.disabled() and nativeGroup.args.status.name():find("unavailable", 1, true),
+check(toggle.disabled() and not nativeGroup.args.status.hidden() and nativeGroup.args.status.name():find("unavailable", 1, true),
     "options disable native control and explain missing APIs")
 toggle.set(nil, true)
 check(not ticker and not root.enabled and legacy.alpha == 1 and legacy.mouse,

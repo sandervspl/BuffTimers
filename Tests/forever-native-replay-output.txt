@@ -2,7 +2,7 @@ CLIENT 120105
 PASS all other supported clients return before accessing addon/native APIs
 PASS container belongs to existing buff host
 PASS options expose enabled native timers on supported clients
-PASS options display native renderer status
+PASS active renderer has no redundant status text
 PASS native slash command is removed
 PASS native mode starts enabled without a saved preference
 PASS enabling delegates real player buffs to native container
@@ -114,7 +114,7 @@ PASS mouse/keyboard navigation reactivates existing native container
 PASS Edit Mode restores Blizzard previews
 BuffTimers: Expand your buffs to use native mode. Using the existing renderer while buffs are collapsed.
 PASS collapsed view uses original rendering
-PASS options toggle persists disabled state and displays it
+PASS options toggle persists disabled state without redundant status text
 PASS explicit opt-out restores originals
 PASS opt-out restores legacy host capacity for the active layout
 BuffTimers: Native mode stopped: NativeAuras.lua:128: native timer formatter failed its checks
@@ -129,7 +129,7 @@ CLIENT 16001
 PASS all other supported clients return before accessing addon/native APIs
 PASS container belongs to existing buff host
 PASS options expose enabled native timers on supported clients
-PASS options display native renderer status
+PASS active renderer has no redundant status text
 PASS native slash command is removed
 PASS native mode starts enabled without a saved preference
 PASS enabling delegates real player buffs to native container
@@ -241,7 +241,7 @@ PASS mouse/keyboard navigation reactivates existing native container
 PASS Edit Mode restores Blizzard previews
 BuffTimers: Expand your buffs to use native mode. Using the existing renderer while buffs are collapsed.
 PASS collapsed view uses original rendering
-PASS options toggle persists disabled state and displays it
+PASS options toggle persists disabled state without redundant status text
 PASS explicit opt-out restores originals
 PASS opt-out restores legacy host capacity for the active layout
 BuffTimers: Native mode stopped: NativeAuras.lua:128: native timer formatter failed its checks

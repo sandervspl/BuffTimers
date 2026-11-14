@@ -107,9 +107,14 @@ function module:OnInitialize()
                             status = {
                                 type = "description",
                                 order = 2,
+                                hidden = function()
+                                    local native = GetNativeModule()
+                                    return not native or native:GetStatus() == ""
+                                end,
                                 name = function()
                                     local native = GetNativeModule()
-                                    return native and L[native:GetStatus()] or ""
+                                    local status = native and native:GetStatus() or ""
+                                    return status ~= "" and L[status] or ""
                                 end,
                             },
                         },
