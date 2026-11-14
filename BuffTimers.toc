@@ -6,7 +6,7 @@
 ## Notes-ruRU: Отображает точную длительность действия баффов, с возможностью указания секунд и миллисекунд
 ## Version: @project-version@
 ## DefaultState: enabled
-## SavedVariables: BuffTimersDB
+## SavedVariables: BuffTimersDB, BuffTimersNativeDB
 ## OptionalDeps: Ace3, LibSharedMedia-3.0
 
 ## Category-enUS: Buffs & Debuffs
@@ -35,3 +35,4 @@ embeds.xml
 Locales.lua
 BuffTimers.lua
 Options.lua
+NativeAuras.lua

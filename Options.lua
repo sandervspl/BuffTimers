@@ -61,6 +61,10 @@ local function IsTextCustomizationDisabled()
     return not db.profile.customize_text
 end
 
+local function GetNativeModule()
+    return BuffTimers.GetModule and BuffTimers:GetModule("NativeAuras", true)
+end
+
 function module:OnInitialize()
     db = BuffTimers.db
 
@@ -73,6 +77,43 @@ function module:OnInitialize()
                 name = L["Time"],
                 order = 10,
                 args = {
+                    nativeTimers = {
+                        type = "group",
+                        name = L["Combat timers"],
+                        inline = true,
+                        order = 0,
+                        hidden = function() return GetNativeModule() == nil end,
+                        args = {
+                            enabled = {
+                                type = "toggle",
+                                name = L["Use replacement buff renderer"],
+                                desc = L["Replaces Blizzard’s buff display to keep timer formatting in combat. If it causes problems, disable it and report the issue on CurseForge."],
+                                width = "full",
+                                order = 1,
+                                disabled = function()
+                                    local native = GetNativeModule()
+                                    return not native or not native:IsNativeAvailable() or InCombatLockdown()
+                                end,
+                                get = function()
+                                    local native = GetNativeModule()
+                                    return native and native:GetNativeEnabled() or false
+                                end,
+                                set = function(_, enabled)
+                                    local native = GetNativeModule()
+                                    if native then native:SetNativeEnabled(enabled) end
+                                    AceConfigRegistry:NotifyChange("BuffTimers")
+                                end,
+                            },
+                            status = {
+                                type = "description",
+                                order = 2,
+                                name = function()
+                                    local native = GetNativeModule()
+                                    return native and L[native:GetStatus()] or ""
+                                end,
+                            },
+                        },
+                    },
                     formatGroup = {
                         type = "group",
                         name = L["Format"],
@@ -161,8 +202,12 @@ function module:OnInitialize()
                             coloredText = {
                                 type = "toggle",
                                 name = L["Add more colors to the timer"],
-                                desc = L["Use different colors based on remaining time"] .. " " ..
-                                    L["When WoW restricts remaining time, timers use Blizzard's colors. Enable Always yellow text color for a consistent color in combat."],
+                                desc = function()
+                                    local description = L["Use different colors based on remaining time"]
+                                    local native = GetNativeModule()
+                                    if native and native:IsNativeActive() then return description end
+                                    return description .. " " .. L["When WoW restricts remaining time, timers use Blizzard's colors. Enable Always yellow text color for a consistent color in combat."]
+                                end,
                                 get = function() return db.profile.colored_text end,
                                 set = function(_, value) db.profile.colored_text = value end,
                                 width = "full",

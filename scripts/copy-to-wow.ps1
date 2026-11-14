@@ -13,6 +13,7 @@ $sourceRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot ".."))
 $sourceDirectories = @("libs", "Media")
 $sourceFiles = @(
     "BuffTimers.lua",
+    "NativeAuras.lua",
     "BuffTimers.toc",
     "embeds.xml",
     "Locales.lua",

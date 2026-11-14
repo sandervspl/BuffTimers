@@ -1,0 +1,43 @@
+PASS Retail: valid saved anchors retain their offsets
+PASS Retail: omitted native anchor offsets restore as zero
+PASS Retail: rejected anchor falls back to current native layout
+PASS Retail: bad anchor does not block native font and layer restoration
+PASS Retail: subsequent aura ticks never retry rejected anchor
+PASS Retail: customization can be enabled again
+PASS Retail: a second disable restores the fresh native anchor
+PASS Mists of Pandaria Classic: valid saved anchors retain their offsets
+PASS Mists of Pandaria Classic: omitted native anchor offsets restore as zero
+PASS Mists of Pandaria Classic: rejected anchor falls back to current native layout
+PASS Mists of Pandaria Classic: bad anchor does not block native font and layer restoration
+PASS Mists of Pandaria Classic: subsequent aura ticks never retry rejected anchor
+PASS Mists of Pandaria Classic: customization can be enabled again
+PASS Mists of Pandaria Classic: a second disable restores the fresh native anchor
+PASS Titan: valid saved anchors retain their offsets
+PASS Titan: omitted native anchor offsets restore as zero
+PASS Titan: rejected anchor falls back to current native layout
+PASS Titan: bad anchor does not block native font and layer restoration
+PASS Titan: subsequent aura ticks never retry rejected anchor
+PASS Titan: customization can be enabled again
+PASS Titan: a second disable restores the fresh native anchor
+PASS Anniversary: valid saved anchors retain their offsets
+PASS Anniversary: omitted native anchor offsets restore as zero
+PASS Anniversary: rejected anchor falls back to current native layout
+PASS Anniversary: bad anchor does not block native font and layer restoration
+PASS Anniversary: subsequent aura ticks never retry rejected anchor
+PASS Anniversary: customization can be enabled again
+PASS Anniversary: a second disable restores the fresh native anchor
+PASS Classic Era: valid saved anchors retain their offsets
+PASS Classic Era: omitted native anchor offsets restore as zero
+PASS Classic Era: rejected anchor falls back to current native layout
+PASS Classic Era: bad anchor does not block native font and layer restoration
+PASS Classic Era: subsequent aura ticks never retry rejected anchor
+PASS Classic Era: customization can be enabled again
+PASS Classic Era: a second disable restores the fresh native anchor
+PASS Forever: valid saved anchors retain their offsets
+PASS Forever: omitted native anchor offsets restore as zero
+PASS Forever: rejected anchor falls back to current native layout
+PASS Forever: bad anchor does not block native font and layer restoration
+PASS Forever: subsequent aura ticks never retry rejected anchor
+PASS Forever: customization can be enabled again
+PASS Forever: a second disable restores the fresh native anchor
+PASS text-style restoration replay; real client confirmation still required

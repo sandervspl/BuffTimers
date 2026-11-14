@@ -28,6 +28,16 @@ if L then
     L["Color"] = "Color"
     L["Customization"] = "Customization"
     L["Time"] = "Time"
+    L["Combat timers"] = "Combat timers"
+    L["Use replacement buff renderer"] = "Use replacement buff renderer"
+    L["Replaces Blizzard’s buff display to keep timer formatting in combat. If it causes problems, disable it and report the issue on CurseForge."] = true
+    L["Native buff timers are disabled."] = true
+    L["Native buff timers are active."] = true
+    L["Native buff timers are paused during Edit Mode."] = true
+    L["Native buff timers will resume after combat."] = true
+    L["Native aura APIs are unavailable on this client. Using the existing renderer."] = true
+    L["Native mode does not support gamepad navigation. Using the existing renderer."] = true
+    L["Expand your buffs to use native mode. Using the existing renderer while buffs are collapsed."] = true
     L["Text"] = "Text"
     L["Font"] = "Font"
     L["Choose the font for the timer text"] = "Choose the font for the timer text"

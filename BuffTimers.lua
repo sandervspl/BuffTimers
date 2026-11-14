@@ -57,10 +57,11 @@ local function OnAuraLeave(aura)
     hoveredAuras[aura] = nil
 end
 
-local function CaptureNativeDurationStyle(duration)
+local function CaptureNativeDurationStyle(aura, duration)
     local fontFile, fontHeight, fontFlags = duration:GetFont()
     local drawLayer, drawSublevel = duration:GetDrawLayer()
     local style = {
+        aura = aura,
         fontFile = fontFile,
         fontHeight = fontHeight,
         fontFlags = fontFlags,
@@ -90,15 +91,38 @@ local function RestoreNativeDurationStyle(duration)
         return
     end
 
+    -- Consume the snapshot before touching regions: a rejected anchor must not
+    -- stay queued and fail again on every duration update.
+    nativeDurationStyles[duration] = nil
     duration:ClearAllPoints()
     for _, anchor in ipairs(style.points) do
-        duration:SetPoint(
+        local restored = pcall(duration.SetPoint, duration,
             anchor.point,
             anchor.relativeTo,
-            anchor.relativePoint,
-            anchor.offsetX,
-            anchor.offsetY
+            anchor.relativePoint or anchor.point,
+            anchor.offsetX or 0,
+            anchor.offsetY or 0
         )
+        if not restored then
+            -- Saved region references can no longer be accepted by SetPoint.
+            -- Rebuild the default anchor from Blizzard's current grid settings
+            -- (AuraContainerMixin:UpdateGridLayout), without using aura times.
+            local aura = style.aura
+            local container = aura.GetParent and aura:GetParent()
+            local point, relativePoint = "TOP", "BOTTOM"
+            if container and container.isHorizontal ~= nil then
+                if container.isHorizontal then
+                    point = container.addIconsToTop and "BOTTOM" or "TOP"
+                    relativePoint = container.addIconsToTop and "TOP" or "BOTTOM"
+                else
+                    point = container.addIconsToRight and "LEFT" or "RIGHT"
+                    relativePoint = container.addIconsToRight and "RIGHT" or "LEFT"
+                end
+            end
+            duration:ClearAllPoints()
+            duration:SetPoint(point, aura.Icon or aura, relativePoint, 0, 0)
+            break
+        end
     end
     if style.fontFile then
         local fontFlags = style.fontFlags ~= "" and style.fontFlags or nil
@@ -107,7 +131,6 @@ local function RestoreNativeDurationStyle(duration)
     duration:SetFontObject(style.fontObject)
     duration:SetDrawLayer(style.drawLayer, style.drawSublevel)
 
-    nativeDurationStyles[duration] = nil
 end
 
 local function ApplyDurationTextStyle(self, aura, duration)
@@ -117,7 +140,7 @@ local function ApplyDurationTextStyle(self, aura, duration)
     end
 
     if not nativeDurationStyles[duration] then
-        CaptureNativeDurationStyle(duration)
+        CaptureNativeDurationStyle(aura, duration)
     end
 
     -- Blizzard puts duration text in BACKGROUND and weapon-enchant borders in OVERLAY.

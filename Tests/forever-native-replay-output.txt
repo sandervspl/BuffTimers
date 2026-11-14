@@ -1,0 +1,254 @@
+CLIENT 120105
+PASS all other supported clients return before accessing addon/native APIs
+PASS container belongs to existing buff host
+PASS options expose enabled native timers on supported clients
+PASS options display native renderer status
+PASS native slash command is removed
+PASS native mode starts enabled without a saved preference
+PASS enabling delegates real player buffs to native container
+PASS only original buff buttons are suppressed
+PASS fixed host capacity reserves room for full buffs plus all weapon enchants
+PASS native warning-flash updates cannot reveal duplicate original art
+PASS native rules cover days, ceil minutes and suffixed tenths
+PASS buff dimensions and configured timer font are applied
+PASS container belongs to existing buff host
+PASS enabling detailed hover keeps the replacement renderer active
+PASS hover overlay has engine-controlled highlight text without duplicate icons or stacks
+PASS only the main native button can cancel a buff
+PASS hover-only backplate follows the detailed label without reading its secret width
+PASS native containers use identical assignment ordering and aligned layout
+PASS hover sample 6300
+PASS hover sample 3600
+PASS hover sample 3599.9
+PASS hover sample 60
+PASS hover sample 59
+PASS hover sample 4.9
+PASS leaving hover reveals the live compact timer
+PASS a refreshed hovered buff changes immediately while another buff keeps compact text
+PASS native options toggle is disabled in combat
+PASS combat ticks and commands defer configuration without touching adopted objects
+PASS original art stays suppressed during combat
+PASS profile changes apply after combat
+PASS hover label follows the updated timer font
+PASS duration CVar clears native bindings and hides text
+PASS duration CVar disables hover bindings too
+PASS duration CVar restores native binding
+PASS vertical growth, stride and scale follow existing layout settings
+PASS hover overlay follows vertical layout and scale
+PASS disabling detailed hover keeps compact native timers active
+PASS re-enabling hover reuses its native container
+PASS formatting options keep both native renderers active
+PASS m seconds=false threshold=30: 4.99 = 4s
+PASS m seconds=false threshold=30: 59.9 = 59s
+PASS m seconds=false threshold=30: 61 = 2m
+PASS m seconds=false threshold=30: 3599 = 60m
+PASS m seconds=false threshold=30: 6300 = 105m
+PASS m seconds=false threshold=30: 86399 = 1440m
+PASS m seconds=false threshold=30: 86400 = 1d
+PASS m seconds=false threshold=30: 86401 = 1d
+PASS m seconds=false threshold=30: 90000 = 2d
+PASS detailed hover works with each format/seconds configuration
+PASS formatting options keep both native renderers active
+PASS m seconds=true threshold=30: 4.99 = 4.9s
+PASS m seconds=true threshold=30: 60 = 1:00
+PASS m seconds=true threshold=30: 61 = 1:01
+PASS m seconds=true threshold=30: 1799.9 = 29:59
+PASS m seconds=true threshold=30: 1800 = 30m
+PASS detailed hover works with each format/seconds configuration
+PASS formatting options keep both native renderers active
+PASS m seconds=true threshold=120: 6299 = 104:59
+PASS m seconds=true threshold=120: 6300 = 105:00
+PASS m seconds=true threshold=120: 7199 = 119:59
+PASS m seconds=true threshold=120: 7200 = 120m
+PASS detailed hover works with each format/seconds configuration
+PASS formatting options keep both native renderers active
+PASS hm seconds=false threshold=30: 3599 = 60m
+PASS hm seconds=false threshold=30: 3600 = 1:00h
+PASS hm seconds=false threshold=30: 3600.1 = 1:01h
+PASS hm seconds=false threshold=30: 3659 = 1:01h
+PASS hm seconds=false threshold=30: 3660 = 1:01h
+PASS hm seconds=false threshold=30: 6300 = 1:45h
+PASS hm seconds=false threshold=30: 6301 = 1:46h
+PASS hm seconds=false threshold=30: 7140 = 1:59h
+PASS hm seconds=false threshold=30: 7140.1 = 2:00h
+PASS hm seconds=false threshold=30: 7199 = 2:00h
+PASS hm seconds=false threshold=30: 7200 = 2:00h
+PASS hm seconds=false threshold=30: 86399 = 24:00h
+PASS hm seconds=false threshold=30: 86400 = 1d
+PASS detailed hover works with each format/seconds configuration
+PASS formatting options keep both native renderers active
+PASS hm seconds=true threshold=120: 3599 = 59:59
+PASS hm seconds=true threshold=120: 3600 = 1:00:00
+PASS hm seconds=true threshold=120: 3659 = 1:00:59
+PASS hm seconds=true threshold=120: 6300 = 1:45:00
+PASS hm seconds=true threshold=120: 7199 = 1:59:59
+PASS hm seconds=true threshold=120: 7200 = 2:00h
+PASS detailed hover works with each format/seconds configuration
+PASS formatting options keep both native renderers active
+PASS hm seconds=true threshold=60: 4.99 = 4s
+PASS hm seconds=true threshold=60: 3599 = 59:59
+PASS hm seconds=true threshold=60: 3600 = 1:00h
+PASS detailed hover works with each format/seconds configuration
+PASS formatting options keep both native renderers active
+PASS hm seconds=true threshold=1: 59 = 59s
+PASS hm seconds=true threshold=1: 60 = 1m
+PASS hm seconds=true threshold=1: 61 = 2m
+PASS hm seconds=true threshold=1: 3600 = 1:00h
+PASS detailed hover works with each format/seconds configuration
+PASS colored timers select red, yellow and green bands natively
+PASS color option describes native thresholds without the legacy-only restriction
+PASS always-yellow overrides colored thresholds
+PASS disabling color overrides restores native white short timers
+PASS disabling text customization restores both native font objects
+PASS font, size, vertical position and outline option None reach native hover text
+PASS font, size, vertical position and outline option OUTLINE reach native hover text
+PASS font, size, vertical position and outline option THICKOUTLINE reach native hover text
+PASS font, size, vertical position and outline option MONOCHROME reach native hover text
+PASS switching profile tables updates formatting without changing the renderer preference
+PASS profile changes during combat leave the current native binding running
+PASS format changes apply after combat
+BuffTimers: Native mode does not support gamepad navigation. Using the existing renderer.
+PASS unsupported gamepad navigation restores original rendering and input
+PASS color option explains restrictions while the legacy renderer is active
+PASS mouse/keyboard navigation reactivates existing native container
+PASS Edit Mode restores Blizzard previews
+BuffTimers: Expand your buffs to use native mode. Using the existing renderer while buffs are collapsed.
+PASS collapsed view uses original rendering
+PASS options toggle persists disabled state and displays it
+PASS explicit opt-out restores originals
+PASS opt-out restores legacy host capacity for the active layout
+BuffTimers: Native mode stopped: NativeAuras.lua:128: native timer formatter failed its checks
+PASS failed native formatter self-check disables mode without hiding original buffs
+PASS a saved disabled preference remains disabled after addon initialization
+BuffTimers: Native aura APIs are unavailable on this client. Using the existing renderer.
+PASS options disable native control and explain missing APIs
+PASS missing native APIs leave original rendering and input untouched
+PASS native options are hidden when the client has no native renderer module
+PASS native lifecycle replay; combat renderer still requires in-game verification
+CLIENT 16001
+PASS all other supported clients return before accessing addon/native APIs
+PASS container belongs to existing buff host
+PASS options expose enabled native timers on supported clients
+PASS options display native renderer status
+PASS native slash command is removed
+PASS native mode starts enabled without a saved preference
+PASS enabling delegates real player buffs to native container
+PASS only original buff buttons are suppressed
+PASS fixed host capacity reserves room for full buffs plus all weapon enchants
+PASS native warning-flash updates cannot reveal duplicate original art
+PASS native rules cover days, ceil minutes and suffixed tenths
+PASS buff dimensions and configured timer font are applied
+PASS container belongs to existing buff host
+PASS enabling detailed hover keeps the replacement renderer active
+PASS hover overlay has engine-controlled highlight text without duplicate icons or stacks
+PASS only the main native button can cancel a buff
+PASS hover-only backplate follows the detailed label without reading its secret width
+PASS native containers use identical assignment ordering and aligned layout
+PASS hover sample 6300
+PASS hover sample 3600
+PASS hover sample 3599.9
+PASS hover sample 60
+PASS hover sample 59
+PASS hover sample 4.9
+PASS leaving hover reveals the live compact timer
+PASS a refreshed hovered buff changes immediately while another buff keeps compact text
+PASS native options toggle is disabled in combat
+PASS combat ticks and commands defer configuration without touching adopted objects
+PASS original art stays suppressed during combat
+PASS profile changes apply after combat
+PASS hover label follows the updated timer font
+PASS duration CVar clears native bindings and hides text
+PASS duration CVar disables hover bindings too
+PASS duration CVar restores native binding
+PASS vertical growth, stride and scale follow existing layout settings
+PASS hover overlay follows vertical layout and scale
+PASS disabling detailed hover keeps compact native timers active
+PASS re-enabling hover reuses its native container
+PASS formatting options keep both native renderers active
+PASS m seconds=false threshold=30: 4.99 = 4s
+PASS m seconds=false threshold=30: 59.9 = 59s
+PASS m seconds=false threshold=30: 61 = 2m
+PASS m seconds=false threshold=30: 3599 = 60m
+PASS m seconds=false threshold=30: 6300 = 105m
+PASS m seconds=false threshold=30: 86399 = 1440m
+PASS m seconds=false threshold=30: 86400 = 1d
+PASS m seconds=false threshold=30: 86401 = 1d
+PASS m seconds=false threshold=30: 90000 = 2d
+PASS detailed hover works with each format/seconds configuration
+PASS formatting options keep both native renderers active
+PASS m seconds=true threshold=30: 4.99 = 4.9s
+PASS m seconds=true threshold=30: 60 = 1:00
+PASS m seconds=true threshold=30: 61 = 1:01
+PASS m seconds=true threshold=30: 1799.9 = 29:59
+PASS m seconds=true threshold=30: 1800 = 30m
+PASS detailed hover works with each format/seconds configuration
+PASS formatting options keep both native renderers active
+PASS m seconds=true threshold=120: 6299 = 104:59
+PASS m seconds=true threshold=120: 6300 = 105:00
+PASS m seconds=true threshold=120: 7199 = 119:59
+PASS m seconds=true threshold=120: 7200 = 120m
+PASS detailed hover works with each format/seconds configuration
+PASS formatting options keep both native renderers active
+PASS hm seconds=false threshold=30: 3599 = 60m
+PASS hm seconds=false threshold=30: 3600 = 1:00h
+PASS hm seconds=false threshold=30: 3600.1 = 1:01h
+PASS hm seconds=false threshold=30: 3659 = 1:01h
+PASS hm seconds=false threshold=30: 3660 = 1:01h
+PASS hm seconds=false threshold=30: 6300 = 1:45h
+PASS hm seconds=false threshold=30: 6301 = 1:46h
+PASS hm seconds=false threshold=30: 7140 = 1:59h
+PASS hm seconds=false threshold=30: 7140.1 = 2:00h
+PASS hm seconds=false threshold=30: 7199 = 2:00h
+PASS hm seconds=false threshold=30: 7200 = 2:00h
+PASS hm seconds=false threshold=30: 86399 = 24:00h
+PASS hm seconds=false threshold=30: 86400 = 1d
+PASS detailed hover works with each format/seconds configuration
+PASS formatting options keep both native renderers active
+PASS hm seconds=true threshold=120: 3599 = 59:59
+PASS hm seconds=true threshold=120: 3600 = 1:00:00
+PASS hm seconds=true threshold=120: 3659 = 1:00:59
+PASS hm seconds=true threshold=120: 6300 = 1:45:00
+PASS hm seconds=true threshold=120: 7199 = 1:59:59
+PASS hm seconds=true threshold=120: 7200 = 2:00h
+PASS detailed hover works with each format/seconds configuration
+PASS formatting options keep both native renderers active
+PASS hm seconds=true threshold=60: 4.99 = 4s
+PASS hm seconds=true threshold=60: 3599 = 59:59
+PASS hm seconds=true threshold=60: 3600 = 1:00h
+PASS detailed hover works with each format/seconds configuration
+PASS formatting options keep both native renderers active
+PASS hm seconds=true threshold=1: 59 = 59s
+PASS hm seconds=true threshold=1: 60 = 1m
+PASS hm seconds=true threshold=1: 61 = 2m
+PASS hm seconds=true threshold=1: 3600 = 1:00h
+PASS detailed hover works with each format/seconds configuration
+PASS colored timers select red, yellow and green bands natively
+PASS color option describes native thresholds without the legacy-only restriction
+PASS always-yellow overrides colored thresholds
+PASS disabling color overrides restores native white short timers
+PASS disabling text customization restores both native font objects
+PASS font, size, vertical position and outline option None reach native hover text
+PASS font, size, vertical position and outline option OUTLINE reach native hover text
+PASS font, size, vertical position and outline option THICKOUTLINE reach native hover text
+PASS font, size, vertical position and outline option MONOCHROME reach native hover text
+PASS switching profile tables updates formatting without changing the renderer preference
+PASS profile changes during combat leave the current native binding running
+PASS format changes apply after combat
+BuffTimers: Native mode does not support gamepad navigation. Using the existing renderer.
+PASS unsupported gamepad navigation restores original rendering and input
+PASS color option explains restrictions while the legacy renderer is active
+PASS mouse/keyboard navigation reactivates existing native container
+PASS Edit Mode restores Blizzard previews
+BuffTimers: Expand your buffs to use native mode. Using the existing renderer while buffs are collapsed.
+PASS collapsed view uses original rendering
+PASS options toggle persists disabled state and displays it
+PASS explicit opt-out restores originals
+PASS opt-out restores legacy host capacity for the active layout
+BuffTimers: Native mode stopped: NativeAuras.lua:128: native timer formatter failed its checks
+PASS failed native formatter self-check disables mode without hiding original buffs
+PASS a saved disabled preference remains disabled after addon initialization
+BuffTimers: Native aura APIs are unavailable on this client. Using the existing renderer.
+PASS options disable native control and explain missing APIs
+PASS missing native APIs leave original rendering and input untouched
+PASS native options are hidden when the client has no native renderer module
+PASS native lifecycle replay; combat renderer still requires in-game verification
