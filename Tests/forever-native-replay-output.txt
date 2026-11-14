@@ -11,6 +11,7 @@ PASS fixed host capacity reserves room for full buffs plus all weapon enchants
 PASS native warning-flash updates cannot reveal duplicate original art
 PASS native rules cover days, ceil minutes and suffixed tenths
 PASS buff dimensions and configured timer font are applied
+PASS clients without the spell-icon API retain native weapon icons
 PASS container belongs to existing buff host
 PASS enabling detailed hover keeps the replacement renderer active
 PASS hover overlay has engine-controlled highlight text without duplicate icons or stacks
@@ -117,7 +118,7 @@ PASS collapsed view uses original rendering
 PASS options toggle persists disabled state without redundant status text
 PASS explicit opt-out restores originals
 PASS opt-out restores legacy host capacity for the active layout
-BuffTimers: Native mode stopped: NativeAuras.lua:128: native timer formatter failed its checks
+BuffTimers: Native mode stopped: NativeAuras.lua:130: native timer formatter failed its checks
 PASS failed native formatter self-check disables mode without hiding original buffs
 PASS a saved disabled preference remains disabled after addon initialization
 BuffTimers: Native aura APIs are unavailable on this client. Using the existing renderer.
@@ -128,6 +129,9 @@ PASS native lifecycle replay; combat renderer still requires in-game verificatio
 CLIENT 16001
 PASS all other supported clients return before accessing addon/native APIs
 PASS container belongs to existing buff host
+PASS enchant icon owns a separate layout-safe frame
+PASS enchant icon owns a separate layout-safe frame
+PASS enchant icon owns a separate layout-safe frame
 PASS options expose enabled native timers on supported clients
 PASS active renderer has no redundant status text
 PASS native slash command is removed
@@ -138,6 +142,13 @@ PASS fixed host capacity reserves room for full buffs plus all weapon enchants
 PASS native warning-flash updates cannot reveal duplicate original art
 PASS native rules cover days, ceil minutes and suffixed tenths
 PASS buff dimensions and configured timer font are applied
+PASS selected temporary-enchant icon is shown instead of equipped weapon texture
+PASS switching imbues in combat updates the public icon without touching restricted aura frames
+PASS multiple enchant types use the icon matching the native duration's selected enchant
+PASS weapon-icon preference is respected in combat
+PASS removing an enchant hides its independent icon
+PASS only active enchant slots have visible icons
+PASS main-hand and off-hand enchant icons remain associated with their own slots
 PASS container belongs to existing buff host
 PASS enabling detailed hover keeps the replacement renderer active
 PASS hover overlay has engine-controlled highlight text without duplicate icons or stacks
@@ -243,8 +254,11 @@ BuffTimers: Expand your buffs to use native mode. Using the existing renderer wh
 PASS collapsed view uses original rendering
 PASS options toggle persists disabled state without redundant status text
 PASS explicit opt-out restores originals
+PASS opting out hides independent enchant icons
+PASS opting out hides independent enchant icons
+PASS opting out hides independent enchant icons
 PASS opt-out restores legacy host capacity for the active layout
-BuffTimers: Native mode stopped: NativeAuras.lua:128: native timer formatter failed its checks
+BuffTimers: Native mode stopped: NativeAuras.lua:130: native timer formatter failed its checks
 PASS failed native formatter self-check disables mode without hiding original buffs
 PASS a saved disabled preference remains disabled after addon initialization
 BuffTimers: Native aura APIs are unavailable on this client. Using the existing renderer.

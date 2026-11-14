@@ -8,6 +8,7 @@ local Native = BuffTimers:NewModule("NativeAuras")
 local root, hoverRoot, current, applied, active, timer
 local available = false
 local buttons = {}
+local enchantIcons = {}
 local suppressingAlpha = false
 
 -- Failure cases: unsupported profiles silently losing features; private/debuff
@@ -55,6 +56,7 @@ local function Restore()
         hoverRoot:SetEnabled(false)
         hoverRoot:Hide()
     end
+    for _, entry in ipairs(enchantIcons) do entry.frame:Hide() end
     local wasActive = active
     active = false
     if wasActive then
@@ -197,11 +199,33 @@ local function Configure(entry)
     end
 end
 
-local function InitializeButton(button, enchant, hover)
+local function InitializeButton(button, enchant, hover, container)
     local icon = button:CreateTexture(nil, "BACKGROUND")
     icon:SetSize(30, 30)
     if not hover then
-        button:SetIcon(icon)
+        if enchant and C_Item and C_Item.GetWeaponEnchantInfo and C_PaperDollInfo
+            and C_PaperDollInfo.GetTemporaryEnchantmentInfo and AuraContainerItemEnchantmentToInventorySlot
+            and Enum.WeaponSlot then
+            -- Keep this icon addon-owned: fixed enchant information is public,
+            -- while adopted native aura regions become inaccessible in combat.
+            -- Anchoring to the native icon proxy follows its secret layout
+            -- without querying coordinates, visibility or aura identities.
+            local frame = CreateFrame("Frame", nil, BuffFrame, "DisableUntrustedLayoutScriptsTemplate")
+            frame:SetAllPoints(icon)
+            frame:SetFrameLevel(container:GetFrameLevel())
+            local image = frame:CreateTexture(nil, "ARTWORK")
+            image:SetAllPoints()
+            frame:Hide()
+            local weaponSlots = {
+                [AuraContainerItemEnchantmentSlot.MainHand] = Enum.WeaponSlot.MainHand,
+                [AuraContainerItemEnchantmentSlot.OffHand] = Enum.WeaponSlot.OffHand,
+                [AuraContainerItemEnchantmentSlot.Ranged] = Enum.WeaponSlot.Ranged,
+            }
+            enchantIcons[#enchantIcons + 1] = { frame = frame, texture = image,
+                inventorySlot = AuraContainerItemEnchantmentToInventorySlot[enchant], weaponSlot = weaponSlots[enchant] }
+        else
+            button:SetIcon(icon)
+        end
         local count = button:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
         count:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", -2, 2)
         button:SetApplicationCount(count)
@@ -238,11 +262,11 @@ local function CreateNativeContainer(hover)
     container:AddAuraGroup("buffs", "HELPFUL", {
         maxFrameCount = BuffFrame.maxAuras,
         sortMethod = AuraContainerSortMethod.AuraInstanceIDOnly,
-        initializeFrame = function(button) InitializeButton(button, false, hover) end,
+        initializeFrame = function(button) InitializeButton(button, nil, hover, container) end,
     })
     for _, slot in ipairs({ AuraContainerItemEnchantmentSlot.MainHand, AuraContainerItemEnchantmentSlot.OffHand,
         AuraContainerItemEnchantmentSlot.Ranged }) do
-        container:AddItemEnchantment(slot, { initializeFrame = function(button) InitializeButton(button, true, hover) end })
+        container:AddItemEnchantment(slot, { initializeFrame = function(button) InitializeButton(button, slot, hover, container) end })
     end
     return container
 end
@@ -264,6 +288,31 @@ local function ConfigureContainer(container, layout)
         elementWidth = current.width, elementHeight = current.height })
     container:SetFlowLayoutMaximumLineSize((layout.iconStride or 1) *
         ((horizontal and current.width or current.height) + padding) - padding)
+end
+
+local function UpdateEnchantIcons()
+    for _, entry in ipairs(enchantIcons) do
+        if not active then
+            entry.frame:Hide()
+        else
+            local info = C_PaperDollInfo.GetTemporaryEnchantmentInfo(entry.inventorySlot)
+            if info then
+                local texture = GetInventoryItemTexture("player", entry.inventorySlot)
+                if CVarCallbackRegistry:GetCVarValueBool("displayTemporaryEnchantIcon") then
+                    for _, enchant in pairs(C_Item.GetWeaponEnchantInfo(entry.weaponSlot)) do
+                        if enchant.hasEnchant and enchant.enchantID == info.enchantID then
+                            texture = enchant.enchantIconID
+                            break
+                        end
+                    end
+                end
+                entry.texture:SetTexture(texture)
+                entry.frame:Show()
+            else
+                entry.frame:Hide()
+            end
+        end
+    end
 end
 
 local function UnsupportedReason()
@@ -335,7 +384,10 @@ local function Refresh()
 end
 
 local function SafeRefresh()
-    local ok, reason = pcall(Refresh)
+    local ok, reason = pcall(function()
+        Refresh()
+        UpdateEnchantIcons()
+    end)
     if not ok then
         Restore()
         BuffTimersNativeDB.enabled = false

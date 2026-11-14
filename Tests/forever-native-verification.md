@@ -218,3 +218,37 @@ change: generated `NumericRuleFormatterSharedDocumentation.lua` and
 `NumericRuleFormatterAPIDocumentation.lua` describe breakpoint selection, input
 rounding and component div/mod/rounding. Existing BuffTimers `FormatTime` and its
 formatting cases were consulted for the option semantics and day policy.
+
+## Temporary enchant icons
+
+The native item-enchantment aura data does not include an icon, so its default
+icon setter uses the equipped weapon texture. Forever's stock BuffFrame instead
+uses `C_Item.GetWeaponEnchantInfo(...).enchantIconID` when the
+`displayTemporaryEnchantIcon` preference is enabled. This caused the shaman imbue
+to appear as a hammer rather than its spell icon in the replacement renderer.
+
+On clients exposing that API, fixed enchant slots now have addon-owned icon
+frames anchored to the native slot's icon proxy. They opt into
+`DisableUntrustedLayoutScriptsTemplate` and do not query the native slot's secret
+coordinates or visibility. Public weapon-enchant metadata supplies the selected
+icon, matching the enchant ID chosen by the native duration renderer. With the
+spell-icon preference off, the equipped weapon texture is used. Slots without
+an active enchant hide their icon, and disabling the replacement hides all these
+frames. Updates also run during combat without accessing adopted aura regions.
+Clients without the spell-icon API retain the existing native inventory icon.
+No buff ordering changes are included.
+
+The replay covers spell-icon preference on/off, re-imbuing during combat, two
+active enchant types with one preferred duration, enchant removal, dual wield,
+inactive slots, opt-out cleanup and the client without this API. The output is
+in `forever-native-replay-output.txt`. Real-client anchoring and appearance still
+need confirmation: reload, compare the shaman imbue icon with the replacement
+on/off, refresh/change the imbue in combat, and test both weapon slots if used.
+
+Inspected `forever` `bebcb6bf309c` and `live` `297d7aaaa736` sequentially:
+`Blizzard_BuffFrame/BuffFrame.lua` (stock enchant icon preference),
+`Blizzard_AuraContainer/Blizzard_AuraContainerEnchantments.lua` and
+`Blizzard_AuraContainerUtil.lua` (native data and weapon-texture fallback),
+`ItemDocumentation.lua` (`WeaponEnchantInfo`), `PaperDollInfoDocumentation.lua`
+(`GetTemporaryEnchantmentInfo`, imbue priority), and
+`Blizzard_SharedXMLBase/ForbiddenAspectTemplates.xml` (safe layout opt-in).

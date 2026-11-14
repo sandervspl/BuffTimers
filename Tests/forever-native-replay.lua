@@ -17,6 +17,7 @@ end
 check(true, "all other supported clients return before accessing addon/native APIs")
 
 local combat, showDurations, editing, expanded, gamepad = false, true, false, true, false
+local showEnchantSpellIcon = true
 local modules, ticker, root, messages = {}, nil, nil, {}
 local containers = {}
 local profile = { time_stamp = "m", seconds = false, seconds_threshold = 30, detailed_time_on_hover = false,
@@ -59,7 +60,10 @@ end
 SlashCmdList = {}
 C_Timer = { NewTicker = function(_, callback) ticker = callback; return { Cancel = function() end } end }
 InputUtil = { IsGamepadUIEnabled = function() return gamepad end }
-CVarCallbackRegistry = { GetCVarValueBool = function() return showDurations end }
+CVarCallbackRegistry = { GetCVarValueBool = function(_, name)
+    if name == "displayTemporaryEnchantIcon" then return showEnchantSpellIcon end
+    return showDurations
+end }
 BuffTimersLibSharedMedia = { Fetch = function(_, _, name) return name .. ".ttf" end }
 GameFontNormalSmall = "native-font"
 Enum = { NumericRuleFormatRounding = { Down = 0, Up = 1 }, LuaCurveType = { Step = 0 },
@@ -68,6 +72,16 @@ AnchorUtil = { FlowLayoutAxis = { Horizontal = 0, Vertical = 1 },
     FlowDirection = { Left = 0, Right = 1, Up = 2, Down = 3 } }
 AuraContainerSortMethod = { AuraInstanceIDOnly = 8 }
 AuraContainerItemEnchantmentSlot = { MainHand = 0, OffHand = 1, Ranged = 2 }
+local enchantInfo, weaponEnchants, iconFrames = {}, {}, {}
+if BUFFTIMERS_TEST_INTERFACE ~= 120105 then
+    AuraContainerItemEnchantmentToInventorySlot = { [0] = 16, [1] = 17, [2] = 18 }
+    Enum.WeaponSlot = { MainHand = 0, OffHand = 1, Ranged = 2 }
+    enchantInfo[16] = { enchantID = 7 }
+    weaponEnchants[0] = { { hasEnchant = true, enchantID = 7, enchantIconID = 111 } }
+    C_PaperDollInfo = { GetTemporaryEnchantmentInfo = function(slot) return enchantInfo[slot] end }
+    C_Item = { GetWeaponEnchantInfo = function(slot) return weaponEnchants[slot] or {} end }
+    function GetInventoryItemTexture(_, slot) return "weapon" .. slot end
+end
 function CreateColor(...) return { ... } end
 C_CurveUtil = { CreateColorCurve = function()
     return {
@@ -124,6 +138,8 @@ local function region(restricted)
     function object:Show() write(self, "shown", true) end
     function object:Hide() write(self, "shown", false) end
     function object:SetShown(value) write(self, "shown", value) end
+    function object:SetFrameLevel(value) self.level = value end
+    function object:GetFrameLevel() return self.level or 1 end
     function object:CreateTexture(_, layer)
         local texture = region(restricted)
         texture.layer = layer
@@ -155,7 +171,14 @@ BuffFrame = {
     SetSize = function(self, width, height) self.size = { width, height } end,
     UpdateSize = function() end,
 }
-function CreateFrame(frameType, _, parent)
+function CreateFrame(frameType, _, parent, template)
+    if frameType == "Frame" then
+        check(parent == BuffFrame and template == "DisableUntrustedLayoutScriptsTemplate",
+            "enchant icon owns a separate layout-safe frame")
+        local frame = region(false)
+        iconFrames[#iconFrames + 1] = frame
+        return frame
+    end
     check(frameType == "AuraContainer" and parent == BuffFrame, "container belongs to existing buff host")
     local container = region(false)
     if not root then root = container end
@@ -210,6 +233,39 @@ check(nativeFormatter:FormatNumber(86400) == "1d" and nativeFormatter:FormatNumb
     and nativeFormatter:FormatNumber(4.9) == "4.9s", "native rules cover days, ceil minutes and suffixed tenths")
 check(child.SetSizeArgs[1] == 30 and child.SetFontArgs == nil and child.duration[1].SetFontArgs[2] == 10,
     "buff dimensions and configured timer font are applied")
+if #iconFrames > 0 then
+    check(iconFrames[1].shown[1] and iconFrames[1].textures[1].SetTextureArgs[1] == 111,
+        "selected temporary-enchant icon is shown instead of equipped weapon texture")
+    combat = true
+    weaponEnchants[0][1].enchantID, weaponEnchants[0][1].enchantIconID = 8, 222
+    enchantInfo[16].enchantID = 8
+    ticker()
+    check(iconFrames[1].textures[1].SetTextureArgs[1] == 222,
+        "switching imbues in combat updates the public icon without touching restricted aura frames")
+    weaponEnchants[0][2] = { hasEnchant = true, enchantID = 9, enchantIconID = 333 }
+    ticker()
+    check(iconFrames[1].textures[1].SetTextureArgs[1] == 222,
+        "multiple enchant types use the icon matching the native duration's selected enchant")
+    showEnchantSpellIcon = false
+    ticker()
+    check(iconFrames[1].textures[1].SetTextureArgs[1] == "weapon16", "weapon-icon preference is respected in combat")
+    showEnchantSpellIcon = true
+    enchantInfo[16] = nil
+    ticker()
+    check(not iconFrames[1].shown[1], "removing an enchant hides its independent icon")
+    enchantInfo[16] = { enchantID = 8 }
+    combat = false
+    ticker()
+    check(iconFrames[1].shown[1] and not iconFrames[2].shown[1] and not iconFrames[3].shown[1],
+        "only active enchant slots have visible icons")
+    enchantInfo[17] = { enchantID = 44 }
+    weaponEnchants[1] = { { hasEnchant = true, enchantID = 44, enchantIconID = 555 } }
+    ticker()
+    check(iconFrames[1].textures[1].SetTextureArgs[1] == 222 and iconFrames[2].textures[1].SetTextureArgs[1] == 555,
+        "main-hand and off-hand enchant icons remain associated with their own slots")
+else
+    check(root.children[3].icon ~= nil, "clients without the spell-icon API retain native weapon icons")
+end
 profile.detailed_time_on_hover = true
 ticker()
 local hoverRoot = containers[2]
@@ -390,6 +446,7 @@ toggle.set(nil, false)
 check(not toggle.get() and nativeGroup.args.status.hidden() and nativeGroup.args.status.name() == "",
     "options toggle persists disabled state without redundant status text")
 check(not root.enabled and legacy.alpha == 1 and legacy.mouse, "explicit opt-out restores originals")
+for _, frame in ipairs(iconFrames) do check(not frame.shown[1], "opting out hides independent enchant icons") end
 check(BuffFrame.size[1] == 1072.5, "opt-out restores legacy host capacity for the active layout")
 failFormatter = true
 toggle.set(nil, true)
