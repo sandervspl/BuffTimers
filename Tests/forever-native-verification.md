@@ -140,27 +140,34 @@ Classic branches beyond the module's tested early return.
 
 Detailed hover no longer selects the legacy renderer. When enabled, a second
 native container uses identical filters, aura-instance ordering, enchant slots,
-grid dimensions, growth and scale. It draws only a detailed timer and opaque
-backplate on the engine-controlled HIGHLIGHT layer. The normal renderer continues
-counting underneath and is revealed when the mouse leaves. The backplate covers
-the normal timer while hovering; below one minute the native formatter returns
-empty text, giving the plate zero width and preserving the normal short timer.
+grid dimensions, growth and scale. It draws only a detailed timer, without a
+background. Each timer has a separate opacity parent underneath its native aura
+button. An addon-owned sibling hit region follows that button's geometry. An
+unanchored update driver forwards the hit region's potentially secret
+`IsMouseOver()` result directly to `SetAlphaFromBoolean`, selecting complementary
+opacity for compact and detailed labels. Lua never branches on that result.
+The compact timer continues counting while hidden. Below one minute, the hover
+formatter renders the same seconds/tenths as the compact timer.
 
-The overlay has no icons/stacks, no addon hover scripts, no focus queries, and
-no aura cancellation action. Native buttons propagate input, so only the main
+The overlay has no icons/stacks, no addon scripts or queries on native buttons,
+and no aura cancellation action. Native buttons propagate input, so only the main
 renderer handles right-click cancellation. Native tooltips remain engine-owned.
 Both containers receive live aura assignments and durations from Blizzard;
 there is no precombat duration cache or addon comparison of secret timer values.
 The overlay is disabled when duration display, detailed hover, or the replacement
 renderer is disabled. Font/profile/layout changes still apply outside combat.
 
-The lifecycle replay now models native layer selection and exercises 6300,
+The lifecycle replay models native alpha selection using opaque mouseover tokens
+and exercises 6300,
 3600, 3599.9, 60, 59 and 4.9 seconds, leaving hover, refresh while hovered,
 another unhovered buff, toggling hover, duration visibility, combat-deferred
 configuration, native font changes, and vertical layout. It supplies neither
 OnEnter/OnLeave nor mouse-focus query methods to the simulated aura buttons.
-This verifies addon configuration and native formatter rules, not the client's
-highlight painting or security engine. In-game hover remains to be confirmed.
+It checks that hovering in combat hides the compact label, leaving restores it,
+other buffs remain compact, and no background texture is created. Short timers
+are checked with tenths both enabled and disabled. This verifies addon
+configuration and native API contracts, not the client's security engine.
+The new opacity parents and hit-region anchoring need in-game confirmation.
 
 Recheck in-game: enable **Show detailed time on hover** before combat, hover a
 long buff and verify `hh:mm:ss`, then leave it and verify compact minutes. Enter
@@ -170,12 +177,16 @@ cancellation. Verify there is no visible overlap of the two labels and that
 disabling hover restores compact native timers without restoring legacy buttons.
 
 For this path, inspected `live` `297d7aaaa736` followed by `forever` `bebcb6bf309c`:
-`Blizzard_AuraButton.xml` and `ForbiddenAspectConstantsDocumentation.lua` for
-script/focus/input restrictions; `Blizzard_CustomAuraButton.lua` and
-`Blizzard_CustomAuraContainer.lua` for native bindings and assignment; generated
-`NumericRuleFormatterSharedDocumentation.lua` for native floor/div/mod components;
-and `Blizzard_SpectateFrame/SpectateFrame.xml` for Blizzard's HIGHLIGHT FontString
-usage. Native draw-layer behavior still requires the real-client check above.
+`Blizzard_AuraButton.xml`, `Blizzard_AuraContainerFrameProviders.lua`,
+`Blizzard_AuraContainerUtil.lua` and `SimpleFrameScriptObjectAPIDocumentation.lua`
+for per-object access restrictions and descendant binding validation;
+`Blizzard_CustomAuraButton.lua` for native duration text/color binding;
+`SimpleScriptRegionAPIDocumentation.lua` for secret geometric hit testing;
+`SimpleFrameAPIDocumentation.lua` for secret-safe alpha selection; and
+`Blizzard_SharedXMLBase/ForbiddenAspectTemplates.xml` for explicit hierarchy and
+layout script restrictions. The text parents opt into both script restrictions;
+the sibling hit regions need only the layout restriction. No native button is
+accessed by the hover update driver.
 
 For the shared options-menu change, all supported branches were also inspected
 sequentially: `live` `297d7aaaa736`, `classic` `e5d9b3a22c3f`, `classic_titan`

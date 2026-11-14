@@ -5,7 +5,7 @@ if interface ~= 16001 and interface ~= 120105 then return end
 
 local BuffTimers = LibStub("AceAddon-3.0"):GetAddon("BuffTimers")
 local Native = BuffTimers:NewModule("NativeAuras")
-local root, hoverRoot, current, applied, active, timer
+local root, hoverRoot, current, applied, active, timer, hoverDriver
 local available = false
 local buttons = {}
 local enchantIcons = {}
@@ -149,12 +149,13 @@ local function MakeColorCurve(profile)
     return curve
 end
 
-local function MakeHoverFormatter()
+local function MakeHoverFormatter(profile)
     local down = Enum.NumericRuleFormatRounding.Down
     local f = C_StringUtil.CreateNumericRuleFormatter()
     f:SetBreakpoints({
-        -- Empty text also gives the highlight backplate zero width below a minute.
-        { threshold = 0, format = "" },
+        { threshold = 0, format = profile.milliseconds and "%.1fs" or "%ds",
+            step = profile.milliseconds and 0.1 or 1, rounding = down },
+        { threshold = 5, format = "%ds", step = 1, rounding = down },
         { threshold = 60, format = "%02d:%02d", components = {
             { div = 60, step = 1, rounding = down },
             { mod = 60, step = 1, rounding = down },
@@ -165,13 +166,14 @@ local function MakeHoverFormatter()
             { mod = 60, step = 1, rounding = down },
         } },
     })
-    assert(f:FormatNumber(59) == "" and f:FormatNumber(60) == "01:00"
+    assert(f:FormatNumber(59) == "59s" and f:FormatNumber(60) == "01:00"
         and f:FormatNumber(6300) == "01:45:00", "native detailed hover formatter failed its checks")
     return f
 end
 
 local function Configure(entry)
     local config, button, icon, text = current, entry.button, entry.icon, entry.text
+    entry.textFrame:SetAlpha(entry.hover and 0 or 1)
     button:SetSize(config.width, config.height)
     icon:ClearAllPoints()
     icon:SetPoint(config.iconPoint, button, config.iconPoint)
@@ -230,17 +232,18 @@ local function InitializeButton(button, enchant, hover, container)
         count:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", -2, 2)
         button:SetApplicationCount(count)
     end
-    local layer = hover and "HIGHLIGHT" or "OVERLAY"
-    local text = button:CreateFontString(nil, layer, "GameFontNormalSmall")
-    text:SetDrawLayer(layer, 1)
-    if hover then
-        -- The engine toggles HIGHLIGHT on mouseover. No addon OnEnter/OnLeave,
-        -- focus queries, secret arithmetic, or combat-time reconfiguration.
-        -- A matching native container owns the overlay's aura assignments.
-        local backplate = button:CreateTexture(nil, "HIGHLIGHT")
-        backplate:SetColorTexture(0, 0, 0, 1)
-        backplate:SetAllPoints(text)
-    elseif enchant then
+    -- Keep opacity on a separate parent so the native duration binding can
+    -- update the FontString's color/alpha without revealing both timer labels.
+    local textFrame = CreateFrame("Frame", nil, button,
+        "DisableUntrustedScriptsTemplate,DisableUntrustedLayoutScriptsTemplate")
+    textFrame:SetAllPoints(button)
+    local text = textFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    text:SetDrawLayer("OVERLAY", 1)
+    -- This sibling stays addon-owned, including when native buttons restrict
+    -- access in combat. Its geometry follows the button without reading it.
+    local hoverRegion = CreateFrame("Frame", nil, BuffFrame, "DisableUntrustedLayoutScriptsTemplate")
+    hoverRegion:SetAllPoints(button)
+    if not hover and enchant then
         local border = button:CreateTexture(nil, "OVERLAY")
         border:SetTexture("Interface\\Buttons\\UI-TempEnchant-Border")
         border:SetSize(32, 32)
@@ -249,9 +252,20 @@ local function InitializeButton(button, enchant, hover, container)
     -- Native aura buttons propagate input. Only the main renderer cancels auras,
     -- so the overlay cannot turn one right-click into two cancellation attempts.
     button:SetCancelAuraButtons(not hover and "RightButtonUp" or nil)
-    local entry = { button = button, icon = icon, text = text, hover = hover }
+    local entry = { button = button, icon = icon, text = text, hover = hover,
+        textFrame = textFrame, hoverRegion = hoverRegion }
     buttons[#buttons + 1] = entry
     Configure(entry)
+end
+
+local function UpdateHover()
+    if not active or not current.showDurations or not current.profile.detailed_time_on_hover then return end
+    for _, entry in ipairs(buttons) do
+        -- Mouseover can be secret when anchored to a secret layout. Pass
+        -- it straight to the native alpha setter; never branch on it in Lua.
+        entry.textFrame:SetAlphaFromBoolean(entry.hoverRegion:IsMouseOver(),
+            entry.hover and 1 or 0, entry.hover and 0 or 1)
+    end
 end
 
 local function CreateNativeContainer(hover)
@@ -356,7 +370,7 @@ local function Refresh()
     current = {
         profile = CopyTable(profile),
         formatter = MakeFormatter(profile), color = MakeColorCurve(profile),
-        hoverFormatter = profile.detailed_time_on_hover and MakeHoverFormatter() or nil,
+        hoverFormatter = profile.detailed_time_on_hover and MakeHoverFormatter(profile) or nil,
         showDurations = showDurations,
         width = horizontal and 30 or 60, height = horizontal and 40 or 30,
         iconPoint = horizontal and (top and "BOTTOM" or "TOP") or (right and "LEFT" or "RIGHT"),
@@ -378,6 +392,7 @@ local function Refresh()
     root:Show()
     root:SetEnabled(true)
     active = true
+    UpdateHover()
     SetOriginalsVisible(false)
     ResizeHost(BuffFrame.maxAuras + 3)
     applied = signature
@@ -454,11 +469,14 @@ function Native:OnEnable()
             end)
         end
     end
+    hoverDriver = CreateFrame("Frame")
+    hoverDriver:SetScript("OnUpdate", UpdateHover)
     timer = C_Timer.NewTicker(0.25, SafeRefresh)
     SafeRefresh()
 end
 
 function Native:OnDisable()
+    if hoverDriver then hoverDriver:SetScript("OnUpdate", nil); hoverDriver = nil end
     if timer then timer:Cancel(); timer = nil end
     if not InCombatLockdown() then Restore() end
 end

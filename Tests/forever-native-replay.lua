@@ -123,6 +123,9 @@ C_StringUtil = { CreateNumericRuleFormatter = function()
     }
 end }
 
+local hoverUpdate
+local mouseover = {}
+local mouseOn, mouseOff = {}, {}
 local function region(restricted)
     local object = { alpha = 1, mouse = true }
     local function write(self, key, ...)
@@ -130,6 +133,14 @@ local function region(restricted)
         self[key] = { ... }
     end
     function object:SetAlpha(alpha) self.alpha = alpha end
+    function object:SetAlphaFromBoolean(value, yes, no)
+        assert(value == mouseOn or value == mouseOff, "mouseover is passed directly to native alpha selection")
+        self.alpha = value == mouseOn and yes or no
+    end
+    function object:IsMouseOver()
+        assert(not restricted, "queried restricted aura button")
+        return mouseover[self.SetAllPointsArgs[1]] and mouseOn or mouseOff
+    end
     function object:EnableMouse(enabled) self.mouse = enabled end
     for _, method in ipairs({ "SetSize", "SetPoint", "SetFont", "SetFontObject", "SetDrawLayer", "SetTexture", "SetAllPoints", "SetColorTexture" }) do
         object[method] = function(self, ...) write(self, method .. "Args", ...) end
@@ -150,6 +161,7 @@ local function region(restricted)
     function object:CreateFontString(_, layer)
         local text = region(restricted)
         text.layer = layer
+        text.parent = self
         return text
     end
     function object:SetIcon(icon) self.icon = icon end
@@ -173,10 +185,23 @@ BuffFrame = {
 }
 function CreateFrame(frameType, _, parent, template)
     if frameType == "Frame" then
-        check(parent == BuffFrame and template == "DisableUntrustedLayoutScriptsTemplate",
-            "enchant icon owns a separate layout-safe frame")
+        if not parent then
+            return { SetScript = function(_, name, callback)
+                assert(name == "OnUpdate")
+                hoverUpdate = callback
+            end }
+        end
+        check(template == (parent == BuffFrame and "DisableUntrustedLayoutScriptsTemplate"
+            or "DisableUntrustedScriptsTemplate,DisableUntrustedLayoutScriptsTemplate"),
+            "addon-owned display frames opt into required script restrictions")
         local frame = region(false)
-        iconFrames[#iconFrames + 1] = frame
+        if parent == BuffFrame then
+            local createTexture = frame.CreateTexture
+            function frame:CreateTexture(...)
+                iconFrames[#iconFrames + 1] = self
+                return createTexture(self, ...)
+            end
+        end
         return frame
     end
     check(frameType == "AuraContainer" and parent == BuffFrame, "container belongs to existing buff host")
@@ -274,23 +299,33 @@ check(root.enabled and hoverRoot.enabled and nativeGroup.args.status.hidden(),
 local hoverChild = hoverRoot.children[1]
 local hoverText = hoverChild.duration[1]
 local hoverFormatter = hoverChild.duration[2].textFormatter
-check(hoverText.SetDrawLayerArgs[1] == "HIGHLIGHT" and not hoverChild.icon and not hoverChild.count,
-    "hover overlay has engine-controlled highlight text without duplicate icons or stacks")
+check(hoverText.SetDrawLayerArgs[1] == "OVERLAY" and not hoverChild.icon and not hoverChild.count,
+    "hover overlay only draws detailed text without duplicate icons or stacks")
 check(hoverChild.cancel == nil and child.cancel == "RightButtonUp",
     "only the main native button can cancel a buff")
-local plate = hoverChild.textures[2]
-check(plate.layer == "HIGHLIGHT" and plate.SetAllPointsArgs[1] == hoverText,
-    "hover-only backplate follows the detailed label without reading its secret width")
+check(#hoverChild.textures == 1 and not hoverText.parent.textures,
+    "detailed hover creates no background texture")
 check(hoverRoot.options.sortMethod == root.options.sortMethod
     and hoverRoot.SetPointArgs[1] == root.SetPointArgs[1] and hoverRoot.level == 2,
     "native containers use identical assignment ordering and aligned layout")
--- Model the engine's draw-layer selection. Addon code never receives either the
--- remaining time or the mouseover flag, and defines no hover script/query API.
+-- The mocked native methods consume opaque mouseover tokens. Addon code must
+-- forward them without inspecting them or touching restricted aura objects.
 local function display(base, hover, seconds, mouseover)
-    local detailed = hover.duration[2].textFormatter:FormatNumber(seconds)
-    if mouseover and detailed ~= "" then return detailed end
-    return base.duration[2].textFormatter:FormatNumber(seconds)
+    local text = mouseover and hover.duration or base.duration
+    return text[2].textFormatter:FormatNumber(seconds)
 end
+combat = true
+mouseover[child], mouseover[hoverChild] = true, true
+hoverUpdate()
+check(timerText.parent.alpha == 0 and hoverText.parent.alpha == 1,
+    "combat hover hides compact text and shows detailed text with no backplate")
+check(root.children[2].duration[1].parent.alpha == 1 and hoverRoot.children[2].duration[1].parent.alpha == 0,
+    "other buffs retain only their compact timers")
+mouseover[child], mouseover[hoverChild] = nil, nil
+hoverUpdate()
+check(timerText.parent.alpha == 1 and hoverText.parent.alpha == 0,
+    "leaving combat hover restores compact text without overlapping labels")
+combat = false
 for _, sample in ipairs({ { 6300, "01:45:00" }, { 3600, "01:00:00" }, { 3599.9, "59:59" },
     { 60, "01:00" }, { 59, "59s" }, { 4.9, "4.9s" } }) do
     check(display(child, hoverChild, sample[1], true) == sample[2], "hover sample " .. sample[1])
@@ -333,6 +368,8 @@ check(hoverRoot.SetFlowLayoutAnchorPointArgs[1] == "BOTTOMLEFT" and hoverRoot.Se
 profile.detailed_time_on_hover = false
 ticker()
 check(root.enabled and not hoverRoot.enabled, "disabling detailed hover keeps compact native timers active")
+check(timerText.parent.alpha == 1 and hoverText.parent.alpha == 0,
+    "disabling hover resets timer opacity to compact only")
 profile.detailed_time_on_hover = true
 ticker()
 check(hoverRoot.enabled and #containers == 2, "re-enabling hover reuses its native container")
@@ -366,6 +403,10 @@ for _, case in ipairs(formatCases) do
             case[1] .. " seconds=" .. tostring(case[2]) .. " threshold=" .. case[3] .. ": " .. sample[1] .. " = " .. sample[2])
     end
     check(display(child, hoverChild, 6300, true) == "01:45:00", "detailed hover works with each format/seconds configuration")
+    for _, seconds in ipairs({ 4.9, 5, 59 }) do
+        check(display(child, hoverChild, seconds, true) == formatter:FormatNumber(seconds),
+            "hover preserves short timer formatting at " .. seconds .. " seconds")
+    end
 end
 
 -- Drive the remaining display options through their actual menu callbacks.

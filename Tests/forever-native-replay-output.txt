@@ -1,6 +1,16 @@
 CLIENT 120105
 PASS all other supported clients return before accessing addon/native APIs
 PASS container belongs to existing buff host
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
 PASS options expose enabled native timers on supported clients
 PASS active renderer has no redundant status text
 PASS native slash command is removed
@@ -13,11 +23,24 @@ PASS native rules cover days, ceil minutes and suffixed tenths
 PASS buff dimensions and configured timer font are applied
 PASS clients without the spell-icon API retain native weapon icons
 PASS container belongs to existing buff host
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
 PASS enabling detailed hover keeps the replacement renderer active
-PASS hover overlay has engine-controlled highlight text without duplicate icons or stacks
+PASS hover overlay only draws detailed text without duplicate icons or stacks
 PASS only the main native button can cancel a buff
-PASS hover-only backplate follows the detailed label without reading its secret width
+PASS detailed hover creates no background texture
 PASS native containers use identical assignment ordering and aligned layout
+PASS combat hover hides compact text and shows detailed text with no backplate
+PASS other buffs retain only their compact timers
+PASS leaving combat hover restores compact text without overlapping labels
 PASS hover sample 6300
 PASS hover sample 3600
 PASS hover sample 3599.9
@@ -37,6 +60,7 @@ PASS duration CVar restores native binding
 PASS vertical growth, stride and scale follow existing layout settings
 PASS hover overlay follows vertical layout and scale
 PASS disabling detailed hover keeps compact native timers active
+PASS disabling hover resets timer opacity to compact only
 PASS re-enabling hover reuses its native container
 PASS formatting options keep both native renderers active
 PASS m seconds=false threshold=30: 4.99 = 4s
@@ -49,6 +73,9 @@ PASS m seconds=false threshold=30: 86400 = 1d
 PASS m seconds=false threshold=30: 86401 = 1d
 PASS m seconds=false threshold=30: 90000 = 2d
 PASS detailed hover works with each format/seconds configuration
+PASS hover preserves short timer formatting at 4.9 seconds
+PASS hover preserves short timer formatting at 5 seconds
+PASS hover preserves short timer formatting at 59 seconds
 PASS formatting options keep both native renderers active
 PASS m seconds=true threshold=30: 4.99 = 4.9s
 PASS m seconds=true threshold=30: 60 = 1:00
@@ -56,12 +83,18 @@ PASS m seconds=true threshold=30: 61 = 1:01
 PASS m seconds=true threshold=30: 1799.9 = 29:59
 PASS m seconds=true threshold=30: 1800 = 30m
 PASS detailed hover works with each format/seconds configuration
+PASS hover preserves short timer formatting at 4.9 seconds
+PASS hover preserves short timer formatting at 5 seconds
+PASS hover preserves short timer formatting at 59 seconds
 PASS formatting options keep both native renderers active
 PASS m seconds=true threshold=120: 6299 = 104:59
 PASS m seconds=true threshold=120: 6300 = 105:00
 PASS m seconds=true threshold=120: 7199 = 119:59
 PASS m seconds=true threshold=120: 7200 = 120m
 PASS detailed hover works with each format/seconds configuration
+PASS hover preserves short timer formatting at 4.9 seconds
+PASS hover preserves short timer formatting at 5 seconds
+PASS hover preserves short timer formatting at 59 seconds
 PASS formatting options keep both native renderers active
 PASS hm seconds=false threshold=30: 3599 = 60m
 PASS hm seconds=false threshold=30: 3600 = 1:00h
@@ -77,6 +110,9 @@ PASS hm seconds=false threshold=30: 7200 = 2:00h
 PASS hm seconds=false threshold=30: 86399 = 24:00h
 PASS hm seconds=false threshold=30: 86400 = 1d
 PASS detailed hover works with each format/seconds configuration
+PASS hover preserves short timer formatting at 4.9 seconds
+PASS hover preserves short timer formatting at 5 seconds
+PASS hover preserves short timer formatting at 59 seconds
 PASS formatting options keep both native renderers active
 PASS hm seconds=true threshold=120: 3599 = 59:59
 PASS hm seconds=true threshold=120: 3600 = 1:00:00
@@ -85,17 +121,26 @@ PASS hm seconds=true threshold=120: 6300 = 1:45:00
 PASS hm seconds=true threshold=120: 7199 = 1:59:59
 PASS hm seconds=true threshold=120: 7200 = 2:00h
 PASS detailed hover works with each format/seconds configuration
+PASS hover preserves short timer formatting at 4.9 seconds
+PASS hover preserves short timer formatting at 5 seconds
+PASS hover preserves short timer formatting at 59 seconds
 PASS formatting options keep both native renderers active
 PASS hm seconds=true threshold=60: 4.99 = 4s
 PASS hm seconds=true threshold=60: 3599 = 59:59
 PASS hm seconds=true threshold=60: 3600 = 1:00h
 PASS detailed hover works with each format/seconds configuration
+PASS hover preserves short timer formatting at 4.9 seconds
+PASS hover preserves short timer formatting at 5 seconds
+PASS hover preserves short timer formatting at 59 seconds
 PASS formatting options keep both native renderers active
 PASS hm seconds=true threshold=1: 59 = 59s
 PASS hm seconds=true threshold=1: 60 = 1m
 PASS hm seconds=true threshold=1: 61 = 2m
 PASS hm seconds=true threshold=1: 3600 = 1:00h
 PASS detailed hover works with each format/seconds configuration
+PASS hover preserves short timer formatting at 4.9 seconds
+PASS hover preserves short timer formatting at 5 seconds
+PASS hover preserves short timer formatting at 59 seconds
 PASS colored timers select red, yellow and green bands natively
 PASS color option describes native thresholds without the legacy-only restriction
 PASS always-yellow overrides colored thresholds
@@ -129,9 +174,19 @@ PASS native lifecycle replay; combat renderer still requires in-game verificatio
 CLIENT 16001
 PASS all other supported clients return before accessing addon/native APIs
 PASS container belongs to existing buff host
-PASS enchant icon owns a separate layout-safe frame
-PASS enchant icon owns a separate layout-safe frame
-PASS enchant icon owns a separate layout-safe frame
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
 PASS options expose enabled native timers on supported clients
 PASS active renderer has no redundant status text
 PASS native slash command is removed
@@ -150,11 +205,24 @@ PASS removing an enchant hides its independent icon
 PASS only active enchant slots have visible icons
 PASS main-hand and off-hand enchant icons remain associated with their own slots
 PASS container belongs to existing buff host
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
 PASS enabling detailed hover keeps the replacement renderer active
-PASS hover overlay has engine-controlled highlight text without duplicate icons or stacks
+PASS hover overlay only draws detailed text without duplicate icons or stacks
 PASS only the main native button can cancel a buff
-PASS hover-only backplate follows the detailed label without reading its secret width
+PASS detailed hover creates no background texture
 PASS native containers use identical assignment ordering and aligned layout
+PASS combat hover hides compact text and shows detailed text with no backplate
+PASS other buffs retain only their compact timers
+PASS leaving combat hover restores compact text without overlapping labels
 PASS hover sample 6300
 PASS hover sample 3600
 PASS hover sample 3599.9
@@ -174,6 +242,7 @@ PASS duration CVar restores native binding
 PASS vertical growth, stride and scale follow existing layout settings
 PASS hover overlay follows vertical layout and scale
 PASS disabling detailed hover keeps compact native timers active
+PASS disabling hover resets timer opacity to compact only
 PASS re-enabling hover reuses its native container
 PASS formatting options keep both native renderers active
 PASS m seconds=false threshold=30: 4.99 = 4s
@@ -186,6 +255,9 @@ PASS m seconds=false threshold=30: 86400 = 1d
 PASS m seconds=false threshold=30: 86401 = 1d
 PASS m seconds=false threshold=30: 90000 = 2d
 PASS detailed hover works with each format/seconds configuration
+PASS hover preserves short timer formatting at 4.9 seconds
+PASS hover preserves short timer formatting at 5 seconds
+PASS hover preserves short timer formatting at 59 seconds
 PASS formatting options keep both native renderers active
 PASS m seconds=true threshold=30: 4.99 = 4.9s
 PASS m seconds=true threshold=30: 60 = 1:00
@@ -193,12 +265,18 @@ PASS m seconds=true threshold=30: 61 = 1:01
 PASS m seconds=true threshold=30: 1799.9 = 29:59
 PASS m seconds=true threshold=30: 1800 = 30m
 PASS detailed hover works with each format/seconds configuration
+PASS hover preserves short timer formatting at 4.9 seconds
+PASS hover preserves short timer formatting at 5 seconds
+PASS hover preserves short timer formatting at 59 seconds
 PASS formatting options keep both native renderers active
 PASS m seconds=true threshold=120: 6299 = 104:59
 PASS m seconds=true threshold=120: 6300 = 105:00
 PASS m seconds=true threshold=120: 7199 = 119:59
 PASS m seconds=true threshold=120: 7200 = 120m
 PASS detailed hover works with each format/seconds configuration
+PASS hover preserves short timer formatting at 4.9 seconds
+PASS hover preserves short timer formatting at 5 seconds
+PASS hover preserves short timer formatting at 59 seconds
 PASS formatting options keep both native renderers active
 PASS hm seconds=false threshold=30: 3599 = 60m
 PASS hm seconds=false threshold=30: 3600 = 1:00h
@@ -214,6 +292,9 @@ PASS hm seconds=false threshold=30: 7200 = 2:00h
 PASS hm seconds=false threshold=30: 86399 = 24:00h
 PASS hm seconds=false threshold=30: 86400 = 1d
 PASS detailed hover works with each format/seconds configuration
+PASS hover preserves short timer formatting at 4.9 seconds
+PASS hover preserves short timer formatting at 5 seconds
+PASS hover preserves short timer formatting at 59 seconds
 PASS formatting options keep both native renderers active
 PASS hm seconds=true threshold=120: 3599 = 59:59
 PASS hm seconds=true threshold=120: 3600 = 1:00:00
@@ -222,17 +303,26 @@ PASS hm seconds=true threshold=120: 6300 = 1:45:00
 PASS hm seconds=true threshold=120: 7199 = 1:59:59
 PASS hm seconds=true threshold=120: 7200 = 2:00h
 PASS detailed hover works with each format/seconds configuration
+PASS hover preserves short timer formatting at 4.9 seconds
+PASS hover preserves short timer formatting at 5 seconds
+PASS hover preserves short timer formatting at 59 seconds
 PASS formatting options keep both native renderers active
 PASS hm seconds=true threshold=60: 4.99 = 4s
 PASS hm seconds=true threshold=60: 3599 = 59:59
 PASS hm seconds=true threshold=60: 3600 = 1:00h
 PASS detailed hover works with each format/seconds configuration
+PASS hover preserves short timer formatting at 4.9 seconds
+PASS hover preserves short timer formatting at 5 seconds
+PASS hover preserves short timer formatting at 59 seconds
 PASS formatting options keep both native renderers active
 PASS hm seconds=true threshold=1: 59 = 59s
 PASS hm seconds=true threshold=1: 60 = 1m
 PASS hm seconds=true threshold=1: 61 = 2m
 PASS hm seconds=true threshold=1: 3600 = 1:00h
 PASS detailed hover works with each format/seconds configuration
+PASS hover preserves short timer formatting at 4.9 seconds
+PASS hover preserves short timer formatting at 5 seconds
+PASS hover preserves short timer formatting at 59 seconds
 PASS colored timers select red, yellow and green bands natively
 PASS color option describes native thresholds without the legacy-only restriction
 PASS always-yellow overrides colored thresholds
