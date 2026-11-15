@@ -76,7 +76,7 @@ CVarCallbackRegistry = { GetCVarValueBool = function(_, name)
 end }
 BuffTimersLibSharedMedia = { Fetch = function(_, _, name) return name .. ".ttf" end }
 GameFontNormalSmall = "native-font"
-Enum = { NumericRuleFormatRounding = { Down = 0, Up = 1 }, LuaCurveType = { Step = 0 },
+Enum = { NumericRuleFormatRounding = { Down = 0, Up = 1 }, LuaCurveType = { Step = 0, Cosine = 2 },
     DurationTextBindingProperty = { RemainingDuration = 0 } }
 AnchorUtil = { FlowLayoutAxis = { Horizontal = 0, Vertical = 1 },
     FlowDirection = { Left = 0, Right = 1, Up = 2, Down = 3 } }
@@ -93,14 +93,35 @@ if BUFFTIMERS_TEST_INTERFACE ~= 120105 then
     function GetInventoryItemTexture(_, slot) return "weapon" .. slot end
 end
 function CreateColor(...) return { ... } end
+local failColorCurve = false
 C_CurveUtil = { CreateColorCurve = function()
     return {
-        points = {}, SetType = function() end,
-        AddPoint = function(self, x, color) self.points[#self.points + 1] = { x, color } end,
+        points = {}, SetType = function(self, kind) self.kind = kind end,
+        AddPoint = function(self, x, color)
+            assert(#self.points < 256, "attempted to assign too many points to a curve (expected no more than 256 points)")
+            self.points[#self.points + 1] = { x, color }
+        end,
+        EvaluateUnpacked = function(self, x)
+            if failColorCurve then return 1, 1, 1, 1 end
+            local values = { unpack(self:Evaluate(x)) }
+            if BUFFTIMERS_TEST_COLOR_BYTES then
+                for i = 1, 4 do values[i] = math.floor(values[i] * 255 + 0.5) / 255 end
+            end
+            return unpack(values)
+        end,
         Evaluate = function(self, x)
-            local color
-            for _, point in ipairs(self.points) do if x >= point[1] then color = point[2] end end
-            return color
+            local previous = self.points[1]
+            for _, point in ipairs(self.points) do
+                if x < point[1] then
+                    if self.kind ~= Enum.LuaCurveType.Cosine then return previous[2] end
+                    local f = (1 - math.cos(math.pi * math.max(0, x - previous[1]) / (point[1] - previous[1]))) / 2
+                    local color = {}
+                    for i = 1, 4 do color[i] = previous[2][i] + (point[2][i] - previous[2][i]) * f end
+                    return color
+                end
+                previous = point
+            end
+            return previous[2]
         end,
     }
 end }
@@ -136,6 +157,7 @@ end }
 local hoverUpdate
 local mouseover = {}
 local mouseOn, mouseOff = {}, {}
+local alphaTokens = {}
 local function region(restricted)
     local object = { alpha = 1, mouse = true }
     function object:CanBeAccessedInContext()
@@ -153,7 +175,8 @@ local function region(restricted)
     function object:SetAlphaFromBoolean(value, yes, no)
         assertAccessible(self)
         assert(value == mouseOn or value == mouseOff, "mouseover is passed directly to native alpha selection")
-        self.alpha = value == mouseOn and yes or no
+        local selected = value == mouseOn and yes or no
+        self.alpha = alphaTokens[selected] or selected
     end
     function object:IsMouseOver()
         assertAccessible(self)
@@ -161,6 +184,19 @@ local function region(restricted)
         return mouseover[self.SetAllPointsArgs[1]] and mouseOn or mouseOff
     end
     function object:EnableMouse(enabled) self.mouse = enabled end
+    function object:IsShown()
+        assertAccessible(self)
+        return self.owner.seconds == 0 and mouseOff or mouseOn
+    end
+    function object:GetTextColor()
+        assertAccessible(self)
+        local color = self.owner.seconds == 0 and self.lastColor
+            or self.owner.duration[2].textColor.curve:Evaluate(self.owner.seconds or 6300)
+        self.lastColor = color
+        local alpha = {}
+        alphaTokens[alpha] = color[4]
+        return color[1], color[2], color[3], alpha
+    end
     for _, method in ipairs({ "SetSize", "SetPoint", "SetFont", "SetFontObject", "SetDrawLayer", "SetTexture", "SetAllPoints", "SetColorTexture" }) do
         object[method] = function(self, ...) write(self, method .. "Args", ...) end
     end
@@ -171,14 +207,14 @@ local function region(restricted)
     function object:SetFrameLevel(value) self.level = value end
     function object:GetFrameLevel() return self.level or 1 end
     function object:CreateTexture(_, layer)
-        local texture = region(restricted)
+        local texture = region(false)
         texture.layer = layer
         self.textures = self.textures or {}
         self.textures[#self.textures + 1] = texture
         return texture
     end
     function object:CreateFontString(_, layer)
-        local text = region(restricted)
+        local text = region(false)
         text.layer = layer
         text.parent = self
         return text
@@ -186,7 +222,8 @@ local function region(restricted)
     function object:SetIcon(icon) self.icon = icon end
     function object:SetApplicationCount(count) self.count = count end
     function object:SetCancelAuraButtons(buttons) self.cancel = buttons end
-    function object:SetDurationText(text, options) write(self, "duration", text, options) end
+    function object:SetDurationText(text, options) text.owner = self; write(self, "duration", text, options) end
+    function object:SetDurationCooldown(cooldown) self.cooldown = cooldown; cooldown.owner = self end
     function object:ClearDurationText() write(self, "duration") end
     return object
 end
@@ -203,6 +240,13 @@ BuffFrame = {
     UpdateSize = function() end,
 }
 function CreateFrame(frameType, _, parent, template)
+    if frameType == "Cooldown" then
+        local cooldown = region(false)
+        for _, method in ipairs({ "SetDrawSwipe", "SetDrawEdge", "SetDrawBling", "SetHideCountdownNumbers" }) do
+            cooldown[method] = function(self, value) self[method .. "Value"] = value end
+        end
+        return cooldown
+    end
     if frameType == "Frame" then
         if not parent then
             return { SetScript = function(_, name, callback)
@@ -266,6 +310,8 @@ modules.Config:OnInitialize()
 modules.NativeAuras:OnEnable()
 local nativeGroup = uiOptions.args.time.args.nativeTimers
 local toggle = nativeGroup.args.enabled
+local blinking = nativeGroup.args.blinking
+check(blinking.get() and not blinking.disabled(), "expiration blinking is enabled by default in the options menu")
 check(not nativeGroup.hidden() and not toggle.disabled() and toggle.get(), "options expose enabled native timers on supported clients")
 check(nativeGroup.args.status.hidden() and nativeGroup.args.status.name() == "", "active renderer has no redundant status text")
 check(not SlashCmdList.BUFFTIMERSNATIVE and not SLASH_BUFFTIMERSNATIVE1, "native slash command is removed")
@@ -279,6 +325,65 @@ check(legacy.alpha == 0, "native warning-flash updates cannot reveal duplicate o
 local child = root.children[1]
 local timerText = child.duration[1]
 local nativeFormatter = child.duration[2].textFormatter
+check(child.cooldown.alpha == 0 and child.cooldown.SetDrawSwipeValue == false
+    and child.cooldown.SetHideCountdownNumbersValue == true, "native warning clock draws no cooldown artwork or numbers")
+local warningCurve = child.duration[2].textColor.curve
+check(#warningCurve.points <= 251, "warning waveform and color boundaries stay within the native 256-point cap")
+check(warningCurve.kind == Enum.LuaCurveType.Step and warningCurve:Evaluate(6300)[1] > 0.99
+    and warningCurve:Evaluate(6300)[2] > 0.81 and warningCurve:Evaluate(6300)[3] == 0,
+    "long buff timers keep the established step-based yellow color while warnings are enabled")
+check(math.abs(warningCurve:Evaluate(29.125)[4] - 0.65) < 0.000001
+    and math.abs(warningCurve:Evaluate(29.125)[4] - warningCurve:Evaluate(27.625)[4]) < 0.000001,
+    "warning fades smoothly and repeats every 1.5 seconds")
+combat = true
+for _, sample in ipairs({ { 31.01, 1 }, { 31, 1 }, { 30.25, 0.3 }, { 29.5, 1 }, { 28.75, 0.3 }, { 27.25, 0.3 } }) do
+    child.seconds = sample[1]
+    root.children[3].seconds = sample[1]
+    hoverUpdate()
+    local icon = child.icon
+    check(math.abs(icon.alpha - sample[2]) < 0.000001 and math.abs(child.count.alpha - sample[2]) < 0.000001,
+        "combat expiration warning flashes icon and stacks at " .. sample[1] .. " seconds")
+    local enchantArt = #iconFrames > 0 and iconFrames[1].textures[1] or root.children[3].icon
+    check(math.abs(enchantArt.alpha - sample[2]) < 0.000001, "weapon enchant shares the expiration warning at " .. sample[1])
+end
+child.seconds, root.children[3].seconds = 0, 0
+hoverUpdate()
+check(child.icon.alpha == 1 and child.count.alpha == 1,
+    "reusing a flashing slot for a permanent buff resets artwork opacity despite stale binding color")
+child.seconds, root.children[3].seconds = 6300, 6300
+hoverUpdate()
+check(child.icon.alpha == 1 and child.count.alpha == 1, "refreshing during combat stops the expiration warning")
+child.seconds = 30.25
+child.icon.denied = true
+hoverUpdate()
+check(child.icon.alpha == 1 and math.abs(child.count.alpha - 0.3) < 0.000001,
+    "a forbidden warning region is skipped while accessible artwork continues")
+child.icon.denied = false
+child.seconds = nil
+hoverUpdate()
+combat = false
+blinking.set(nil, false)
+child.seconds, root.children[3].seconds = 30.25, 30.25
+hoverUpdate()
+check(not blinking.get() and root.enabled and child.icon.alpha == 1 and child.count.alpha == 1
+    and child.duration[2].textColor.curve:Evaluate(30.25)[4] == 1,
+    "turning blinking off immediately restores full icon, stack and timer opacity")
+local enchantArt = #iconFrames > 0 and iconFrames[1].textures[1] or root.children[3].icon
+check(enchantArt.alpha == 1 and child.duration[2].textColor.curve:Evaluate(6300)[3] == 0,
+    "disabling blinking also stops weapon enchant flashes without changing long-buff yellow")
+combat = true
+blinking.set(nil, true)
+ticker()
+hoverUpdate()
+check(blinking.disabled() and not blinking.get() and child.icon.alpha == 1,
+    "blinking changes are blocked in combat while the saved disabled preference remains active")
+combat = false
+blinking.set(nil, true)
+hoverUpdate()
+check(blinking.get() and math.abs(child.icon.alpha - 0.3) < 0.000001,
+    "turning blinking back on restores the expiration pulse")
+child.seconds, root.children[3].seconds = nil, nil
+hoverUpdate()
 check(nativeFormatter:FormatNumber(86400) == "1d" and nativeFormatter:FormatNumber(61) == "2m"
     and nativeFormatter:FormatNumber(4.9) == "4.9s", "native rules cover days, ceil minutes and suffixed tenths")
 check(child.SetSizeArgs[1] == 30 and child.SetFontArgs == nil and child.duration[1].SetFontArgs[2] == 10,
@@ -346,6 +451,8 @@ local hoverText = hoverChild.duration[1]
 local hoverFormatter = hoverChild.duration[2].textFormatter
 check(hoverText.SetDrawLayerArgs[1] == "OVERLAY" and not hoverChild.icon and not hoverChild.count,
     "hover overlay only draws detailed text without duplicate icons or stacks")
+check(math.abs(hoverChild.duration[2].textColor.curve:Evaluate(30.25)[4] - 0.3) < 0.000001,
+    "detailed hover text uses the same native warning fade as compact text")
 check(hoverChild.cancel == nil and child.cancel == "RightButtonUp",
     "only the main native button can cancel a buff")
 check(#hoverChild.textures == 1 and not hoverText.parent.textures,
@@ -417,7 +524,13 @@ check(child.duration[1].SetFontArgs[2] == 18, "profile changes apply after comba
 check(hoverChild.duration[1].SetFontArgs[2] == 18, "hover label follows the updated timer font")
 showDurations = false
 ticker()
-check(not child.duration[1] and timerText.shown[1] == false, "duration CVar clears native bindings and hides text")
+check(child.duration[1] == timerText and timerText.shown[1] == false, "duration CVar hides numbers while retaining the native warning binding")
+child.seconds = 30.25
+combat = true
+hoverUpdate()
+check(math.abs(child.icon.alpha - 0.3) < 0.000001, "expiration warning continues in combat with timer numbers hidden")
+child.seconds = nil
+combat = false
 check(not hoverRoot.enabled and not hoverChild.duration[1], "duration CVar disables hover bindings too")
 showDurations = true
 ticker()
@@ -591,10 +704,17 @@ toggle.set(nil, true)
 check(not root.enabled and not BuffTimersNativeDB.enabled and legacy.alpha == 1,
     "failed native formatter self-check disables mode without hiding original buffs")
 failFormatter = false
+failColorCurve = true
+toggle.set(nil, true)
+check(not root.enabled and not BuffTimersNativeDB.enabled and legacy.alpha == 1,
+    "a client returning white instead of the configured yellow fails the native color check and restores originals")
+failColorCurve = false
+blinking.set(nil, false)
 dofile("NativeAuras.lua")
 modules.NativeAuras:OnEnable()
 check(not BuffTimersNativeDB.enabled and not root.enabled and legacy.alpha == 1,
     "a saved disabled preference remains disabled after addon initialization")
+check(not blinking.get(), "the disabled blinking preference survives addon initialization")
 -- A supported interface number is not enough if a client lacks required APIs.
 C_StringUtil.CreateNumericRuleFormatter = nil
 ticker = nil

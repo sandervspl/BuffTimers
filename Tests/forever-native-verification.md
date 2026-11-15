@@ -306,3 +306,142 @@ initialization), `Blizzard_CustomAuraButton.lua` (descendant region binding),
 `SimpleFrameScriptObjectAPIDocumentation.lua` (`CanBeAccessedInContext`, secret
 security results), `SecretPredicateAPIDocumentation.lua` (`ShouldAurasBeSecret`),
 and `Blizzard_SharedXMLBase/ForbiddenAspectTemplates.xml` (layout restrictions).
+
+## Expiration warning
+
+The replacement now supplies the missing warning through its native duration
+color curve: below 31 seconds it fades between alpha 0.3 and 1 with a 1.5-second
+cycle. A step curve samples the cosine-shaped alpha waveform at 8 Hz using only
+fixed public values, preserving the established step-based RGB color policy.
+The native binding samples live remaining duration, so Lua never
+reads, compares, or performs arithmetic on an aura's protected duration. Each
+aura's phase follows its own remaining duration; Blizzard's legacy renderer uses
+a shared fader. Existing text-color thresholds remain exact at 60 and 600 seconds.
+
+Compact and hover text receive this alpha directly from their native bindings.
+The update driver forwards the compact FontString's color alpha to icon, stack,
+enchant image and border regions using secret-capable alpha setters. It checks
+access first and skips forbidden objects. An invisible, native-bound Cooldown
+provides a secret shown flag to the alpha setter so permanent assignments restore
+full icon opacity, even if a disabled zero-duration text binding retains its old
+color. The cooldown draws nothing and has zero opacity. Its duration is set and
+refreshed only by Blizzard's custom aura-button implementation.
+
+The compact text binding remains active when duration numbers are disabled,
+while its FontString is hidden. This preserves icon warnings independently of
+the duration CVar. Hover visibility and formatting keep their existing behavior.
+
+The replay checks smooth interpolation, threshold edges, repeating cycles,
+opaque alpha/visibility forwarding during combat, stacks, both enchant API paths,
+refreshes, permanent slot reuse, denied region access, detailed hover text and
+hidden duration numbers. Existing profile/color/lifecycle checks also pass.
+The replay models individual region access separately from the native button's
+restriction, and explicitly denied regions remain inaccessible. Output is in
+`forever-native-replay-output.txt`. Actual native binding updates on hidden text,
+cooldown visibility for zero-duration assignments, and combat access to retained
+regions still require the real-client check: reload, let a short buff cross 31
+seconds, hover it, refresh it in combat, and check a temporary weapon enchant.
+
+Inspected `live` `297d7aaaa736` then `forever` `bebcb6bf309c`:
+`Blizzard_BuffFrame/BuffFrame.lua` and `BuffFrameTemplates.xml` for warning timing
+and alpha; `Blizzard_CustomAuraButton.lua` for native duration/color/cooldown
+bindings and zero-duration handling; `LuaCurveObjectConstantsDocumentation.lua`
+and `LuaColorCurveObjectAPIDocumentation.lua` for cosine interpolation;
+`SimpleFontStringAPIDocumentation.lua` for secret color alpha; and
+`SimpleRegionAPIDocumentation.lua` plus `FrameAPICooldownDocumentation.lua` for
+secret-safe display setters and native cooldown updates.
+
+## Duration text color correction
+
+The user reported white text on long buffs after the expiration-warning change.
+Their saved Default profile has neither always-yellow nor colored-text overrides,
+so long timers should remain yellow. The warning change had switched the native
+color curve from Step to Cosine. The UI mirror documents the API but does not
+contain its engine implementation; the precise reason for the real-client color
+failure is not established by the local replay.
+
+The renderer now uses Step again, keeps the original RGB bands, and samples only
+the warning alpha at 8 Hz. This removes both cosine interpolation of RGB values
+and nearly coincident color-transition points. It validates the actual native
+curve with public 6300, 31 and 30.25-second samples before hiding Blizzard's
+display. Incorrect native color/alpha evaluation triggers the existing fallback.
+No saved color preferences are changed.
+
+The replay checks long-buff yellow, existing red/yellow/green and always-yellow
+options, warning alpha, hover and hidden-number behavior. An injected native
+all-white result verifies color-check failure restores the original display.
+Real-client color/animation still requires `/reload` and an in-game check.
+
+Inspected `live` `297d7aaaa736` then `forever` `bebcb6bf309c`:
+`LuaColorCurveObjectAPIDocumentation.lua` (`AddPoint`, `EvaluateUnpacked`),
+`LuaCurveObjectBaseAPIDocumentation.lua` and
+`LuaCurveObjectConstantsDocumentation.lua` (curve types), and
+`Blizzard_CustomAuraButton.lua` (native duration color binding).
+
+## Optional blinking
+
+Time > Combat timers now includes **Blink expiring buffs**, enabled by default.
+The native-only option saves an explicit false in `BuffTimersNativeDB.blink`;
+existing installations with no value retain the current blinking behavior.
+This setting is account-wide alongside the replacement renderer's enabled flag.
+
+Disabling blinking rebuilds the color curve with alpha 1 throughout. It keeps
+the current timer colors and formatting, and resets icons, stack counts and
+weapon enchant artwork to full opacity through the existing safe update path.
+Re-enabling restores the warning waveform. The checkbox is disabled when the
+renderer is off/unavailable or combat is active; the setter also rejects aura
+restriction states. Other clients keep their original aura renderer unchanged.
+
+The replay drives the actual options callbacks through default-on, disabling an
+active short-buff warning, weapon enchants, unchanged long-buff yellow, blocked
+combat changes, re-enabling and persistence across module initialization.
+Native/options replays pass for Retail and Forever. Output is recorded in
+`forever-native-replay-output.txt`; appearance still needs an in-game check.
+
+Inspected `live` `297d7aaaa736` then `forever` `bebcb6bf309c`:
+`Blizzard_CustomAuraButton.lua` (`SetDurationText` color binding) and
+`LuaCurveObjectConstantsDocumentation.lua` (Step evaluation). All runtime/UI
+changes are confined to the native-renderer code path and its localized option.
+
+## Native curve point limit
+
+The game reported that LuaColorCurveObject permits at most 256 points. The API
+mirror describes AddPoint but omits this limit. The warning now uses 248 samples
+at 8 Hz, with at most three additional threshold points (251 total). Its
+1.5-second cycle, alpha range and RGB thresholds remain unchanged. Blinking off
+still uses only three or four points.
+
+The replay now enforces the 256-point limit on every AddPoint call, including all
+profile/color combinations. That constraint reproduced the reported failure
+before the runtime fix; Retail and Forever lifecycle replays pass afterward.
+
+Inspected live 297d7aaaa736 and forever bebcb6bf309c sequentially:
+Blizzard_APIDocumentationGenerated/LuaColorCurveObjectAPIDocumentation.lua
+(AddPoint). The 256-point constraint comes from the user's actual client error,
+not an assumption derived from those generated docs.
+
+## Native color-check precision
+
+The client subsequently reported `native timer color curve failed its checks`.
+The old message did not include its sample or actual channel values, so it does
+not establish which comparison failed. The check demanded 0.0001 accuracy on
+all channels, including alpha 0.3, despite the API not documenting color-channel
+round-trip precision. Byte-rounded evaluation reproduces that startup failure.
+
+The check now permits one 8-bit channel step (1/255 plus a small float margin).
+This accepts rounded alpha/color values while still rejecting an all-white
+result for the expected long-buff yellow. A remaining failure includes the public
+sample time and actual RGBA values; no protected aura data is logged. The mirror
+does not contain the native curve evaluator, so byte quantization is a tested
+compatibility case rather than a confirmed diagnosis of the user's engine.
+
+Run the lifecycle replay with `BUFFTIMERS_TEST_COLOR_BYTES` false and true in
+separate VMs for each interface. Both modes pass for 120105 and 16001, including
+incorrect-color fallback, blinking on/off, colors and frame access restrictions.
+Output is in `forever-native-replay-output.txt`. Real-client confirmation still
+requires reload and re-enabling the replacement renderer if the prior failure
+saved it as disabled.
+
+Inspected `live` `297d7aaaa736` then `forever` `bebcb6bf309c`:
+`LuaColorCurveObjectAPIDocumentation.lua` (`EvaluateUnpacked`, numeric channels)
+and `Blizzard_SharedXMLBase/Color.lua` (float and byte color representations).

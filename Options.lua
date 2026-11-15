@@ -104,9 +104,28 @@ function module:OnInitialize()
                                     AceConfigRegistry:NotifyChange("BuffTimers")
                                 end,
                             },
+                            blinking = {
+                                type = "toggle",
+                                name = L["Blink expiring buffs"],
+                                desc = L["Flash buffs and temporary weapon enchants when less than 31 seconds remain."],
+                                width = "full",
+                                order = 2,
+                                disabled = function()
+                                    local native = GetNativeModule()
+                                    return not native or not native:IsNativeAvailable() or not native:GetNativeEnabled() or InCombatLockdown()
+                                end,
+                                get = function()
+                                    local native = GetNativeModule()
+                                    return native and native:GetBlinkEnabled() or false
+                                end,
+                                set = function(_, enabled)
+                                    local native = GetNativeModule()
+                                    if native then native:SetBlinkEnabled(enabled) end
+                                end,
+                            },
                             status = {
                                 type = "description",
-                                order = 2,
+                                order = 3,
                                 hidden = function()
                                     local native = GetNativeModule()
                                     return not native or native:GetStatus() == ""

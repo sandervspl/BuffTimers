@@ -150,20 +150,46 @@ local function MakeFormatter(profile)
     return f
 end
 
-local function MakeColorCurve(profile)
+local function MakeColorCurve(profile, blinking)
     local curve = C_CurveUtil.CreateColorCurve()
     curve:SetType(Enum.LuaCurveType.Step)
-    local yellow = CreateColor(0.99999779462814, 0.81960606575012, 0, 1)
-    if profile.yellow_text then
-        curve:AddPoint(0, yellow)
-    elseif profile.colored_text then
-        curve:AddPoint(0, CreateColor(1, 0.1, 0.1, 1))
-        curve:AddPoint(60, yellow)
-        curve:AddPoint(600, CreateColor(0.1, 1, 0.1, 1))
-    else
-        curve:AddPoint(0, CreateColor(1, 1, 1, 1))
-        curve:AddPoint(60, yellow)
+    local yellow = { 0.99999779462814, 0.81960606575012, 0 }
+    local short = profile.yellow_text and yellow or (profile.colored_text and { 1, 0.1, 0.1 } or { 1, 1, 1 })
+    local function point(seconds, color, alpha)
+        curve:AddPoint(seconds, CreateColor(color[1], color[2], color[3], alpha))
     end
+    -- Keep the established step-based RGB policy. Sample only the warning alpha
+    -- at 8 Hz using public constants; interpolation must not change text colors.
+    -- 248 warning samples plus at most three boundaries fit the 256-point cap.
+    -- The native binding still evaluates live remaining time, including refreshes.
+    if blinking then
+        for sample = 0, 247 do
+            local seconds = sample / 8
+            point(seconds, short, 0.65 + 0.35 * math.cos((31 - seconds) * math.pi / 0.75))
+        end
+    else
+        point(0, short, 1)
+    end
+    point(31, short, 1)
+    point(60, yellow, 1)
+    if profile.colored_text and not profile.yellow_text then
+        point(600, { 0.1, 1, 0.1 }, 1)
+    end
+    -- Validate the actual client implementation with public inputs, rather than
+    -- relying only on the local curve simulation for color/alpha compatibility.
+    -- The API does not promise double-precision color round-trips. Permit one
+    -- 8-bit channel step, including alpha (0.3 is not exactly representable).
+    local tolerance = 1 / 255 + 0.000001
+    local function verify(seconds, expected, alpha)
+        local r, g, b, a = curve:EvaluateUnpacked(seconds)
+        assert(math.abs(r - expected[1]) <= tolerance and math.abs(g - expected[2]) <= tolerance
+            and math.abs(b - expected[3]) <= tolerance and math.abs(a - alpha) <= tolerance,
+            ("native timer color curve failed its checks at %.2fs (RGBA %.6f, %.6f, %.6f, %.6f)")
+                :format(seconds, r, g, b, a))
+    end
+    verify(6300, profile.colored_text and not profile.yellow_text and { 0.1, 1, 0.1 } or yellow, 1)
+    verify(31, short, 1)
+    verify(30.25, short, blinking and 0.3 or 1)
     return curve
 end
 
@@ -207,8 +233,10 @@ local function Configure(entry)
         text:SetFontObject(GameFontNormalSmall)
         text:SetPoint(config.durationPoint, icon, config.durationRelativePoint)
     end
-    if config.showDurations and (not entry.hover or config.profile.detailed_time_on_hover) then
-        text:Show()
+    if not entry.hover or (config.showDurations and config.profile.detailed_time_on_hover) then
+        -- Keep the compact binding alive when timer numbers are hidden: its
+        -- native color alpha also drives expiration flashing for the icon.
+        text:SetShown(config.showDurations)
         button:SetDurationText(text, {
             textFormatter = entry.hover and config.hoverFormatter or config.formatter,
             textColor = { curve = config.color, property = Enum.DurationTextBindingProperty.RemainingDuration },
@@ -221,6 +249,7 @@ end
 
 local function InitializeButton(button, enchant, hover, container)
     local icon = button:CreateTexture(nil, "BACKGROUND")
+    local warningArt = {}
     icon:SetSize(30, 30)
     if not hover then
         if enchant and C_Item and C_Item.GetWeaponEnchantInfo and C_PaperDollInfo
@@ -235,6 +264,7 @@ local function InitializeButton(button, enchant, hover, container)
             frame:SetAllPoints(icon)
             frame:SetFrameLevel(container:GetFrameLevel())
             local image = frame:CreateTexture(nil, "ARTWORK")
+            warningArt[#warningArt + 1] = image
             image:SetAllPoints()
             frame:Hide()
             local weaponSlots = {
@@ -246,10 +276,12 @@ local function InitializeButton(button, enchant, hover, container)
                 inventorySlot = AuraContainerItemEnchantmentToInventorySlot[enchant], weaponSlot = weaponSlots[enchant] }
         else
             button:SetIcon(icon)
+            warningArt[#warningArt + 1] = icon
         end
         local count = button:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
         count:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", -2, 2)
         button:SetApplicationCount(count)
+        warningArt[#warningArt + 1] = count
     end
     -- Keep opacity on a separate parent so the native duration binding can
     -- update the FontString's color/alpha without revealing both timer labels.
@@ -267,14 +299,45 @@ local function InitializeButton(button, enchant, hover, container)
         border:SetTexture("Interface\\Buttons\\UI-TempEnchant-Border")
         border:SetSize(32, 32)
         border:SetPoint("CENTER", icon, "CENTER")
+        warningArt[#warningArt + 1] = border
     end
     -- Native aura buttons propagate input. Only the main renderer cancels auras,
     -- so the overlay cannot turn one right-click into two cancellation attempts.
     button:SetCancelAuraButtons(not hover and "RightButtonUp" or nil)
     local entry = { button = button, icon = icon, text = text, hover = hover,
-        textFrame = textFrame, hoverRegion = hoverRegion }
+        textFrame = textFrame, hoverRegion = hoverRegion, warningArt = warningArt }
+    if not hover then
+        -- Native cooldown visibility distinguishes timed/permanent assignments,
+        -- including reuse of a formerly flashing slot for a permanent buff.
+        local cooldown = CreateFrame("Cooldown", nil, button,
+            "DisableUntrustedScriptsTemplate,DisableUntrustedLayoutScriptsTemplate")
+        cooldown:SetAllPoints(icon)
+        cooldown:SetDrawSwipe(false)
+        cooldown:SetDrawEdge(false)
+        cooldown:SetDrawBling(false)
+        cooldown:SetHideCountdownNumbers(true)
+        cooldown:SetAlpha(0)
+        button:SetDurationCooldown(cooldown)
+        entry.warningCooldown = cooldown
+    end
     buttons[#buttons + 1] = entry
     Configure(entry)
+end
+
+local function UpdateWarnings()
+    if not active then return end
+    for _, entry in ipairs(buttons) do
+        local cooldown = entry.warningCooldown
+        if cooldown and CanAccess(cooldown) and CanAccess(entry.text) then
+            local _, _, _, alpha = entry.text:GetTextColor()
+            -- Both values can be secret. Only native display setters consume
+            -- them; no comparison, arithmetic, or branching on aura state.
+            local timed = cooldown:IsShown()
+            for _, region in ipairs(entry.warningArt) do
+                if CanAccess(region) then region:SetAlphaFromBoolean(timed, alpha, 1) end
+            end
+        end
+    end
 end
 
 local function UpdateHover()
@@ -388,13 +451,14 @@ local function Refresh()
     end
     local showDurations = CVarCallbackRegistry:GetCVarValueBool("buffDurations")
     parts[#parts + 1] = tostring(showDurations)
+    parts[#parts + 1] = tostring(BuffTimersNativeDB.blink ~= false)
     local signature = table.concat(parts, ":")
     if active and applied == signature then return end
 
     local horizontal, right, top = layout.isHorizontal, layout.addIconsToRight, layout.addIconsToTop
     current = {
         profile = CopyTable(profile),
-        formatter = MakeFormatter(profile), color = MakeColorCurve(profile),
+        formatter = MakeFormatter(profile), color = MakeColorCurve(profile, BuffTimersNativeDB.blink ~= false),
         hoverFormatter = profile.detailed_time_on_hover and MakeHoverFormatter(profile) or nil,
         showDurations = showDurations,
         width = horizontal and 30 or 60, height = horizontal and 40 or 30,
@@ -460,6 +524,17 @@ function Native:SetNativeEnabled(enabled)
     return true
 end
 
+function Native:GetBlinkEnabled()
+    return not BuffTimersNativeDB or BuffTimersNativeDB.blink ~= false
+end
+
+function Native:SetBlinkEnabled(enabled)
+    if ConfigurationRestricted() or not available then return false end
+    BuffTimersNativeDB.blink = enabled == true
+    SafeRefresh()
+    return true
+end
+
 function Native:GetStatus()
     if not self:GetNativeEnabled() then return "" end
     if not available then return "Native aura APIs are unavailable on this client. Using the existing renderer." end
@@ -501,7 +576,7 @@ function Native:OnEnable()
         end
     end
     hoverDriver = CreateFrame("Frame")
-    hoverDriver:SetScript("OnUpdate", UpdateHover)
+    hoverDriver:SetScript("OnUpdate", function() UpdateWarnings(); UpdateHover() end)
     timer = C_Timer.NewTicker(0.25, SafeRefresh)
     SafeRefresh()
 end

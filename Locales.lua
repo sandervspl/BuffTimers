@@ -28,6 +28,8 @@ if L then
     L["Color"] = "Color"
     L["Customization"] = "Customization"
     L["Time"] = "Time"
+    L["Blink expiring buffs"] = "Blink expiring buffs"
+    L["Flash buffs and temporary weapon enchants when less than 31 seconds remain."] = "Flash buffs and temporary weapon enchants when less than 31 seconds remain."
     L["Combat timers"] = "Combat timers"
     L["Use replacement buff renderer"] = "Use replacement buff renderer"
     L["Replaces Blizzard’s buff display to keep timer formatting in combat. If it causes problems, disable it and report the issue on CurseForge."] = true

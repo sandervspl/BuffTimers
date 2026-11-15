@@ -1,4 +1,4 @@
-CLIENT 120105
+CLIENT 120105 BYTE_ROUNDED_COLOR False
 PASS all other supported clients return before accessing addon/native APIs
 PASS container belongs to existing buff host
 PASS addon-owned display frames opt into required script restrictions
@@ -11,6 +11,7 @@ PASS addon-owned display frames opt into required script restrictions
 PASS addon-owned display frames opt into required script restrictions
 PASS addon-owned display frames opt into required script restrictions
 PASS addon-owned display frames opt into required script restrictions
+PASS expiration blinking is enabled by default in the options menu
 PASS options expose enabled native timers on supported clients
 PASS active renderer has no redundant status text
 PASS native slash command is removed
@@ -19,6 +20,29 @@ PASS enabling delegates real player buffs to native container
 PASS only original buff buttons are suppressed
 PASS fixed host capacity reserves room for full buffs plus all weapon enchants
 PASS native warning-flash updates cannot reveal duplicate original art
+PASS native warning clock draws no cooldown artwork or numbers
+PASS warning waveform and color boundaries stay within the native 256-point cap
+PASS long buff timers keep the established step-based yellow color while warnings are enabled
+PASS warning fades smoothly and repeats every 1.5 seconds
+PASS combat expiration warning flashes icon and stacks at 31.01 seconds
+PASS weapon enchant shares the expiration warning at 31.01
+PASS combat expiration warning flashes icon and stacks at 31 seconds
+PASS weapon enchant shares the expiration warning at 31
+PASS combat expiration warning flashes icon and stacks at 30.25 seconds
+PASS weapon enchant shares the expiration warning at 30.25
+PASS combat expiration warning flashes icon and stacks at 29.5 seconds
+PASS weapon enchant shares the expiration warning at 29.5
+PASS combat expiration warning flashes icon and stacks at 28.75 seconds
+PASS weapon enchant shares the expiration warning at 28.75
+PASS combat expiration warning flashes icon and stacks at 27.25 seconds
+PASS weapon enchant shares the expiration warning at 27.25
+PASS reusing a flashing slot for a permanent buff resets artwork opacity despite stale binding color
+PASS refreshing during combat stops the expiration warning
+PASS a forbidden warning region is skipped while accessible artwork continues
+PASS turning blinking off immediately restores full icon, stack and timer opacity
+PASS disabling blinking also stops weapon enchant flashes without changing long-buff yellow
+PASS blinking changes are blocked in combat while the saved disabled preference remains active
+PASS turning blinking back on restores the expiration pulse
 PASS native rules cover days, ceil minutes and suffixed tenths
 PASS buff dimensions and configured timer font are applied
 PASS clients without the spell-icon API retain native weapon icons
@@ -35,6 +59,7 @@ PASS addon-owned display frames opt into required script restrictions
 PASS addon-owned display frames opt into required script restrictions
 PASS enabling detailed hover keeps the replacement renderer active
 PASS hover overlay only draws detailed text without duplicate icons or stacks
+PASS detailed hover text uses the same native warning fade as compact text
 PASS only the main native button can cancel a buff
 PASS detailed hover creates no background texture
 PASS native containers use identical assignment ordering and aligned layout
@@ -59,7 +84,8 @@ PASS combat ticks and commands defer configuration without touching adopted obje
 PASS original art stays suppressed during combat
 PASS profile changes apply after combat
 PASS hover label follows the updated timer font
-PASS duration CVar clears native bindings and hides text
+PASS duration CVar hides numbers while retaining the native warning binding
+PASS expiration warning continues in combat with timer numbers hidden
 PASS duration CVar disables hover bindings too
 PASS duration CVar restores native binding
 PASS vertical growth, stride and scale follow existing layout settings
@@ -170,13 +196,223 @@ PASS explicit opt-out restores originals
 PASS opt-out restores legacy host capacity for the active layout
 BuffTimers: Native mode stopped: NativeAuras.lua:148: native timer formatter failed its checks
 PASS failed native formatter self-check disables mode without hiding original buffs
+BuffTimers: Native mode stopped: NativeAuras.lua:185: native timer color curve failed its checks at 6300.00s (RGBA 1.000000, 1.000000, 1.000000, 1.000000)
+PASS a client returning white instead of the configured yellow fails the native color check and restores originals
 PASS a saved disabled preference remains disabled after addon initialization
+PASS the disabled blinking preference survives addon initialization
 BuffTimers: Native aura APIs are unavailable on this client. Using the existing renderer.
 PASS options disable native control and explain missing APIs
 PASS missing native APIs leave original rendering and input untouched
 PASS native options are hidden when the client has no native renderer module
 PASS native lifecycle replay; combat renderer still requires in-game verification
-CLIENT 16001
+CLIENT 120105 BYTE_ROUNDED_COLOR True
+PASS all other supported clients return before accessing addon/native APIs
+PASS container belongs to existing buff host
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS expiration blinking is enabled by default in the options menu
+PASS options expose enabled native timers on supported clients
+PASS active renderer has no redundant status text
+PASS native slash command is removed
+PASS native mode starts enabled without a saved preference
+PASS enabling delegates real player buffs to native container
+PASS only original buff buttons are suppressed
+PASS fixed host capacity reserves room for full buffs plus all weapon enchants
+PASS native warning-flash updates cannot reveal duplicate original art
+PASS native warning clock draws no cooldown artwork or numbers
+PASS warning waveform and color boundaries stay within the native 256-point cap
+PASS long buff timers keep the established step-based yellow color while warnings are enabled
+PASS warning fades smoothly and repeats every 1.5 seconds
+PASS combat expiration warning flashes icon and stacks at 31.01 seconds
+PASS weapon enchant shares the expiration warning at 31.01
+PASS combat expiration warning flashes icon and stacks at 31 seconds
+PASS weapon enchant shares the expiration warning at 31
+PASS combat expiration warning flashes icon and stacks at 30.25 seconds
+PASS weapon enchant shares the expiration warning at 30.25
+PASS combat expiration warning flashes icon and stacks at 29.5 seconds
+PASS weapon enchant shares the expiration warning at 29.5
+PASS combat expiration warning flashes icon and stacks at 28.75 seconds
+PASS weapon enchant shares the expiration warning at 28.75
+PASS combat expiration warning flashes icon and stacks at 27.25 seconds
+PASS weapon enchant shares the expiration warning at 27.25
+PASS reusing a flashing slot for a permanent buff resets artwork opacity despite stale binding color
+PASS refreshing during combat stops the expiration warning
+PASS a forbidden warning region is skipped while accessible artwork continues
+PASS turning blinking off immediately restores full icon, stack and timer opacity
+PASS disabling blinking also stops weapon enchant flashes without changing long-buff yellow
+PASS blinking changes are blocked in combat while the saved disabled preference remains active
+PASS turning blinking back on restores the expiration pulse
+PASS native rules cover days, ceil minutes and suffixed tenths
+PASS buff dimensions and configured timer font are applied
+PASS clients without the spell-icon API retain native weapon icons
+PASS container belongs to existing buff host
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS enabling detailed hover keeps the replacement renderer active
+PASS hover overlay only draws detailed text without duplicate icons or stacks
+PASS detailed hover text uses the same native warning fade as compact text
+PASS only the main native button can cancel a buff
+PASS detailed hover creates no background texture
+PASS native containers use identical assignment ordering and aligned layout
+PASS combat hover hides compact text and shows detailed text with no backplate
+PASS other buffs retain only their compact timers
+PASS leaving combat hover restores compact text without overlapping labels
+PASS a forbidden hover parent defers both sides of the swap without overlap or errors
+PASS hover swapping resumes after frame access returns
+PASS aura restrictions after combat defer native reconfiguration
+PASS a restricted out-of-combat toggle cannot mutate the native renderer
+PASS deferred configuration resumes once aura access returns
+PASS hover sample 6300
+PASS hover sample 3600
+PASS hover sample 3599.9
+PASS hover sample 60
+PASS hover sample 59
+PASS hover sample 4.9
+PASS leaving hover reveals the live compact timer
+PASS a refreshed hovered buff changes immediately while another buff keeps compact text
+PASS native options toggle is disabled in combat
+PASS combat ticks and commands defer configuration without touching adopted objects
+PASS original art stays suppressed during combat
+PASS profile changes apply after combat
+PASS hover label follows the updated timer font
+PASS duration CVar hides numbers while retaining the native warning binding
+PASS expiration warning continues in combat with timer numbers hidden
+PASS duration CVar disables hover bindings too
+PASS duration CVar restores native binding
+PASS vertical growth, stride and scale follow existing layout settings
+PASS hover overlay follows vertical layout and scale
+PASS disabling detailed hover keeps compact native timers active
+PASS disabling hover resets timer opacity to compact only
+PASS re-enabling hover reuses its native container
+PASS formatting options keep both native renderers active
+PASS m seconds=false threshold=30: 4.99 = 4s
+PASS m seconds=false threshold=30: 59.9 = 59s
+PASS m seconds=false threshold=30: 61 = 2m
+PASS m seconds=false threshold=30: 3599 = 60m
+PASS m seconds=false threshold=30: 6300 = 105m
+PASS m seconds=false threshold=30: 86399 = 1440m
+PASS m seconds=false threshold=30: 86400 = 1d
+PASS m seconds=false threshold=30: 86401 = 1d
+PASS m seconds=false threshold=30: 90000 = 2d
+PASS detailed hover works with each format/seconds configuration
+PASS hover preserves short timer formatting at 4.9 seconds
+PASS hover preserves short timer formatting at 5 seconds
+PASS hover preserves short timer formatting at 59 seconds
+PASS formatting options keep both native renderers active
+PASS m seconds=true threshold=30: 4.99 = 4.9s
+PASS m seconds=true threshold=30: 60 = 1:00
+PASS m seconds=true threshold=30: 61 = 1:01
+PASS m seconds=true threshold=30: 1799.9 = 29:59
+PASS m seconds=true threshold=30: 1800 = 30m
+PASS detailed hover works with each format/seconds configuration
+PASS hover preserves short timer formatting at 4.9 seconds
+PASS hover preserves short timer formatting at 5 seconds
+PASS hover preserves short timer formatting at 59 seconds
+PASS formatting options keep both native renderers active
+PASS m seconds=true threshold=120: 6299 = 104:59
+PASS m seconds=true threshold=120: 6300 = 105:00
+PASS m seconds=true threshold=120: 7199 = 119:59
+PASS m seconds=true threshold=120: 7200 = 120m
+PASS detailed hover works with each format/seconds configuration
+PASS hover preserves short timer formatting at 4.9 seconds
+PASS hover preserves short timer formatting at 5 seconds
+PASS hover preserves short timer formatting at 59 seconds
+PASS formatting options keep both native renderers active
+PASS hm seconds=false threshold=30: 3599 = 60m
+PASS hm seconds=false threshold=30: 3600 = 1:00h
+PASS hm seconds=false threshold=30: 3600.1 = 1:01h
+PASS hm seconds=false threshold=30: 3659 = 1:01h
+PASS hm seconds=false threshold=30: 3660 = 1:01h
+PASS hm seconds=false threshold=30: 6300 = 1:45h
+PASS hm seconds=false threshold=30: 6301 = 1:46h
+PASS hm seconds=false threshold=30: 7140 = 1:59h
+PASS hm seconds=false threshold=30: 7140.1 = 2:00h
+PASS hm seconds=false threshold=30: 7199 = 2:00h
+PASS hm seconds=false threshold=30: 7200 = 2:00h
+PASS hm seconds=false threshold=30: 86399 = 24:00h
+PASS hm seconds=false threshold=30: 86400 = 1d
+PASS detailed hover works with each format/seconds configuration
+PASS hover preserves short timer formatting at 4.9 seconds
+PASS hover preserves short timer formatting at 5 seconds
+PASS hover preserves short timer formatting at 59 seconds
+PASS formatting options keep both native renderers active
+PASS hm seconds=true threshold=120: 3599 = 59:59
+PASS hm seconds=true threshold=120: 3600 = 1:00:00
+PASS hm seconds=true threshold=120: 3659 = 1:00:59
+PASS hm seconds=true threshold=120: 6300 = 1:45:00
+PASS hm seconds=true threshold=120: 7199 = 1:59:59
+PASS hm seconds=true threshold=120: 7200 = 2:00h
+PASS detailed hover works with each format/seconds configuration
+PASS hover preserves short timer formatting at 4.9 seconds
+PASS hover preserves short timer formatting at 5 seconds
+PASS hover preserves short timer formatting at 59 seconds
+PASS formatting options keep both native renderers active
+PASS hm seconds=true threshold=60: 4.99 = 4s
+PASS hm seconds=true threshold=60: 3599 = 59:59
+PASS hm seconds=true threshold=60: 3600 = 1:00h
+PASS detailed hover works with each format/seconds configuration
+PASS hover preserves short timer formatting at 4.9 seconds
+PASS hover preserves short timer formatting at 5 seconds
+PASS hover preserves short timer formatting at 59 seconds
+PASS formatting options keep both native renderers active
+PASS hm seconds=true threshold=1: 59 = 59s
+PASS hm seconds=true threshold=1: 60 = 1m
+PASS hm seconds=true threshold=1: 61 = 2m
+PASS hm seconds=true threshold=1: 3600 = 1:00h
+PASS detailed hover works with each format/seconds configuration
+PASS hover preserves short timer formatting at 4.9 seconds
+PASS hover preserves short timer formatting at 5 seconds
+PASS hover preserves short timer formatting at 59 seconds
+PASS colored timers select red, yellow and green bands natively
+PASS color option describes native thresholds without the legacy-only restriction
+PASS always-yellow overrides colored thresholds
+PASS disabling color overrides restores native white short timers
+PASS disabling text customization restores both native font objects
+PASS font, size, vertical position and outline option None reach native hover text
+PASS font, size, vertical position and outline option OUTLINE reach native hover text
+PASS font, size, vertical position and outline option THICKOUTLINE reach native hover text
+PASS font, size, vertical position and outline option MONOCHROME reach native hover text
+PASS switching profile tables updates formatting without changing the renderer preference
+PASS profile changes during combat leave the current native binding running
+PASS format changes apply after combat
+BuffTimers: Native mode does not support gamepad navigation. Using the existing renderer.
+PASS unsupported gamepad navigation restores original rendering and input
+PASS color option explains restrictions while the legacy renderer is active
+PASS mouse/keyboard navigation reactivates existing native container
+PASS Edit Mode restores Blizzard previews
+BuffTimers: Expand your buffs to use native mode. Using the existing renderer while buffs are collapsed.
+PASS collapsed view uses original rendering
+PASS options toggle persists disabled state without redundant status text
+PASS explicit opt-out restores originals
+PASS opt-out restores legacy host capacity for the active layout
+BuffTimers: Native mode stopped: NativeAuras.lua:148: native timer formatter failed its checks
+PASS failed native formatter self-check disables mode without hiding original buffs
+BuffTimers: Native mode stopped: NativeAuras.lua:185: native timer color curve failed its checks at 6300.00s (RGBA 1.000000, 1.000000, 1.000000, 1.000000)
+PASS a client returning white instead of the configured yellow fails the native color check and restores originals
+PASS a saved disabled preference remains disabled after addon initialization
+PASS the disabled blinking preference survives addon initialization
+BuffTimers: Native aura APIs are unavailable on this client. Using the existing renderer.
+PASS options disable native control and explain missing APIs
+PASS missing native APIs leave original rendering and input untouched
+PASS native options are hidden when the client has no native renderer module
+PASS native lifecycle replay; combat renderer still requires in-game verification
+CLIENT 16001 BYTE_ROUNDED_COLOR False
 PASS all other supported clients return before accessing addon/native APIs
 PASS container belongs to existing buff host
 PASS addon-owned display frames opt into required script restrictions
@@ -192,6 +428,7 @@ PASS addon-owned display frames opt into required script restrictions
 PASS addon-owned display frames opt into required script restrictions
 PASS addon-owned display frames opt into required script restrictions
 PASS addon-owned display frames opt into required script restrictions
+PASS expiration blinking is enabled by default in the options menu
 PASS options expose enabled native timers on supported clients
 PASS active renderer has no redundant status text
 PASS native slash command is removed
@@ -200,6 +437,29 @@ PASS enabling delegates real player buffs to native container
 PASS only original buff buttons are suppressed
 PASS fixed host capacity reserves room for full buffs plus all weapon enchants
 PASS native warning-flash updates cannot reveal duplicate original art
+PASS native warning clock draws no cooldown artwork or numbers
+PASS warning waveform and color boundaries stay within the native 256-point cap
+PASS long buff timers keep the established step-based yellow color while warnings are enabled
+PASS warning fades smoothly and repeats every 1.5 seconds
+PASS combat expiration warning flashes icon and stacks at 31.01 seconds
+PASS weapon enchant shares the expiration warning at 31.01
+PASS combat expiration warning flashes icon and stacks at 31 seconds
+PASS weapon enchant shares the expiration warning at 31
+PASS combat expiration warning flashes icon and stacks at 30.25 seconds
+PASS weapon enchant shares the expiration warning at 30.25
+PASS combat expiration warning flashes icon and stacks at 29.5 seconds
+PASS weapon enchant shares the expiration warning at 29.5
+PASS combat expiration warning flashes icon and stacks at 28.75 seconds
+PASS weapon enchant shares the expiration warning at 28.75
+PASS combat expiration warning flashes icon and stacks at 27.25 seconds
+PASS weapon enchant shares the expiration warning at 27.25
+PASS reusing a flashing slot for a permanent buff resets artwork opacity despite stale binding color
+PASS refreshing during combat stops the expiration warning
+PASS a forbidden warning region is skipped while accessible artwork continues
+PASS turning blinking off immediately restores full icon, stack and timer opacity
+PASS disabling blinking also stops weapon enchant flashes without changing long-buff yellow
+PASS blinking changes are blocked in combat while the saved disabled preference remains active
+PASS turning blinking back on restores the expiration pulse
 PASS native rules cover days, ceil minutes and suffixed tenths
 PASS buff dimensions and configured timer font are applied
 PASS selected temporary-enchant icon is shown instead of equipped weapon texture
@@ -226,6 +486,7 @@ PASS addon-owned display frames opt into required script restrictions
 PASS addon-owned display frames opt into required script restrictions
 PASS enabling detailed hover keeps the replacement renderer active
 PASS hover overlay only draws detailed text without duplicate icons or stacks
+PASS detailed hover text uses the same native warning fade as compact text
 PASS only the main native button can cancel a buff
 PASS detailed hover creates no background texture
 PASS native containers use identical assignment ordering and aligned layout
@@ -250,7 +511,8 @@ PASS combat ticks and commands defer configuration without touching adopted obje
 PASS original art stays suppressed during combat
 PASS profile changes apply after combat
 PASS hover label follows the updated timer font
-PASS duration CVar clears native bindings and hides text
+PASS duration CVar hides numbers while retaining the native warning binding
+PASS expiration warning continues in combat with timer numbers hidden
 PASS duration CVar disables hover bindings too
 PASS duration CVar restores native binding
 PASS vertical growth, stride and scale follow existing layout settings
@@ -356,7 +618,7 @@ PASS mouse/keyboard navigation reactivates existing native container
 PASS Edit Mode restores Blizzard previews
 BuffTimers: Expand your buffs to use native mode. Using the existing renderer while buffs are collapsed.
 PASS collapsed view uses original rendering
-BuffTimers: Native mode stopped: [string "<python>"]:558: simulated enchant metadata failure
+BuffTimers: Native mode stopped: [string "<python>"]:671: simulated enchant metadata failure
 PASS an update failure disables the renderer before deferred cleanup and reports once
 PASS repeated restricted ticks do not rethrow cleanup errors or reveal duplicate original buffs
 PASS failed-renderer cleanup waits for post-combat aura restrictions
@@ -371,7 +633,240 @@ PASS opting out hides independent enchant icons
 PASS opt-out restores legacy host capacity for the active layout
 BuffTimers: Native mode stopped: NativeAuras.lua:148: native timer formatter failed its checks
 PASS failed native formatter self-check disables mode without hiding original buffs
+BuffTimers: Native mode stopped: NativeAuras.lua:185: native timer color curve failed its checks at 6300.00s (RGBA 1.000000, 1.000000, 1.000000, 1.000000)
+PASS a client returning white instead of the configured yellow fails the native color check and restores originals
 PASS a saved disabled preference remains disabled after addon initialization
+PASS the disabled blinking preference survives addon initialization
+BuffTimers: Native aura APIs are unavailable on this client. Using the existing renderer.
+PASS options disable native control and explain missing APIs
+PASS missing native APIs leave original rendering and input untouched
+PASS native options are hidden when the client has no native renderer module
+PASS native lifecycle replay; combat renderer still requires in-game verification
+CLIENT 16001 BYTE_ROUNDED_COLOR True
+PASS all other supported clients return before accessing addon/native APIs
+PASS container belongs to existing buff host
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS expiration blinking is enabled by default in the options menu
+PASS options expose enabled native timers on supported clients
+PASS active renderer has no redundant status text
+PASS native slash command is removed
+PASS native mode starts enabled without a saved preference
+PASS enabling delegates real player buffs to native container
+PASS only original buff buttons are suppressed
+PASS fixed host capacity reserves room for full buffs plus all weapon enchants
+PASS native warning-flash updates cannot reveal duplicate original art
+PASS native warning clock draws no cooldown artwork or numbers
+PASS warning waveform and color boundaries stay within the native 256-point cap
+PASS long buff timers keep the established step-based yellow color while warnings are enabled
+PASS warning fades smoothly and repeats every 1.5 seconds
+PASS combat expiration warning flashes icon and stacks at 31.01 seconds
+PASS weapon enchant shares the expiration warning at 31.01
+PASS combat expiration warning flashes icon and stacks at 31 seconds
+PASS weapon enchant shares the expiration warning at 31
+PASS combat expiration warning flashes icon and stacks at 30.25 seconds
+PASS weapon enchant shares the expiration warning at 30.25
+PASS combat expiration warning flashes icon and stacks at 29.5 seconds
+PASS weapon enchant shares the expiration warning at 29.5
+PASS combat expiration warning flashes icon and stacks at 28.75 seconds
+PASS weapon enchant shares the expiration warning at 28.75
+PASS combat expiration warning flashes icon and stacks at 27.25 seconds
+PASS weapon enchant shares the expiration warning at 27.25
+PASS reusing a flashing slot for a permanent buff resets artwork opacity despite stale binding color
+PASS refreshing during combat stops the expiration warning
+PASS a forbidden warning region is skipped while accessible artwork continues
+PASS turning blinking off immediately restores full icon, stack and timer opacity
+PASS disabling blinking also stops weapon enchant flashes without changing long-buff yellow
+PASS blinking changes are blocked in combat while the saved disabled preference remains active
+PASS turning blinking back on restores the expiration pulse
+PASS native rules cover days, ceil minutes and suffixed tenths
+PASS buff dimensions and configured timer font are applied
+PASS selected temporary-enchant icon is shown instead of equipped weapon texture
+PASS switching imbues in combat updates the public icon without touching restricted aura frames
+PASS multiple enchant types use the icon matching the native duration's selected enchant
+PASS weapon-icon preference is respected in combat
+PASS removing an enchant hides its independent icon
+PASS only active enchant slots have visible icons
+PASS main-hand and off-hand enchant icons remain associated with their own slots
+PASS forbidden enchant frames are left alone without disabling the renderer or retrying Hide
+PASS a secret texture access result is not tested as a Lua boolean or mutated
+PASS enchant icon catches up when access returns
+PASS opting out hides the independent icon host even while an icon frame is forbidden
+PASS container belongs to existing buff host
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS enabling detailed hover keeps the replacement renderer active
+PASS hover overlay only draws detailed text without duplicate icons or stacks
+PASS detailed hover text uses the same native warning fade as compact text
+PASS only the main native button can cancel a buff
+PASS detailed hover creates no background texture
+PASS native containers use identical assignment ordering and aligned layout
+PASS combat hover hides compact text and shows detailed text with no backplate
+PASS other buffs retain only their compact timers
+PASS leaving combat hover restores compact text without overlapping labels
+PASS a forbidden hover parent defers both sides of the swap without overlap or errors
+PASS hover swapping resumes after frame access returns
+PASS aura restrictions after combat defer native reconfiguration
+PASS a restricted out-of-combat toggle cannot mutate the native renderer
+PASS deferred configuration resumes once aura access returns
+PASS hover sample 6300
+PASS hover sample 3600
+PASS hover sample 3599.9
+PASS hover sample 60
+PASS hover sample 59
+PASS hover sample 4.9
+PASS leaving hover reveals the live compact timer
+PASS a refreshed hovered buff changes immediately while another buff keeps compact text
+PASS native options toggle is disabled in combat
+PASS combat ticks and commands defer configuration without touching adopted objects
+PASS original art stays suppressed during combat
+PASS profile changes apply after combat
+PASS hover label follows the updated timer font
+PASS duration CVar hides numbers while retaining the native warning binding
+PASS expiration warning continues in combat with timer numbers hidden
+PASS duration CVar disables hover bindings too
+PASS duration CVar restores native binding
+PASS vertical growth, stride and scale follow existing layout settings
+PASS hover overlay follows vertical layout and scale
+PASS disabling detailed hover keeps compact native timers active
+PASS disabling hover resets timer opacity to compact only
+PASS re-enabling hover reuses its native container
+PASS formatting options keep both native renderers active
+PASS m seconds=false threshold=30: 4.99 = 4s
+PASS m seconds=false threshold=30: 59.9 = 59s
+PASS m seconds=false threshold=30: 61 = 2m
+PASS m seconds=false threshold=30: 3599 = 60m
+PASS m seconds=false threshold=30: 6300 = 105m
+PASS m seconds=false threshold=30: 86399 = 1440m
+PASS m seconds=false threshold=30: 86400 = 1d
+PASS m seconds=false threshold=30: 86401 = 1d
+PASS m seconds=false threshold=30: 90000 = 2d
+PASS detailed hover works with each format/seconds configuration
+PASS hover preserves short timer formatting at 4.9 seconds
+PASS hover preserves short timer formatting at 5 seconds
+PASS hover preserves short timer formatting at 59 seconds
+PASS formatting options keep both native renderers active
+PASS m seconds=true threshold=30: 4.99 = 4.9s
+PASS m seconds=true threshold=30: 60 = 1:00
+PASS m seconds=true threshold=30: 61 = 1:01
+PASS m seconds=true threshold=30: 1799.9 = 29:59
+PASS m seconds=true threshold=30: 1800 = 30m
+PASS detailed hover works with each format/seconds configuration
+PASS hover preserves short timer formatting at 4.9 seconds
+PASS hover preserves short timer formatting at 5 seconds
+PASS hover preserves short timer formatting at 59 seconds
+PASS formatting options keep both native renderers active
+PASS m seconds=true threshold=120: 6299 = 104:59
+PASS m seconds=true threshold=120: 6300 = 105:00
+PASS m seconds=true threshold=120: 7199 = 119:59
+PASS m seconds=true threshold=120: 7200 = 120m
+PASS detailed hover works with each format/seconds configuration
+PASS hover preserves short timer formatting at 4.9 seconds
+PASS hover preserves short timer formatting at 5 seconds
+PASS hover preserves short timer formatting at 59 seconds
+PASS formatting options keep both native renderers active
+PASS hm seconds=false threshold=30: 3599 = 60m
+PASS hm seconds=false threshold=30: 3600 = 1:00h
+PASS hm seconds=false threshold=30: 3600.1 = 1:01h
+PASS hm seconds=false threshold=30: 3659 = 1:01h
+PASS hm seconds=false threshold=30: 3660 = 1:01h
+PASS hm seconds=false threshold=30: 6300 = 1:45h
+PASS hm seconds=false threshold=30: 6301 = 1:46h
+PASS hm seconds=false threshold=30: 7140 = 1:59h
+PASS hm seconds=false threshold=30: 7140.1 = 2:00h
+PASS hm seconds=false threshold=30: 7199 = 2:00h
+PASS hm seconds=false threshold=30: 7200 = 2:00h
+PASS hm seconds=false threshold=30: 86399 = 24:00h
+PASS hm seconds=false threshold=30: 86400 = 1d
+PASS detailed hover works with each format/seconds configuration
+PASS hover preserves short timer formatting at 4.9 seconds
+PASS hover preserves short timer formatting at 5 seconds
+PASS hover preserves short timer formatting at 59 seconds
+PASS formatting options keep both native renderers active
+PASS hm seconds=true threshold=120: 3599 = 59:59
+PASS hm seconds=true threshold=120: 3600 = 1:00:00
+PASS hm seconds=true threshold=120: 3659 = 1:00:59
+PASS hm seconds=true threshold=120: 6300 = 1:45:00
+PASS hm seconds=true threshold=120: 7199 = 1:59:59
+PASS hm seconds=true threshold=120: 7200 = 2:00h
+PASS detailed hover works with each format/seconds configuration
+PASS hover preserves short timer formatting at 4.9 seconds
+PASS hover preserves short timer formatting at 5 seconds
+PASS hover preserves short timer formatting at 59 seconds
+PASS formatting options keep both native renderers active
+PASS hm seconds=true threshold=60: 4.99 = 4s
+PASS hm seconds=true threshold=60: 3599 = 59:59
+PASS hm seconds=true threshold=60: 3600 = 1:00h
+PASS detailed hover works with each format/seconds configuration
+PASS hover preserves short timer formatting at 4.9 seconds
+PASS hover preserves short timer formatting at 5 seconds
+PASS hover preserves short timer formatting at 59 seconds
+PASS formatting options keep both native renderers active
+PASS hm seconds=true threshold=1: 59 = 59s
+PASS hm seconds=true threshold=1: 60 = 1m
+PASS hm seconds=true threshold=1: 61 = 2m
+PASS hm seconds=true threshold=1: 3600 = 1:00h
+PASS detailed hover works with each format/seconds configuration
+PASS hover preserves short timer formatting at 4.9 seconds
+PASS hover preserves short timer formatting at 5 seconds
+PASS hover preserves short timer formatting at 59 seconds
+PASS colored timers select red, yellow and green bands natively
+PASS color option describes native thresholds without the legacy-only restriction
+PASS always-yellow overrides colored thresholds
+PASS disabling color overrides restores native white short timers
+PASS disabling text customization restores both native font objects
+PASS font, size, vertical position and outline option None reach native hover text
+PASS font, size, vertical position and outline option OUTLINE reach native hover text
+PASS font, size, vertical position and outline option THICKOUTLINE reach native hover text
+PASS font, size, vertical position and outline option MONOCHROME reach native hover text
+PASS switching profile tables updates formatting without changing the renderer preference
+PASS profile changes during combat leave the current native binding running
+PASS format changes apply after combat
+BuffTimers: Native mode does not support gamepad navigation. Using the existing renderer.
+PASS unsupported gamepad navigation restores original rendering and input
+PASS color option explains restrictions while the legacy renderer is active
+PASS mouse/keyboard navigation reactivates existing native container
+PASS Edit Mode restores Blizzard previews
+BuffTimers: Expand your buffs to use native mode. Using the existing renderer while buffs are collapsed.
+PASS collapsed view uses original rendering
+BuffTimers: Native mode stopped: [string "<python>"]:671: simulated enchant metadata failure
+PASS an update failure disables the renderer before deferred cleanup and reports once
+PASS repeated restricted ticks do not rethrow cleanup errors or reveal duplicate original buffs
+PASS failed-renderer cleanup waits for post-combat aura restrictions
+PASS deferred fallback restores originals and hides the icon host without touching the forbidden icon
+PASS cleanup remains silent on subsequent ticks
+PASS native mode can be re-enabled after the failure is resolved
+PASS options toggle persists disabled state without redundant status text
+PASS explicit opt-out restores originals
+PASS opting out hides independent enchant icons
+PASS opting out hides independent enchant icons
+PASS opting out hides independent enchant icons
+PASS opt-out restores legacy host capacity for the active layout
+BuffTimers: Native mode stopped: NativeAuras.lua:148: native timer formatter failed its checks
+PASS failed native formatter self-check disables mode without hiding original buffs
+BuffTimers: Native mode stopped: NativeAuras.lua:185: native timer color curve failed its checks at 6300.00s (RGBA 1.000000, 1.000000, 1.000000, 1.000000)
+PASS a client returning white instead of the configured yellow fails the native color check and restores originals
+PASS a saved disabled preference remains disabled after addon initialization
+PASS the disabled blinking preference survives addon initialization
 BuffTimers: Native aura APIs are unavailable on this client. Using the existing renderer.
 PASS options disable native control and explain missing APIs
 PASS missing native APIs leave original rendering and input untouched
