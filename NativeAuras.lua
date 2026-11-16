@@ -11,6 +11,16 @@ local available = false
 local buttons = {}
 local enchantIcons = {}
 local suppressingAlpha = false
+local bbfEntries = setmetatable({}, { __mode = "k" })
+local bbfActive, bbfBusy, bbfHooked = false, false, false
+local RestoreBBF, RefreshBBF, SafeRefresh
+
+local function BBFHost()
+    local host = BBF and BBF.auraHosts and BBF.auraHosts.playerBuffs
+    local container = host and host.buffs
+    return host and host.frame == BuffFrame and container and container.bbfStyles
+        and container.GetAuraGroupFrameCount and container.GetAuraGroupFrame and host or nil
+end
 
 -- Failure cases: unsupported profiles silently losing features; private/debuff
 -- anchors being hidden; incorrect growth/stride/scale; stale cached durations;
@@ -63,6 +73,7 @@ local function Restore()
     -- separate originalsHidden flag until the original display is restored.
     active = false
     if ConfigurationRestricted() then return end
+    if RestoreBBF then RestoreBBF() end
     if (root and not CanAccess(root)) or (hoverRoot and not CanAccess(hoverRoot))
         or (enchantHost and not CanAccess(enchantHost)) then return end
     if root then
@@ -79,7 +90,7 @@ local function Restore()
     if originalsHidden then
         originalsHidden = false
         SetOriginalsVisible(true)
-        ResizeHost(BuffFrame.maxAuras)
+        if not BBFHost() then ResizeHost(BuffFrame.maxAuras) end
     end
 end
 
@@ -215,6 +226,229 @@ local function MakeHoverFormatter(profile)
     return f
 end
 
+-- BetterBlizzFrames owns native player aura containers on Retail and Forever.
+-- Adapt their timer channels instead of creating another competing buff grid.
+local function ConfigureBBFButton(button, style)
+    if not button.bbfTimer or not style then return end
+    local entry = bbfEntries[button]
+    if entry and entry.config == current then return end
+    if not entry then
+        entry = { button = button, text = button.bbfTimer, art = {} }
+        entry.compact = button.bbfTextLayer or button.bbfTimer:GetParent()
+        -- BBF deliberately clears its ordinary imbue cooldown when swipes are
+        -- disabled. Use a separate clock for that public duration binding.
+        entry.duration = button.bbfDuration
+        entry.binding = button.bbfBinding
+        entry.cooldown = not entry.binding and button.bbfCooldown or nil
+        if not entry.cooldown then
+            entry.cooldown = CreateFrame("Cooldown", nil, button,
+                "DisableUntrustedScriptsTemplate,DisableUntrustedLayoutScriptsTemplate")
+            entry.cooldown:SetAllPoints(button.bbfIcon or button)
+            entry.cooldown:SetDrawSwipe(false)
+            entry.cooldown:SetDrawEdge(false)
+            entry.cooldown:SetDrawBling(false)
+            entry.ownsCooldown = true
+        end
+        entry.oldFormatter = entry.cooldown:GetCountdownFormatter()
+        entry.oldHideNumbers = entry.cooldown:GetHideCountdownNumbers()
+        entry.hoverText = entry.cooldown:GetCountdownFontString()
+        entry.hit = CreateFrame("Frame", nil, BuffFrame, "DisableUntrustedLayoutScriptsTemplate")
+        entry.hit:SetAllPoints(button)
+        bbfEntries[button] = entry
+    end
+    entry.art = {}
+    for _, key in ipairs({ "bbfIcon", "bbfEnchantIcon", "bbfCount", "bbfBorder" }) do
+        if button[key] then entry.art[#entry.art + 1] = button[key] end
+    end
+    entry.managed, entry.style = true, style
+    local profile, text, cooldown = current.profile, entry.text, entry.cooldown
+    if profile.customize_text then
+        local outline = profile.font_outline
+        if outline == "THICK" then outline = "THICKOUTLINE" end
+        text:SetFont(BuffTimersLibSharedMedia:Fetch("font", profile.font), profile.font_size,
+            outline ~= "" and outline or nil)
+        text:ClearAllPoints()
+        text:SetPoint("BOTTOM", button, "TOP", 0, profile.vertical_position)
+    end
+    entry.compact:SetAlpha(1)
+    text:SetShown(current.showDurations and style.showTimerText ~= false)
+    if button.bbfBinding then
+        button.bbfBinding:SetFormatter(current.formatter)
+        button.bbfBinding:SetTextColorCurve(current.color, Enum.DurationTextBindingProperty.RemainingDuration)
+    else
+        button:SetDurationText(text, { textFormatter = current.formatter,
+            textColor = { curve = current.color, property = Enum.DurationTextBindingProperty.RemainingDuration } })
+        button:SetDurationCooldown(cooldown)
+    end
+    cooldown:SetMinimumCountdownDuration(0)
+    cooldown:SetCountdownFormatter(current.hoverFormatter or current.formatter)
+    cooldown:SetHideCountdownNumbers(not (profile.detailed_time_on_hover and current.showDurations
+        and style.showTimerText ~= false))
+    -- BBF keeps its optional swipe and skin; only the native countdown text is
+    -- used for detailed hover. No aura identity or remaining-time read is needed.
+    local hoverText = entry.hoverText
+    hoverText:SetFont(text:GetFont())
+    hoverText:ClearAllPoints()
+    -- GetPoint can return secret layout values (or no anchor). Anchor to the
+    -- existing label itself, using only public arguments, instead of copying it.
+    hoverText:SetPoint("CENTER", text, "CENTER", 0, 0)
+    hoverText:SetDrawLayer("OVERLAY", 7)
+    hoverText:SetAlpha(0)
+    entry.config = current
+end
+
+local function RefreshBBFImbues()
+    if not bbfActive or not current then return end
+    local host = BBFHost()
+    for _, button in ipairs(host and host.imbueHolder and host.imbueHolder.bbfButtons or {}) do
+        if CanAccess(button) then ConfigureBBFButton(button, host.enchantStyle) end
+    end
+end
+
+local function HookBBFContainer(container, host)
+    if not container or container.buffTimersHooked then return end
+    container.buffTimersHooked = true
+    for _, method in ipairs({ "AddAuraGroup", "AddItemEnchantment" }) do
+        local original = container[method]
+        local enchantment = method == "AddItemEnchantment"
+        if original then
+            container[method] = function(self, key, filterOrOptions, groupOptions)
+                local options = CopyTable((enchantment and filterOrOptions or groupOptions) or {})
+                local initialize = options.initializeFrame
+                options.initializeFrame = function(button)
+                    if initialize then initialize(button) end
+                    -- Blizzard permits initialization before restricting the new
+                    -- button, including buttons allocated while auras are secret.
+                    if available and bbfActive and BuffTimersNativeDB.enabled then
+                        ConfigureBBFButton(button, enchantment and host.enchantStyle
+                            or self.bbfStyles and self.bbfStyles[key])
+                    end
+                end
+                if enchantment then return original(self, key, options) end
+                return original(self, key, filterOrOptions, options)
+            end
+        end
+    end
+end
+
+RestoreBBF = function()
+    local hasManaged = bbfActive
+    for _, entry in pairs(bbfEntries) do if entry.managed then hasManaged = true; break end end
+    if not hasManaged then return end
+    bbfActive = false
+    bbfBusy = true
+    local pending = false
+    for button, entry in pairs(bbfEntries) do
+        local accessible = CanAccess(button) and CanAccess(entry.text) and CanAccess(entry.compact)
+            and CanAccess(entry.hoverText) and CanAccess(entry.cooldown)
+        for _, region in ipairs(entry.art) do if not CanAccess(region) then accessible = false end end
+        if entry.managed and accessible then
+            entry.compact:SetAlpha(1)
+            entry.hoverText:SetAlpha(0)
+            entry.cooldown:SetHideCountdownNumbers(entry.oldHideNumbers)
+            entry.cooldown:SetCountdownFormatter(entry.oldFormatter)
+            if entry.ownsCooldown then
+                if not entry.binding then button:ClearDurationCooldown() end
+                entry.cooldown:Hide()
+            end
+            if button.bbfBinding then
+                button.bbfBinding:SetFormatter(AuraContainerInbound.GetDefaultAuraDurationFormatter())
+                button.bbfBinding:SetTextColorCurve(entry.style.durationCurve, Enum.DurationTextBindingProperty.RemainingDuration)
+            else
+                button:SetDurationText(entry.text, { textColor = {
+                    curve = entry.style.durationCurve, property = Enum.DurationTextBindingProperty.RemainingDuration } })
+            end
+            -- Force BBF's own style pass to restore its timer color binding.
+            button.bbfDurationCurve = nil
+            for _, region in ipairs(entry.art) do if CanAccess(region) then region:SetAlpha(1) end end
+            entry.managed, entry.config = false, nil
+        elseif entry.managed then
+            pending = true
+        end
+    end
+    if pending then bbfBusy = false; return end
+    local ok, reason = pcall(function()
+        if BBF and BBF.RestyleAuraButtons then BBF.RestyleAuraButtons(true) end
+        if BBF and BBF.RefreshPlayerAuraFrames then BBF.RefreshPlayerAuraFrames() end
+    end)
+    bbfBusy = false
+    if not ok then error(reason) end
+end
+
+RefreshBBF = function()
+    local host = BBFHost()
+    if not host or not current or not BuffTimersNativeDB.enabled then return end
+    bbfActive = true
+    local seen = {}
+    for _, key in ipairs({ "buffs", "blockTop", "blockBottom", "filtered" }) do
+        local container = host[key]
+        if container and not seen[container] and container.bbfStyles then
+            seen[container] = true
+            HookBBFContainer(container, host)
+            for group, style in pairs(container.bbfStyles) do
+                for i = 1, container:GetAuraGroupFrameCount(group) do
+                    local button = container:GetAuraGroupFrame(group, i)
+                    if button and CanAccess(button) then ConfigureBBFButton(button, style) end
+                end
+            end
+        end
+    end
+    for _, button in ipairs(host.enchantButtons or {}) do
+        if CanAccess(button) then ConfigureBBFButton(button, host.enchantStyle) end
+    end
+    for _, button in ipairs(host.imbueHolder and host.imbueHolder.bbfButtons or {}) do
+        if CanAccess(button) then ConfigureBBFButton(button, host.enchantStyle) end
+    end
+end
+
+local function HookBBF()
+    if bbfHooked or not BBF or not BBF.RestyleAuraButtons then return end
+    bbfHooked = true
+    local function restyled()
+        if bbfBusy or not available or not BuffTimersNativeDB.enabled or not BBFHost() then return end
+        if not bbfActive then
+            if not ConfigurationRestricted() then SafeRefresh() end
+            return
+        end
+        for _, entry in pairs(bbfEntries) do entry.config = nil end
+        if ConfigurationRestricted() then RefreshBBFImbues() else RefreshBBF() end
+    end
+    for _, method in ipairs({ "RestyleAuraButtons", "RefreshPlayerAuraFrames", "HookPlayerAndTargetAuras", "AnchorPlayerAuraContainer" }) do
+        if BBF[method] then hooksecurefunc(BBF, method, restyled) end
+    end
+end
+
+local function UpdateBBFVisuals()
+    if not bbfActive or not active then return end
+    -- These are BBF's ordinary weapon-enchant cells, not private aura buttons.
+    -- New imbues can appear in combat; configure them without aura enumeration.
+    RefreshBBFImbues()
+    for _, entry in pairs(bbfEntries) do
+        local text, hover, cooldown = entry.text, entry.hoverText, entry.cooldown
+        if entry.managed and CanAccess(text) and CanAccess(entry.compact) and CanAccess(hover)
+            and CanAccess(cooldown) and CanAccess(entry.hit) then
+            if entry.binding then
+                entry.binding:SetEnabled(true)
+                cooldown:SetCooldownFromDurationObject(entry.duration, true)
+            end
+            local r, g, b, a = text:GetTextColor()
+            local timed = cooldown:IsShown()
+            for _, region in ipairs(entry.art) do
+                if CanAccess(region) then region:SetAlphaFromBoolean(timed, a, 1) end
+            end
+            hover:SetTextColor(r, g, b, a)
+            if current.profile.detailed_time_on_hover and current.showDurations and entry.style.showTimerText ~= false then
+                local over = entry.hit:IsMouseOver()
+                entry.compact:SetAlphaFromBoolean(over, 0, 1)
+                hover:SetAlphaFromBoolean(over, 1, 0)
+            else
+                entry.compact:SetAlpha(1)
+                hover:SetAlpha(0)
+            end
+        end
+    end
+end
+
 local function Configure(entry)
     local config, button, icon, text = current, entry.button, entry.icon, entry.text
     entry.textFrame:SetAlpha(entry.hover and 0 or 1)
@@ -325,7 +559,7 @@ local function InitializeButton(button, enchant, hover, container)
 end
 
 local function UpdateWarnings()
-    if not active then return end
+    if not active or bbfActive then return end
     for _, entry in ipairs(buttons) do
         local cooldown = entry.warningCooldown
         if cooldown and CanAccess(cooldown) and CanAccess(entry.text) then
@@ -341,7 +575,7 @@ local function UpdateWarnings()
 end
 
 local function UpdateHover()
-    if not active or not current.showDurations or not current.profile.detailed_time_on_hover then return end
+    if not active or bbfActive or not current.showDurations or not current.profile.detailed_time_on_hover then return end
     -- Keep both labels in their previous state if any related frame is locked;
     -- updating only one side of the swap could expose overlapping text.
     for _, entry in ipairs(buttons) do
@@ -392,7 +626,7 @@ local function ConfigureContainer(container, layout)
 end
 
 local function UpdateEnchantIcons()
-    if not active then return end
+    if not active or bbfActive then return end
     for _, entry in ipairs(enchantIcons) do
         -- A frame being addon-created does not guarantee continued access once
         -- it depends on native aura layout. Keep its last icon until accessible.
@@ -430,16 +664,18 @@ local function Refresh()
     -- Configuration touches native button objects. Their engine-driven updates
     -- continue in combat; addon configuration waits until combat ends.
     if ConfigurationRestricted() then return end
+    HookBBF()
     if not BuffTimersNativeDB.enabled then Restore(); return end
     local profile, layout = BuffTimers.db.profile, BuffFrame.AuraContainer
-    local reason = UnsupportedReason()
+    local host = BBFHost()
+    local reason = not host and UnsupportedReason()
     if reason then
         Restore()
         if applied ~= reason then Message(reason) end
         applied = reason
         return
     end
-    if BuffFrame:IsEditing() then Restore(); applied = nil; return end
+    if not host and BuffFrame:IsEditing() then Restore(); applied = nil; return end
 
     local parts = {}
     for _, key in ipairs({ "time_stamp", "seconds", "seconds_threshold", "milliseconds", "yellow_text", "colored_text", "customize_text", "detailed_time_on_hover",
@@ -452,11 +688,15 @@ local function Refresh()
     local showDurations = CVarCallbackRegistry:GetCVarValueBool("buffDurations")
     parts[#parts + 1] = tostring(showDurations)
     parts[#parts + 1] = tostring(BuffTimersNativeDB.blink ~= false)
+    parts[#parts + 1] = tostring(host ~= nil)
     local signature = table.concat(parts, ":")
-    if active and applied == signature then return end
+    if active and applied == signature and not host then return end
+
+    if host and originalsHidden then Restore() end
+    if bbfActive and applied ~= signature then RestoreBBF() end
 
     local horizontal, right, top = layout.isHorizontal, layout.addIconsToRight, layout.addIconsToTop
-    current = {
+    if not active or not current or applied ~= signature then current = {
         profile = CopyTable(profile),
         formatter = MakeFormatter(profile), color = MakeColorCurve(profile, BuffTimersNativeDB.blink ~= false),
         hoverFormatter = profile.detailed_time_on_hover and MakeHoverFormatter(profile) or nil,
@@ -465,7 +705,13 @@ local function Refresh()
         iconPoint = horizontal and (top and "BOTTOM" or "TOP") or (right and "LEFT" or "RIGHT"),
         durationPoint = horizontal and (top and "BOTTOM" or "TOP") or (right and "LEFT" or "RIGHT"),
         durationRelativePoint = horizontal and (top and "TOP" or "BOTTOM") or (right and "RIGHT" or "LEFT"),
-    }
+    } end
+    if host then
+        RefreshBBF()
+        active = true
+        applied = signature
+        return
+    end
     if not root then root = CreateNativeContainer(false) end
     if profile.detailed_time_on_hover and not hoverRoot then hoverRoot = CreateNativeContainer(true) end
     -- Never index frames by aura order or transplant adopted FontStrings.
@@ -489,7 +735,7 @@ local function Refresh()
     applied = signature
 end
 
-local function SafeRefresh()
+SafeRefresh = function()
     local ok, reason = pcall(function()
         Refresh()
         UpdateEnchantIcons()
@@ -538,6 +784,7 @@ end
 function Native:GetStatus()
     if not self:GetNativeEnabled() then return "" end
     if not available then return "Native aura APIs are unavailable on this client. Using the existing renderer." end
+    if bbfActive and active then return "" end
     local reason = UnsupportedReason()
     if reason then return reason end
     if BuffFrame:IsEditing() then return "Native buff timers are paused during Edit Mode." end
@@ -560,7 +807,7 @@ function Native:OnEnable()
     end
     available = true
     hooksecurefunc(BuffFrame, "UpdateSize", function()
-        if active then ResizeHost(BuffFrame.maxAuras + 3) end
+        if active and not bbfActive and not BBFHost() then ResizeHost(BuffFrame.maxAuras + 3) end
     end)
     -- The legacy OnUpdate reapplies warning-flash alpha every tick. Keep those
     -- original buttons suppressed without inspecting its potentially secret alpha.
@@ -576,12 +823,13 @@ function Native:OnEnable()
         end
     end
     hoverDriver = CreateFrame("Frame")
-    hoverDriver:SetScript("OnUpdate", function() UpdateWarnings(); UpdateHover() end)
+    hoverDriver:SetScript("OnUpdate", function() UpdateBBFVisuals(); UpdateWarnings(); UpdateHover() end)
     timer = C_Timer.NewTicker(0.25, SafeRefresh)
     SafeRefresh()
 end
 
 function Native:OnDisable()
+    available = false
     if hoverDriver then hoverDriver:SetScript("OnUpdate", nil); hoverDriver = nil end
     if timer then timer:Cancel(); timer = nil end
     Restore()

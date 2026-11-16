@@ -162,7 +162,7 @@ local function region(restricted)
     local object = { alpha = 1, mouse = true }
     function object:CanBeAccessedInContext()
         if self.secretAccess then return secretAccess end
-        return not (self.denied or (restricted and (combat or aurasSecret)))
+        return not (self.denied or (restricted and not self.initializing and (combat or aurasSecret)))
     end
     local function assertAccessible(self)
         assert(not self.secretAccess and self:CanBeAccessedInContext(), "accessed forbidden display object")
@@ -197,7 +197,7 @@ local function region(restricted)
         alphaTokens[alpha] = color[4]
         return color[1], color[2], color[3], alpha
     end
-    for _, method in ipairs({ "SetSize", "SetPoint", "SetFont", "SetFontObject", "SetDrawLayer", "SetTexture", "SetAllPoints", "SetColorTexture" }) do
+    for _, method in ipairs({ "SetSize", "SetPoint", "SetFont", "SetFontObject", "SetDrawLayer", "SetTexture", "SetAllPoints", "SetColorTexture", "SetTextColor" }) do
         object[method] = function(self, ...) write(self, method .. "Args", ...) end
     end
     function object:ClearAllPoints() write(self, "SetPointArgs") end
@@ -206,6 +206,10 @@ local function region(restricted)
     function object:SetShown(value) write(self, "shown", value) end
     function object:SetFrameLevel(value) self.level = value end
     function object:GetFrameLevel() return self.level or 1 end
+    function object:GetParent() return self.parent end
+    function object:GetFont() return unpack(self.SetFontArgs or { "bbf.ttf", 12, "OUTLINE" }) end
+    function object:GetNumPoints() return self.SetPointArgs and 1 or 0 end
+    function object:GetPoint() return unpack(self.SetPointArgs) end
     function object:CreateTexture(_, layer)
         local texture = region(false)
         texture.layer = layer
@@ -224,6 +228,7 @@ local function region(restricted)
     function object:SetCancelAuraButtons(buttons) self.cancel = buttons end
     function object:SetDurationText(text, options) text.owner = self; write(self, "duration", text, options) end
     function object:SetDurationCooldown(cooldown) self.cooldown = cooldown; cooldown.owner = self end
+    function object:ClearDurationCooldown() self.cooldown = nil end
     function object:ClearDurationText() write(self, "duration") end
     return object
 end
@@ -245,6 +250,15 @@ function CreateFrame(frameType, _, parent, template)
         for _, method in ipairs({ "SetDrawSwipe", "SetDrawEdge", "SetDrawBling", "SetHideCountdownNumbers" }) do
             cooldown[method] = function(self, value) self[method .. "Value"] = value end
         end
+        function cooldown:GetCountdownFormatter() return self.formatter end
+        function cooldown:SetCountdownFormatter(formatter) self.formatter = formatter end
+        function cooldown:GetHideCountdownNumbers() return self.SetHideCountdownNumbersValue ~= false end
+        function cooldown:GetCountdownFontString()
+            if not self.countdownText then self.countdownText = region(false) end
+            return self.countdownText
+        end
+        function cooldown:SetMinimumCountdownDuration(value) self.minimum = value end
+        function cooldown:SetCooldownFromDurationObject(duration) self.owner = duration.owner end
         return cooldown
     end
     if frameType == "Frame" then
@@ -304,10 +318,20 @@ function CreateFrame(frameType, _, parent, template)
     return root
 end
 
+local bbfFixture
+if BUFFTIMERS_TEST_BBF then
+    bbfFixture = dofile("Tests/bbf-native-replay.lua")({
+        region = region, check = check, profile = profile, containers = containers, legacy = legacy,
+        setCombat = function(value) combat = value end, setSecret = function(value) aurasSecret = value end,
+        tick = function() ticker() end, update = function() hoverUpdate() end,
+        setMouse = function(button, value) mouseover[button] = value end,
+    })
+end
 dofile("NativeAuras.lua")
 dofile("Options.lua")
 modules.Config:OnInitialize()
 modules.NativeAuras:OnEnable()
+if bbfFixture then bbfFixture(uiOptions, modules.NativeAuras); return end
 local nativeGroup = uiOptions.args.time.args.nativeTimers
 local toggle = nativeGroup.args.enabled
 local blinking = nativeGroup.args.blinking

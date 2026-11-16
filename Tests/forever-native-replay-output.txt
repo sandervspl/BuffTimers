@@ -194,9 +194,9 @@ PASS collapsed view uses original rendering
 PASS options toggle persists disabled state without redundant status text
 PASS explicit opt-out restores originals
 PASS opt-out restores legacy host capacity for the active layout
-BuffTimers: Native mode stopped: NativeAuras.lua:148: native timer formatter failed its checks
+BuffTimers: Native mode stopped: NativeAuras.lua:159: native timer formatter failed its checks
 PASS failed native formatter self-check disables mode without hiding original buffs
-BuffTimers: Native mode stopped: NativeAuras.lua:185: native timer color curve failed its checks at 6300.00s (RGBA 1.000000, 1.000000, 1.000000, 1.000000)
+BuffTimers: Native mode stopped: NativeAuras.lua:196: native timer color curve failed its checks at 6300.00s (RGBA 1.000000, 1.000000, 1.000000, 1.000000)
 PASS a client returning white instead of the configured yellow fails the native color check and restores originals
 PASS a saved disabled preference remains disabled after addon initialization
 PASS the disabled blinking preference survives addon initialization
@@ -401,9 +401,9 @@ PASS collapsed view uses original rendering
 PASS options toggle persists disabled state without redundant status text
 PASS explicit opt-out restores originals
 PASS opt-out restores legacy host capacity for the active layout
-BuffTimers: Native mode stopped: NativeAuras.lua:148: native timer formatter failed its checks
+BuffTimers: Native mode stopped: NativeAuras.lua:159: native timer formatter failed its checks
 PASS failed native formatter self-check disables mode without hiding original buffs
-BuffTimers: Native mode stopped: NativeAuras.lua:185: native timer color curve failed its checks at 6300.00s (RGBA 1.000000, 1.000000, 1.000000, 1.000000)
+BuffTimers: Native mode stopped: NativeAuras.lua:196: native timer color curve failed its checks at 6300.00s (RGBA 1.000000, 1.000000, 1.000000, 1.000000)
 PASS a client returning white instead of the configured yellow fails the native color check and restores originals
 PASS a saved disabled preference remains disabled after addon initialization
 PASS the disabled blinking preference survives addon initialization
@@ -618,7 +618,7 @@ PASS mouse/keyboard navigation reactivates existing native container
 PASS Edit Mode restores Blizzard previews
 BuffTimers: Expand your buffs to use native mode. Using the existing renderer while buffs are collapsed.
 PASS collapsed view uses original rendering
-BuffTimers: Native mode stopped: [string "<python>"]:671: simulated enchant metadata failure
+BuffTimers: Native mode stopped: [string "<python>"]:695: simulated enchant metadata failure
 PASS an update failure disables the renderer before deferred cleanup and reports once
 PASS repeated restricted ticks do not rethrow cleanup errors or reveal duplicate original buffs
 PASS failed-renderer cleanup waits for post-combat aura restrictions
@@ -631,9 +631,9 @@ PASS opting out hides independent enchant icons
 PASS opting out hides independent enchant icons
 PASS opting out hides independent enchant icons
 PASS opt-out restores legacy host capacity for the active layout
-BuffTimers: Native mode stopped: NativeAuras.lua:148: native timer formatter failed its checks
+BuffTimers: Native mode stopped: NativeAuras.lua:159: native timer formatter failed its checks
 PASS failed native formatter self-check disables mode without hiding original buffs
-BuffTimers: Native mode stopped: NativeAuras.lua:185: native timer color curve failed its checks at 6300.00s (RGBA 1.000000, 1.000000, 1.000000, 1.000000)
+BuffTimers: Native mode stopped: NativeAuras.lua:196: native timer color curve failed its checks at 6300.00s (RGBA 1.000000, 1.000000, 1.000000, 1.000000)
 PASS a client returning white instead of the configured yellow fails the native color check and restores originals
 PASS a saved disabled preference remains disabled after addon initialization
 PASS the disabled blinking preference survives addon initialization
@@ -848,7 +848,7 @@ PASS mouse/keyboard navigation reactivates existing native container
 PASS Edit Mode restores Blizzard previews
 BuffTimers: Expand your buffs to use native mode. Using the existing renderer while buffs are collapsed.
 PASS collapsed view uses original rendering
-BuffTimers: Native mode stopped: [string "<python>"]:671: simulated enchant metadata failure
+BuffTimers: Native mode stopped: [string "<python>"]:695: simulated enchant metadata failure
 PASS an update failure disables the renderer before deferred cleanup and reports once
 PASS repeated restricted ticks do not rethrow cleanup errors or reveal duplicate original buffs
 PASS failed-renderer cleanup waits for post-combat aura restrictions
@@ -861,9 +861,9 @@ PASS opting out hides independent enchant icons
 PASS opting out hides independent enchant icons
 PASS opting out hides independent enchant icons
 PASS opt-out restores legacy host capacity for the active layout
-BuffTimers: Native mode stopped: NativeAuras.lua:148: native timer formatter failed its checks
+BuffTimers: Native mode stopped: NativeAuras.lua:159: native timer formatter failed its checks
 PASS failed native formatter self-check disables mode without hiding original buffs
-BuffTimers: Native mode stopped: NativeAuras.lua:185: native timer color curve failed its checks at 6300.00s (RGBA 1.000000, 1.000000, 1.000000, 1.000000)
+BuffTimers: Native mode stopped: NativeAuras.lua:196: native timer color curve failed its checks at 6300.00s (RGBA 1.000000, 1.000000, 1.000000, 1.000000)
 PASS a client returning white instead of the configured yellow fails the native color check and restores originals
 PASS a saved disabled preference remains disabled after addon initialization
 PASS the disabled blinking preference survives addon initialization

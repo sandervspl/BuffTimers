@@ -445,3 +445,88 @@ saved it as disabled.
 Inspected `live` `297d7aaaa736` then `forever` `bebcb6bf309c`:
 `LuaColorCurveObjectAPIDocumentation.lua` (`EvaluateUnpacked`, numeric channels)
 and `Blizzard_SharedXMLBase/Color.lua` (float and byte color representations).
+
+## BetterBlizzFrames compatibility
+
+The installed BetterBlizzFrames v2.2.2c replaces player auras with its own native
+containers and reparents Blizzard's original buttons to a hidden frame. BuffTimers
+must adapt that display rather than create a second competing buff grid. The
+installed `retail/modules/auras.lua` and `forever/modules/auras.lua` are identical
+(SHA256 `931d923b44ecb8c65a4b19402ecf3eb5960508bcda773c6ada6a1a44cba6cedb`).
+Those files were read without modifying BetterBlizzFrames or its saved settings.
+
+When BBF exposes its native `auraHosts.playerBuffs`, BuffTimers binds its formatter
+and color curve to BBF's timer FontStrings. BBF keeps the group filters, sorting,
+layout, hidden-aura popup, Masque skins, tooltips and cancellation actions. Target,
+focus and player debuff timers are not adapted. BuffTimers' font and position
+settings apply when text customization is enabled; otherwise BBF retains those
+styles. The existing replacement-renderer checkbox enables or disables this
+integration automatically, without another option.
+
+The adapter covers existing groups and wraps their initialization callbacks for
+future frames, retaining BBF's callback and filter arguments. It enumerates native
+frames only outside combat/aura restrictions. Native initialization callbacks run
+before frame access restrictions are applied, so new buttons can adopt the last
+compiled public configuration during combat. BBF restyles trigger reapplication,
+and late BBF initialization disables any previously created standalone renderer.
+
+Detailed hover uses the native cooldown countdown channel, preserving BBF's
+existing optional cooldown swipe. Compact text visibility is controlled through
+BBF's text-layer parent. Warning alpha and hover colors are forwarded to allowed
+regions using secret-capable native setters. BBF's separate ordinary imbue cells
+use their own DurationTextBinding; these also receive the formatter and curve.
+They get an independent invisible clock so disabling BBF's cooldown swipes does
+not disable their warnings or hover. Ordinary imbue cells can be refreshed in
+combat without enumerating private aura frames.
+
+Opt-out resets timer bindings, owned countdown channels, opacity and BBF's cached
+duration-curve marker, then asks BBF to restore its own current styles. Inaccessible
+regions defer restoration rather than receiving forbidden display calls. No
+BetterBlizzFrames files, configuration values or group/filter settings are changed.
+
+The BBF contract fixture is `Tests/bbf-native-replay.lua`, loaded by the existing
+native replay with `BUFFTIMERS_TEST_BBF=true`; set `BUFFTIMERS_TEST_BBF_LATE=true`
+to exercise late ownership. The fixture models the installed BBF source contract,
+not its entire addon or WoW's taint engine. It covers grouped/filtered buffs,
+Masque metadata, native and ordinary weapon enchants, BBF restyles, new native
+buttons during secret auras, font/color changes, blinking off, detailed hover,
+opt-out/restoration and re-enabling. The old runtime reproduced the competing
+renderer failure with this fixture. Output is in `bbf-native-replay-output.txt`.
+
+Run the fixture for interfaces 120105 and 16001, with early/late ownership and
+`BUFFTIMERS_TEST_COLOR_BYTES` false/true in separate Lua VMs. All eight combinations
+pass. The original native replay, style restoration replay, upstream duration
+replay and Lua 5.1 parsing also pass. Real-client BBF layout, native countdown text
+visibility, Masque appearance and combat security still need confirmation after
+reload. Compare a long buff, refresh it in combat, hover it, check a shaman imbue,
+and toggle the replacement renderer off/on to verify BBF's display is restored.
+
+Inspected `live` `297d7aaaa736` then `forever` `bebcb6bf309c` sequentially:
+`Blizzard_CustomAuraContainer.lua` (group enumeration and creation),
+`Blizzard_AuraContainerFrameProviders.lua` (initialization before restrictions),
+`Blizzard_CustomAuraButton.lua` (native text/cooldown bindings),
+`FrameAPICooldownDocumentation.lua` (countdown formatter/FontString), and
+`SimpleFontStringAPIDocumentation.lua` (secret-safe color forwarding).
+
+## BBF hover anchor correction
+
+The first in-game BBF integration attempt stopped with `FontString:SetPoint`
+usage errors. Its hover setup copied `text:GetPoint(i)` directly into SetPoint.
+Blizzard documents GetPoint as both MayReturnNothing and
+SecretWhenAnchoringSecret, while SetPoint only accepts secret arguments from
+untainted execution. An accessible text object does not guarantee its numeric
+anchor values can be reused by addon code.
+
+The hover timer now anchors its CENTER directly to the existing BBF timer's
+CENTER with public zero offsets. This follows BBF/BuffTimers font positioning
+without querying, copying, testing or normalizing native anchor values. The
+exact invalid argument from the user's old message is not available, but this
+removes that unsafe copy entirely.
+
+The BBF fixture now rejects reads of its native timer anchors. The old runtime
+reproduces the configuration failure with that constraint; the updated runtime
+passes all Retail/Forever, early/late BBF and color-precision replay combinations.
+Real-client placement still needs confirmation after reload.
+
+Inspected `live` `297d7aaaa736` then `forever` `bebcb6bf309c`:
+`SimpleScriptRegionResizingAPIDocumentation.lua` (GetPoint and SetPoint contracts).

@@ -1,0 +1,322 @@
+CLIENT 120105 BYTE_ROUNDED_COLOR False LATE_BBF False
+PASS all other supported clients return before accessing addon/native APIs
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS BBF player host uses native BuffTimers formatting
+PASS BBF present at startup prevents standalone aura-grid creation
+PASS BBF compatibility creates no competing aura containers
+PASS normal, important and hidden-filter groups receive BuffTimers formatting
+PASS BBF filters, skin and icon layout remain intact
+PASS target and player debuff timers are not overridden
+PASS BBF native enchant slots and separate imbue bindings both use BuffTimers
+PASS BBF timer format follows profile changes
+PASS detailed hover uses the native countdown channel and retains BBF's existing cooldown swipe
+PASS addon-owned display frames opt into required script restrictions
+PASS BBF buffs and imbues flash during combat through accessible regions
+PASS BBF detailed hover swaps compact/countdown text without a background during combat
+PASS leaving BBF hover restores compact text
+PASS addon-owned display frames opt into required script restrictions
+PASS new combat-allocated BBF buttons preserve the filter and original initialization callback
+PASS BBF weapon-enchant restyles during combat retain cached BuffTimers settings
+PASS BBF profile changes defer while aura access is restricted
+PASS BBF deferred styling applies after restrictions end
+PASS BBF restyling reapplies BuffTimers formatting and text options
+PASS disabling BuffTimers text customization restores BBF's font
+PASS disabling blinking restores full opacity on BBF buffs and weapon enchants
+PASS BuffTimers color options apply to BBF timers
+PASS BBF opt-out starts from an actively customized timer
+PASS opt-out restores BBF's native formatter, imbue binding and font
+PASS opt-out removes owned countdown channels and restores BBF countdown visibility
+PASS BBF integration can be re-enabled without creating duplicate aura grids
+PASS BetterBlizzFrames native-host compatibility replay
+CLIENT 120105 BYTE_ROUNDED_COLOR False LATE_BBF True
+PASS all other supported clients return before accessing addon/native APIs
+PASS container belongs to existing buff host
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS BBF player host uses native BuffTimers formatting
+PASS BBF compatibility creates no competing aura containers
+PASS late BBF ownership disables the standalone buff renderer
+PASS normal, important and hidden-filter groups receive BuffTimers formatting
+PASS BBF filters, skin and icon layout remain intact
+PASS target and player debuff timers are not overridden
+PASS BBF native enchant slots and separate imbue bindings both use BuffTimers
+PASS BBF timer format follows profile changes
+PASS detailed hover uses the native countdown channel and retains BBF's existing cooldown swipe
+PASS addon-owned display frames opt into required script restrictions
+PASS BBF buffs and imbues flash during combat through accessible regions
+PASS BBF detailed hover swaps compact/countdown text without a background during combat
+PASS leaving BBF hover restores compact text
+PASS addon-owned display frames opt into required script restrictions
+PASS new combat-allocated BBF buttons preserve the filter and original initialization callback
+PASS BBF weapon-enchant restyles during combat retain cached BuffTimers settings
+PASS BBF profile changes defer while aura access is restricted
+PASS BBF deferred styling applies after restrictions end
+PASS BBF restyling reapplies BuffTimers formatting and text options
+PASS disabling BuffTimers text customization restores BBF's font
+PASS disabling blinking restores full opacity on BBF buffs and weapon enchants
+PASS BuffTimers color options apply to BBF timers
+PASS BBF opt-out starts from an actively customized timer
+PASS opt-out restores BBF's native formatter, imbue binding and font
+PASS opt-out removes owned countdown channels and restores BBF countdown visibility
+PASS BBF integration can be re-enabled without creating duplicate aura grids
+PASS BetterBlizzFrames native-host compatibility replay
+CLIENT 120105 BYTE_ROUNDED_COLOR True LATE_BBF False
+PASS all other supported clients return before accessing addon/native APIs
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS BBF player host uses native BuffTimers formatting
+PASS BBF present at startup prevents standalone aura-grid creation
+PASS BBF compatibility creates no competing aura containers
+PASS normal, important and hidden-filter groups receive BuffTimers formatting
+PASS BBF filters, skin and icon layout remain intact
+PASS target and player debuff timers are not overridden
+PASS BBF native enchant slots and separate imbue bindings both use BuffTimers
+PASS BBF timer format follows profile changes
+PASS detailed hover uses the native countdown channel and retains BBF's existing cooldown swipe
+PASS addon-owned display frames opt into required script restrictions
+PASS BBF buffs and imbues flash during combat through accessible regions
+PASS BBF detailed hover swaps compact/countdown text without a background during combat
+PASS leaving BBF hover restores compact text
+PASS addon-owned display frames opt into required script restrictions
+PASS new combat-allocated BBF buttons preserve the filter and original initialization callback
+PASS BBF weapon-enchant restyles during combat retain cached BuffTimers settings
+PASS BBF profile changes defer while aura access is restricted
+PASS BBF deferred styling applies after restrictions end
+PASS BBF restyling reapplies BuffTimers formatting and text options
+PASS disabling BuffTimers text customization restores BBF's font
+PASS disabling blinking restores full opacity on BBF buffs and weapon enchants
+PASS BuffTimers color options apply to BBF timers
+PASS BBF opt-out starts from an actively customized timer
+PASS opt-out restores BBF's native formatter, imbue binding and font
+PASS opt-out removes owned countdown channels and restores BBF countdown visibility
+PASS BBF integration can be re-enabled without creating duplicate aura grids
+PASS BetterBlizzFrames native-host compatibility replay
+CLIENT 120105 BYTE_ROUNDED_COLOR True LATE_BBF True
+PASS all other supported clients return before accessing addon/native APIs
+PASS container belongs to existing buff host
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS BBF player host uses native BuffTimers formatting
+PASS BBF compatibility creates no competing aura containers
+PASS late BBF ownership disables the standalone buff renderer
+PASS normal, important and hidden-filter groups receive BuffTimers formatting
+PASS BBF filters, skin and icon layout remain intact
+PASS target and player debuff timers are not overridden
+PASS BBF native enchant slots and separate imbue bindings both use BuffTimers
+PASS BBF timer format follows profile changes
+PASS detailed hover uses the native countdown channel and retains BBF's existing cooldown swipe
+PASS addon-owned display frames opt into required script restrictions
+PASS BBF buffs and imbues flash during combat through accessible regions
+PASS BBF detailed hover swaps compact/countdown text without a background during combat
+PASS leaving BBF hover restores compact text
+PASS addon-owned display frames opt into required script restrictions
+PASS new combat-allocated BBF buttons preserve the filter and original initialization callback
+PASS BBF weapon-enchant restyles during combat retain cached BuffTimers settings
+PASS BBF profile changes defer while aura access is restricted
+PASS BBF deferred styling applies after restrictions end
+PASS BBF restyling reapplies BuffTimers formatting and text options
+PASS disabling BuffTimers text customization restores BBF's font
+PASS disabling blinking restores full opacity on BBF buffs and weapon enchants
+PASS BuffTimers color options apply to BBF timers
+PASS BBF opt-out starts from an actively customized timer
+PASS opt-out restores BBF's native formatter, imbue binding and font
+PASS opt-out removes owned countdown channels and restores BBF countdown visibility
+PASS BBF integration can be re-enabled without creating duplicate aura grids
+PASS BetterBlizzFrames native-host compatibility replay
+CLIENT 16001 BYTE_ROUNDED_COLOR False LATE_BBF False
+PASS all other supported clients return before accessing addon/native APIs
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS BBF player host uses native BuffTimers formatting
+PASS BBF present at startup prevents standalone aura-grid creation
+PASS BBF compatibility creates no competing aura containers
+PASS normal, important and hidden-filter groups receive BuffTimers formatting
+PASS BBF filters, skin and icon layout remain intact
+PASS target and player debuff timers are not overridden
+PASS BBF native enchant slots and separate imbue bindings both use BuffTimers
+PASS BBF timer format follows profile changes
+PASS detailed hover uses the native countdown channel and retains BBF's existing cooldown swipe
+PASS addon-owned display frames opt into required script restrictions
+PASS BBF buffs and imbues flash during combat through accessible regions
+PASS BBF detailed hover swaps compact/countdown text without a background during combat
+PASS leaving BBF hover restores compact text
+PASS addon-owned display frames opt into required script restrictions
+PASS new combat-allocated BBF buttons preserve the filter and original initialization callback
+PASS BBF weapon-enchant restyles during combat retain cached BuffTimers settings
+PASS BBF profile changes defer while aura access is restricted
+PASS BBF deferred styling applies after restrictions end
+PASS BBF restyling reapplies BuffTimers formatting and text options
+PASS disabling BuffTimers text customization restores BBF's font
+PASS disabling blinking restores full opacity on BBF buffs and weapon enchants
+PASS BuffTimers color options apply to BBF timers
+PASS BBF opt-out starts from an actively customized timer
+PASS opt-out restores BBF's native formatter, imbue binding and font
+PASS opt-out removes owned countdown channels and restores BBF countdown visibility
+PASS BBF integration can be re-enabled without creating duplicate aura grids
+PASS BetterBlizzFrames native-host compatibility replay
+CLIENT 16001 BYTE_ROUNDED_COLOR False LATE_BBF True
+PASS all other supported clients return before accessing addon/native APIs
+PASS container belongs to existing buff host
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS BBF player host uses native BuffTimers formatting
+PASS BBF compatibility creates no competing aura containers
+PASS late BBF ownership disables the standalone buff renderer
+PASS normal, important and hidden-filter groups receive BuffTimers formatting
+PASS BBF filters, skin and icon layout remain intact
+PASS target and player debuff timers are not overridden
+PASS BBF native enchant slots and separate imbue bindings both use BuffTimers
+PASS BBF timer format follows profile changes
+PASS detailed hover uses the native countdown channel and retains BBF's existing cooldown swipe
+PASS addon-owned display frames opt into required script restrictions
+PASS BBF buffs and imbues flash during combat through accessible regions
+PASS BBF detailed hover swaps compact/countdown text without a background during combat
+PASS leaving BBF hover restores compact text
+PASS addon-owned display frames opt into required script restrictions
+PASS new combat-allocated BBF buttons preserve the filter and original initialization callback
+PASS BBF weapon-enchant restyles during combat retain cached BuffTimers settings
+PASS BBF profile changes defer while aura access is restricted
+PASS BBF deferred styling applies after restrictions end
+PASS BBF restyling reapplies BuffTimers formatting and text options
+PASS disabling BuffTimers text customization restores BBF's font
+PASS disabling blinking restores full opacity on BBF buffs and weapon enchants
+PASS BuffTimers color options apply to BBF timers
+PASS BBF opt-out starts from an actively customized timer
+PASS opt-out restores BBF's native formatter, imbue binding and font
+PASS opt-out removes owned countdown channels and restores BBF countdown visibility
+PASS BBF integration can be re-enabled without creating duplicate aura grids
+PASS BetterBlizzFrames native-host compatibility replay
+CLIENT 16001 BYTE_ROUNDED_COLOR True LATE_BBF False
+PASS all other supported clients return before accessing addon/native APIs
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS BBF player host uses native BuffTimers formatting
+PASS BBF present at startup prevents standalone aura-grid creation
+PASS BBF compatibility creates no competing aura containers
+PASS normal, important and hidden-filter groups receive BuffTimers formatting
+PASS BBF filters, skin and icon layout remain intact
+PASS target and player debuff timers are not overridden
+PASS BBF native enchant slots and separate imbue bindings both use BuffTimers
+PASS BBF timer format follows profile changes
+PASS detailed hover uses the native countdown channel and retains BBF's existing cooldown swipe
+PASS addon-owned display frames opt into required script restrictions
+PASS BBF buffs and imbues flash during combat through accessible regions
+PASS BBF detailed hover swaps compact/countdown text without a background during combat
+PASS leaving BBF hover restores compact text
+PASS addon-owned display frames opt into required script restrictions
+PASS new combat-allocated BBF buttons preserve the filter and original initialization callback
+PASS BBF weapon-enchant restyles during combat retain cached BuffTimers settings
+PASS BBF profile changes defer while aura access is restricted
+PASS BBF deferred styling applies after restrictions end
+PASS BBF restyling reapplies BuffTimers formatting and text options
+PASS disabling BuffTimers text customization restores BBF's font
+PASS disabling blinking restores full opacity on BBF buffs and weapon enchants
+PASS BuffTimers color options apply to BBF timers
+PASS BBF opt-out starts from an actively customized timer
+PASS opt-out restores BBF's native formatter, imbue binding and font
+PASS opt-out removes owned countdown channels and restores BBF countdown visibility
+PASS BBF integration can be re-enabled without creating duplicate aura grids
+PASS BetterBlizzFrames native-host compatibility replay
+CLIENT 16001 BYTE_ROUNDED_COLOR True LATE_BBF True
+PASS all other supported clients return before accessing addon/native APIs
+PASS container belongs to existing buff host
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS addon-owned display frames opt into required script restrictions
+PASS BBF player host uses native BuffTimers formatting
+PASS BBF compatibility creates no competing aura containers
+PASS late BBF ownership disables the standalone buff renderer
+PASS normal, important and hidden-filter groups receive BuffTimers formatting
+PASS BBF filters, skin and icon layout remain intact
+PASS target and player debuff timers are not overridden
+PASS BBF native enchant slots and separate imbue bindings both use BuffTimers
+PASS BBF timer format follows profile changes
+PASS detailed hover uses the native countdown channel and retains BBF's existing cooldown swipe
+PASS addon-owned display frames opt into required script restrictions
+PASS BBF buffs and imbues flash during combat through accessible regions
+PASS BBF detailed hover swaps compact/countdown text without a background during combat
+PASS leaving BBF hover restores compact text
+PASS addon-owned display frames opt into required script restrictions
+PASS new combat-allocated BBF buttons preserve the filter and original initialization callback
+PASS BBF weapon-enchant restyles during combat retain cached BuffTimers settings
+PASS BBF profile changes defer while aura access is restricted
+PASS BBF deferred styling applies after restrictions end
+PASS BBF restyling reapplies BuffTimers formatting and text options
+PASS disabling BuffTimers text customization restores BBF's font
+PASS disabling blinking restores full opacity on BBF buffs and weapon enchants
+PASS BuffTimers color options apply to BBF timers
+PASS BBF opt-out starts from an actively customized timer
+PASS opt-out restores BBF's native formatter, imbue binding and font
+PASS opt-out removes owned countdown channels and restores BBF countdown visibility
+PASS BBF integration can be re-enabled without creating duplicate aura grids
+PASS BetterBlizzFrames native-host compatibility replay
