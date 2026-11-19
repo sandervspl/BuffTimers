@@ -38,6 +38,7 @@ if L then
     L["Native aura APIs are unavailable on this client. Using the existing renderer."] = true
     L["Native mode does not support gamepad navigation. Using the existing renderer."] = true
     L["Expand your buffs to use native mode. Using the existing renderer while buffs are collapsed."] = true
+    L["BlizzBuffsFacade skins Blizzard's buff buttons. Using the existing renderer so its skins stay visible."] = true
     L["Text"] = "Text"
     L["Font"] = "Font"
     L["Choose the font for the timer text"] = "Choose the font for the timer text"

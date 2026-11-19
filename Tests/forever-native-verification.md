@@ -530,3 +530,26 @@ Real-client placement still needs confirmation after reload.
 
 Inspected `live` `297d7aaaa736` then `forever` `bebcb6bf309c`:
 `SimpleScriptRegionResizingAPIDocumentation.lua` (GetPoint and SetPoint contracts).
+
+## BlizzBuffsFacade fallback
+
+BlizzBuffsFacade (Masque skinner for Blizzard buffs) hooks
+`BuffFrame:UpdateAuraButtons`, `UpdateGridLayout` and `OnEditModeEnter` and adds
+each entry of `BuffFrame.auraFrames` to its "Blizzard Buffs" Masque groups. The
+replacement renderer hides exactly those original buttons with alpha 0 and draws
+its own `CustomAuraContainerTemplate` buttons, which BlizzBuffsFacade never
+skins, so every Masque skin disappeared (CurseForge comment 8729287).
+
+While `C_AddOns.IsAddOnLoaded("BlizzBuffsFacade")` is true and BetterBlizzFrames
+does not own the player buff host, native mode now reports why and uses the
+existing renderer, the same way it handles gamepad navigation and collapsed buffs.
+BetterBlizzFrames keeps priority because native mode styles BBF's own buttons
+rather than hiding them. The replay checks fallback, message and resumption for
+every Retail/Forever and color-precision combination; the BBF replay output is
+unchanged. Combat timer formatting therefore follows the existing renderer while
+BlizzBuffsFacade is enabled. In-game confirmation with Masque skins is still needed.
+
+Inspected `live` `ab5cb850a3f6` then `forever` `3d8abb1da73a`:
+`Blizzard_APIDocumentationGenerated/AddOnsDocumentation.lua` (`IsAddOnLoaded`),
+`Blizzard_BuffFrame/BuffFrame.lua` (player buff order and `auraFrames`), and
+`Blizzard_AuraContainer/Blizzard_CustomAuraContainer.lua`.
