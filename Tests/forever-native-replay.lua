@@ -20,6 +20,8 @@ end
 check(true, "all other supported clients return before accessing addon/native APIs")
 
 local combat, showDurations, editing, expanded, gamepad = false, true, false, true, false
+local loadedAddOns = {}
+C_AddOns = { IsAddOnLoaded = function(name) return loadedAddOns[name] == true end }
 local aurasSecret = false
 local secretAccess = {}
 function issecretvalue(value) return value == secretAccess end
@@ -678,6 +680,14 @@ check(colors.coloredText.desc():find("Blizzard's colors", 1, true), "color optio
 gamepad = false
 ticker()
 check(root.enabled and legacy.alpha == 0, "mouse/keyboard navigation reactivates existing native container")
+loadedAddOns.BlizzBuffsFacade = true
+ticker()
+check(not root.enabled and legacy.alpha == 1 and legacy.mouse,
+    "BlizzBuffsFacade keeps Blizzard's Masque-skinned buttons visible and clickable")
+check(messages[#messages]:find("BlizzBuffsFacade", 1, true), "BlizzBuffsFacade fallback explains why the existing renderer is used")
+loadedAddOns.BlizzBuffsFacade = nil
+ticker()
+check(root.enabled and legacy.alpha == 0, "native mode resumes when BlizzBuffsFacade is not loaded")
 editing = true
 ticker()
 check(not root.enabled and legacy.alpha == 1, "Edit Mode restores Blizzard previews")

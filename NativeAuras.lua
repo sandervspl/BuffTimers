@@ -652,6 +652,11 @@ local function UpdateEnchantIcons()
 end
 
 local function UnsupportedReason()
+    -- BlizzBuffsFacade adds Blizzard's original BuffFrame.auraFrames to Masque.
+    -- Native mode hides those buttons, which would hide every Masque skin.
+    if C_AddOns and C_AddOns.IsAddOnLoaded and C_AddOns.IsAddOnLoaded("BlizzBuffsFacade") then
+        return "BlizzBuffsFacade skins Blizzard's buff buttons. Using the existing renderer so its skins stay visible."
+    end
     if InputUtil.IsGamepadUIEnabled() then
         return "Native mode does not support gamepad navigation. Using the existing renderer."
     end

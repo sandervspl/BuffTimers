@@ -188,6 +188,10 @@ BuffTimers: Native mode does not support gamepad navigation. Using the existing 
 PASS unsupported gamepad navigation restores original rendering and input
 PASS color option explains restrictions while the legacy renderer is active
 PASS mouse/keyboard navigation reactivates existing native container
+BuffTimers: BlizzBuffsFacade skins Blizzard's buff buttons. Using the existing renderer so its skins stay visible.
+PASS BlizzBuffsFacade keeps Blizzard's Masque-skinned buttons visible and clickable
+PASS BlizzBuffsFacade fallback explains why the existing renderer is used
+PASS native mode resumes when BlizzBuffsFacade is not loaded
 PASS Edit Mode restores Blizzard previews
 BuffTimers: Expand your buffs to use native mode. Using the existing renderer while buffs are collapsed.
 PASS collapsed view uses original rendering
@@ -395,6 +399,10 @@ BuffTimers: Native mode does not support gamepad navigation. Using the existing 
 PASS unsupported gamepad navigation restores original rendering and input
 PASS color option explains restrictions while the legacy renderer is active
 PASS mouse/keyboard navigation reactivates existing native container
+BuffTimers: BlizzBuffsFacade skins Blizzard's buff buttons. Using the existing renderer so its skins stay visible.
+PASS BlizzBuffsFacade keeps Blizzard's Masque-skinned buttons visible and clickable
+PASS BlizzBuffsFacade fallback explains why the existing renderer is used
+PASS native mode resumes when BlizzBuffsFacade is not loaded
 PASS Edit Mode restores Blizzard previews
 BuffTimers: Expand your buffs to use native mode. Using the existing renderer while buffs are collapsed.
 PASS collapsed view uses original rendering
@@ -615,10 +623,14 @@ BuffTimers: Native mode does not support gamepad navigation. Using the existing 
 PASS unsupported gamepad navigation restores original rendering and input
 PASS color option explains restrictions while the legacy renderer is active
 PASS mouse/keyboard navigation reactivates existing native container
+BuffTimers: BlizzBuffsFacade skins Blizzard's buff buttons. Using the existing renderer so its skins stay visible.
+PASS BlizzBuffsFacade keeps Blizzard's Masque-skinned buttons visible and clickable
+PASS BlizzBuffsFacade fallback explains why the existing renderer is used
+PASS native mode resumes when BlizzBuffsFacade is not loaded
 PASS Edit Mode restores Blizzard previews
 BuffTimers: Expand your buffs to use native mode. Using the existing renderer while buffs are collapsed.
 PASS collapsed view uses original rendering
-BuffTimers: Native mode stopped: [string "<python>"]:695: simulated enchant metadata failure
+BuffTimers: Native mode stopped: [string "<python>"]:705: simulated enchant metadata failure
 PASS an update failure disables the renderer before deferred cleanup and reports once
 PASS repeated restricted ticks do not rethrow cleanup errors or reveal duplicate original buffs
 PASS failed-renderer cleanup waits for post-combat aura restrictions
@@ -845,10 +857,14 @@ BuffTimers: Native mode does not support gamepad navigation. Using the existing 
 PASS unsupported gamepad navigation restores original rendering and input
 PASS color option explains restrictions while the legacy renderer is active
 PASS mouse/keyboard navigation reactivates existing native container
+BuffTimers: BlizzBuffsFacade skins Blizzard's buff buttons. Using the existing renderer so its skins stay visible.
+PASS BlizzBuffsFacade keeps Blizzard's Masque-skinned buttons visible and clickable
+PASS BlizzBuffsFacade fallback explains why the existing renderer is used
+PASS native mode resumes when BlizzBuffsFacade is not loaded
 PASS Edit Mode restores Blizzard previews
 BuffTimers: Expand your buffs to use native mode. Using the existing renderer while buffs are collapsed.
 PASS collapsed view uses original rendering
-BuffTimers: Native mode stopped: [string "<python>"]:695: simulated enchant metadata failure
+BuffTimers: Native mode stopped: [string "<python>"]:705: simulated enchant metadata failure
 PASS an update failure disables the renderer before deferred cleanup and reports once
 PASS repeated restricted ticks do not rethrow cleanup errors or reveal duplicate original buffs
 PASS failed-renderer cleanup waits for post-combat aura restrictions
